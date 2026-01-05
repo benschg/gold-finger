@@ -22,7 +22,14 @@ import { StatCard } from "./stat-card";
 import { ExpensePieChart } from "./expense-pie-chart";
 import { ExpenseBarChart } from "./expense-bar-chart";
 import { useAccounts } from "@/lib/hooks/use-accounts";
-import type { ExpenseWithDetails } from "@/types/database";
+import type { Tables } from "@/types/database.types";
+
+type Category = Tables<"categories">;
+type Tag = Tables<"tags">;
+type ExpenseWithDetails = Tables<"expenses"> & {
+  category?: Category | null;
+  tags?: Tag[];
+};
 
 interface DashboardContentProps {
   displayName: string;

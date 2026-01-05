@@ -15,7 +15,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { Account } from "@/types/database";
+import type { Tables } from "@/types/database.types";
+
+type Account = Tables<"accounts">;
 
 interface AccountWithRole extends Account {
   role: "owner" | "member";
@@ -34,7 +36,7 @@ export function AccountCard({ account, onDelete, onManage }: AccountCardProps) {
         <CardTitle className="flex items-center gap-2 text-lg font-medium">
           <span
             className="flex h-8 w-8 items-center justify-center rounded-full text-white text-sm"
-            style={{ backgroundColor: account.color }}
+            style={{ backgroundColor: account.color ?? "#6366f1" }}
           >
             {account.name.charAt(0).toUpperCase()}
           </span>

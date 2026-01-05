@@ -19,7 +19,7 @@ export default async function SettingsPage() {
   } = await supabase.auth.getUser();
 
   // Get profile
-  const { data: profile } = await supabase
+  const { data: profileData } = await supabase
     .from("profiles")
     .select("preferred_currency, theme")
     .eq("id", user?.id || "")
@@ -28,6 +28,12 @@ export default async function SettingsPage() {
   if (!user) {
     return null;
   }
+
+  // Transform profile data: convert null to undefined for cleaner types
+  const profile = profileData ? {
+    preferred_currency: profileData.preferred_currency ?? undefined,
+    theme: (profileData.theme as "light" | "dark" | "system") ?? undefined,
+  } : undefined;
 
   return (
     <div className="space-y-6">

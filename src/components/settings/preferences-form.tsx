@@ -15,7 +15,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createClient } from "@/lib/supabase/client";
-import type { Currency } from "@/types/database";
+
+type Currency = string;
 
 const currencies: { value: Currency; label: string }[] = [
   { value: "EUR", label: "Euro (€)" },

@@ -12,7 +12,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { Category } from "@/types/database";
+import type { Tables } from "@/types/database.types";
+
+type Category = Tables<"categories">;
 
 const categoryIcons = [
   "shopping-cart",

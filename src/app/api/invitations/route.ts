@@ -10,7 +10,7 @@ export async function GET() {
     error: userError,
   } = await supabase.auth.getUser();
 
-  if (userError || !user) {
+  if (userError || !user || !user.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -23,7 +23,8 @@ export async function GET() {
       account:accounts(id, name, icon, color)
     `
     )
-    .eq("email", user.email?.toLowerCase())
+    .eq("invitee_email", user.email?.toLowerCase())
+    .eq("status", "pending")
     .gt("expires_at", new Date().toISOString())
     .order("created_at", { ascending: false });
 

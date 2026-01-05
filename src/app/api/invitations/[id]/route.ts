@@ -30,7 +30,7 @@ export async function POST(
   }
 
   // Verify the invitation is for this user
-  if (invitation.email.toLowerCase() !== user.email?.toLowerCase()) {
+  if (invitation.invitee_email.toLowerCase() !== user.email?.toLowerCase()) {
     return NextResponse.json(
       { error: "This invitation is not for you" },
       { status: 403 }
@@ -38,7 +38,7 @@ export async function POST(
   }
 
   // Check if expired
-  if (new Date(invitation.expires_at) < new Date()) {
+  if (invitation.expires_at && new Date(invitation.expires_at) < new Date()) {
     return NextResponse.json(
       { error: "Invitation has expired" },
       { status: 400 }
@@ -127,7 +127,7 @@ export async function DELETE(
   }
 
   // Verify the invitation is for this user OR user is account owner
-  const isRecipient = invitation.email.toLowerCase() === user.email?.toLowerCase();
+  const isRecipient = invitation.invitee_email.toLowerCase() === user.email?.toLowerCase();
 
   let isOwner = false;
   if (!isRecipient) {

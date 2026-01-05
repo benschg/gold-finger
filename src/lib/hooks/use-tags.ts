@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { Tag } from "@/types/database";
+import type { Tables } from "@/types/database.types";
+
+type Tag = Tables<"tags">;
 
 export function useTags(accountId: string | null) {
   const [tags, setTags] = useState<Tag[]>([]);
