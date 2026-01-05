@@ -15,18 +15,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createClient } from "@/lib/supabase/client";
-
-type Currency = string;
-
-const currencies: { value: Currency; label: string }[] = [
-  { value: "EUR", label: "Euro (€)" },
-  { value: "USD", label: "US Dollar ($)" },
-  { value: "GBP", label: "British Pound (£)" },
-  { value: "CHF", label: "Swiss Franc (CHF)" },
-  { value: "JPY", label: "Japanese Yen (¥)" },
-  { value: "CAD", label: "Canadian Dollar (C$)" },
-  { value: "AUD", label: "Australian Dollar (A$)" },
-];
+import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/constants";
+import type { Currency } from "@/types/database";
 
 interface PreferencesFormProps {
   profile?: {
@@ -39,7 +29,7 @@ export function PreferencesForm({ profile }: PreferencesFormProps) {
   const router = useRouter();
   const { theme: currentTheme, setTheme } = useTheme();
   const [currency, setCurrency] = useState<Currency>(
-    profile?.preferred_currency || "EUR"
+    profile?.preferred_currency || DEFAULT_CURRENCY
   );
   const [selectedTheme, setSelectedTheme] = useState(
     profile?.theme || currentTheme || "system"
@@ -96,9 +86,9 @@ export function PreferencesForm({ profile }: PreferencesFormProps) {
             <SelectValue placeholder="Select currency" />
           </SelectTrigger>
           <SelectContent>
-            {currencies.map((c) => (
-              <SelectItem key={c.value} value={c.value}>
-                {c.label}
+            {CURRENCIES.map((c) => (
+              <SelectItem key={c.code} value={c.code}>
+                {c.symbol} {c.label}
               </SelectItem>
             ))}
           </SelectContent>

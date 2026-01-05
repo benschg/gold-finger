@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import type { Currency } from "@/types/database";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   SettingsCategoriesTags,
@@ -31,7 +32,7 @@ export default async function SettingsPage() {
 
   // Transform profile data: convert null to undefined for cleaner types
   const profile = profileData ? {
-    preferred_currency: profileData.preferred_currency ?? undefined,
+    preferred_currency: (profileData.preferred_currency as Currency) ?? undefined,
     theme: (profileData.theme as "light" | "dark" | "system") ?? undefined,
   } : undefined;
 

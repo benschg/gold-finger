@@ -16,6 +16,7 @@ export interface Account {
   name: string;
   icon: string;
   color: string;
+  currency: Currency;
   created_at: string;
   updated_at: string;
 }
@@ -139,4 +140,5 @@ export interface CreateAccountInput {
   name: string;
   icon?: string;
   color?: string;
+  currency?: Currency;
 }

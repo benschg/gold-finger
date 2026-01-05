@@ -71,6 +71,7 @@ export async function POST(request: Request) {
       name: body.name,
       icon: body.icon || "wallet",
       color: body.color || "#6366f1",
+      currency: body.currency || "EUR",
     })
     .select()
     .single();

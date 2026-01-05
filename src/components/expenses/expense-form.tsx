@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ReceiptUpload } from "./receipt-upload";
+import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/constants";
 import type { Tables } from "@/types/database.types";
 
 type Category = Tables<"categories">;
@@ -26,16 +27,6 @@ type ExpenseWithDetails = Tables<"expenses"> & {
   category?: Category | null;
   tags?: Tag[];
 };
-
-const currencies = [
-  { value: "EUR", label: "Euro", symbol: "€" },
-  { value: "USD", label: "US Dollar", symbol: "$" },
-  { value: "GBP", label: "British Pound", symbol: "£" },
-  { value: "CHF", label: "Swiss Franc", symbol: "CHF" },
-  { value: "JPY", label: "Japanese Yen", symbol: "¥" },
-  { value: "CAD", label: "Canadian Dollar", symbol: "C$" },
-  { value: "AUD", label: "Australian Dollar", symbol: "A$" },
-];
 
 const expenseSchema = z.object({
   amount: z.number().positive("Amount must be positive"),
@@ -83,7 +74,7 @@ export function ExpenseForm({
     resolver: zodResolver(expenseSchema),
     defaultValues: {
       amount: expense?.amount || undefined,
-      currency: expense?.currency || "EUR",
+      currency: expense?.currency || DEFAULT_CURRENCY,
       description: expense?.description || "",
       date: expense?.date || format(new Date(), "yyyy-MM-dd"),
       category_id: expense?.category_id || undefined,
@@ -143,7 +134,7 @@ export function ExpenseForm({
     if (data.amount) {
       setValue("amount", data.amount);
     }
-    if (data.currency && currencies.some((c) => c.value === data.currency)) {
+    if (data.currency && CURRENCIES.some((c) => c.code === data.currency)) {
       setValue("currency", data.currency);
     }
     if (data.date) {
@@ -192,7 +183,7 @@ export function ExpenseForm({
           <Label htmlFor="amount">Amount</Label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-              {currencies.find((c) => c.value === selectedCurrency)?.symbol}
+              {CURRENCIES.find((c) => c.code === selectedCurrency)?.symbol}
             </span>
             <Input
               id="amount"
@@ -211,16 +202,16 @@ export function ExpenseForm({
         <div className="space-y-2">
           <Label htmlFor="currency">Currency</Label>
           <Select
-            defaultValue={expense?.currency || "EUR"}
+            defaultValue={expense?.currency || DEFAULT_CURRENCY}
             onValueChange={(value) => setValue("currency", value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select currency" />
             </SelectTrigger>
             <SelectContent>
-              {currencies.map((currency) => (
-                <SelectItem key={currency.value} value={currency.value}>
-                  {currency.symbol} {currency.label}
+              {CURRENCIES.map((c) => (
+                <SelectItem key={c.code} value={c.code}>
+                  {c.symbol} {c.label}
                 </SelectItem>
               ))}
             </SelectContent>

@@ -1,5 +1,6 @@
 export { AccountCard } from "./account-card";
 export { CreateAccountDialog } from "./create-account-dialog";
+export { ManageAccountDialog } from "./manage-account-dialog";
 export { AccountSwitcher } from "./account-switcher";
 export { MemberList } from "./member-list";
 export { InviteForm } from "./invite-form";

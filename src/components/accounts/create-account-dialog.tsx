@@ -12,6 +12,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/constants";
+import type { Currency } from "@/types/database";
 
 const accountColors = [
   "#6366f1",
@@ -40,6 +49,7 @@ export function CreateAccountDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState("");
   const [color, setColor] = useState(accountColors[0]);
+  const [currency, setCurrency] = useState<Currency>(DEFAULT_CURRENCY);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,12 +64,14 @@ export function CreateAccountDialog({
           name: name.trim(),
           color,
           icon: "wallet",
+          currency,
         }),
       });
 
       if (response.ok) {
         setName("");
         setColor(accountColors[0]);
+        setCurrency(DEFAULT_CURRENCY);
         onOpenChange(false);
         onSuccess?.();
       }
@@ -86,6 +98,22 @@ export function CreateAccountDialog({
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Personal, Household, Work"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="account-currency">Default Currency</Label>
+            <Select value={currency} onValueChange={(v) => setCurrency(v as Currency)}>
+              <SelectTrigger id="account-currency">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {CURRENCIES.map((c) => (
+                  <SelectItem key={c.code} value={c.code}>
+                    {c.symbol} {c.label} ({c.code})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
