@@ -16,6 +16,7 @@ import { User, Settings, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { DevTools } from "./dev-tools";
+import { MobileSidebar } from "./sidebar";
 
 export function Header() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
@@ -40,12 +41,13 @@ export function Header() {
     : "??";
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background px-6">
-      <div>
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background px-4 md:px-6">
+      <div className="flex items-center gap-2">
+        <MobileSidebar />
         {/* Breadcrumb or page title can go here */}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         <DevTools />
         <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -56,7 +58,7 @@ export function Header() {
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuContent className="w-48 sm:w-56" align="end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">

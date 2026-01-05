@@ -174,21 +174,22 @@ export function CategoryManager({
           categories.map((category) => (
             <div
               key={category.id}
-              className="flex items-center justify-between rounded-lg border p-3"
+              className="flex items-center justify-between rounded-lg border p-2 sm:p-3"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                 <div
-                  className="flex h-8 w-8 items-center justify-center rounded-full text-white"
+                  className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full text-white shrink-0"
                   style={{ backgroundColor: category.color }}
                 >
                   <span className="text-xs">{category.icon.charAt(0).toUpperCase()}</span>
                 </div>
-                <span className="font-medium">{category.name}</span>
+                <span className="font-medium text-sm sm:text-base truncate">{category.name}</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2 shrink-0">
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="h-8 w-8"
                   onClick={() => handleOpenDialog(category)}
                 >
                   <Pencil className="h-4 w-4" />
@@ -196,6 +197,7 @@ export function CategoryManager({
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="h-8 w-8"
                   onClick={() => handleDelete(category)}
                 >
                   <Trash2 className="h-4 w-4 text-destructive" />
@@ -207,7 +209,7 @@ export function CategoryManager({
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
               {editingCategory ? "Edit Category" : "Add Category"}
@@ -227,13 +229,13 @@ export function CategoryManager({
 
             <div className="space-y-2">
               <Label>Icon</Label>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-8 gap-2">
                 {categoryIcons.map((iconName) => (
                   <button
                     key={iconName}
                     type="button"
                     onClick={() => setIcon(iconName)}
-                    className={`flex h-10 w-10 items-center justify-center rounded-lg border text-sm ${
+                    className={`flex h-9 w-full items-center justify-center rounded-lg border text-sm ${
                       icon === iconName
                         ? "border-primary bg-primary/10"
                         : "hover:bg-muted"
@@ -247,13 +249,13 @@ export function CategoryManager({
 
             <div className="space-y-2">
               <Label>Color</Label>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-6 gap-2">
                 {categoryColors.map((colorValue) => (
                   <button
                     key={colorValue}
                     type="button"
                     onClick={() => setColor(colorValue)}
-                    className={`h-8 w-8 rounded-full ${
+                    className={`h-8 w-full rounded-full ${
                       color === colorValue ? "ring-2 ring-primary ring-offset-2" : ""
                     }`}
                     style={{ backgroundColor: colorValue }}

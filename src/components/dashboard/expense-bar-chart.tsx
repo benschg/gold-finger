@@ -32,7 +32,7 @@ export function ExpenseBarChart({
           <CardTitle className="text-lg">{title}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex h-[300px] items-center justify-center text-muted-foreground">
+          <div className="flex h-[250px] sm:h-[300px] items-center justify-center text-muted-foreground">
             No data to display
           </div>
         </CardContent>
@@ -46,18 +46,22 @@ export function ExpenseBarChart({
         <CardTitle className="text-lg">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px]">
+        <div className="h-[250px] sm:h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis
                 dataKey="month"
-                className="text-xs"
-                tick={{ fill: "hsl(var(--muted-foreground))" }}
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: "hsl(var(--foreground))" }}
               />
               <YAxis
-                className="text-xs"
-                tick={{ fill: "hsl(var(--muted-foreground))" }}
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: "hsl(var(--foreground))" }}
                 tickFormatter={(value) => `€${value}`}
               />
               <Tooltip
@@ -73,10 +77,11 @@ export function ExpenseBarChart({
                   border: "1px solid hsl(var(--border))",
                   borderRadius: "8px",
                 }}
+                labelStyle={{ color: "hsl(var(--foreground))" }}
               />
               <Bar
                 dataKey="amount"
-                fill="hsl(var(--primary))"
+                fill="hsl(var(--chart-1))"
                 radius={[4, 4, 0, 0]}
               />
             </BarChart>

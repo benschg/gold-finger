@@ -30,6 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 import type { Tables } from "@/types/database.types";
 
 type Category = Tables<"categories">;
@@ -53,6 +54,92 @@ interface ExpenseTableProps {
   expenses: ExpenseWithDetails[];
   onEdit?: (expense: ExpenseWithDetails) => void;
   onDelete?: (expense: ExpenseWithDetails) => void;
+}
+
+// Mobile card component for individual expense
+function ExpenseCard({
+  expense,
+  onEdit,
+  onDelete,
+}: {
+  expense: ExpenseWithDetails;
+  onEdit?: (expense: ExpenseWithDetails) => void;
+  onDelete?: (expense: ExpenseWithDetails) => void;
+}) {
+  const symbol = currencySymbols[expense.currency] || expense.currency;
+  const category = expense.category;
+  const tags = expense.tags || [];
+
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-sm text-muted-foreground">
+                {format(new Date(expense.date), "MMM d, yyyy")}
+              </span>
+              {category && (
+                <span className="flex items-center gap-1 text-xs">
+                  <span
+                    className="h-2 w-2 rounded-full"
+                    style={{ backgroundColor: category.color ?? "#6366f1" }}
+                  />
+                  {category.name}
+                </span>
+              )}
+            </div>
+            <p className="font-medium truncate">
+              {expense.description || "No description"}
+            </p>
+            {tags.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {tags.map((tag) => (
+                  <span
+                    key={tag.id}
+                    className="rounded-full px-2 py-0.5 text-xs text-white"
+                    style={{ backgroundColor: tag.color ?? "#6366f1" }}
+                  >
+                    {tag.name}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold whitespace-nowrap">
+              {symbol}
+              {expense.amount.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                  <MoreHorizontal className="h-4 w-4" />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onEdit?.(expense)}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => onDelete?.(expense)}
+                  className="text-destructive"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
 export function ExpenseTable({ expenses, onEdit, onDelete }: ExpenseTableProps) {
@@ -202,16 +289,38 @@ export function ExpenseTable({ expenses, onEdit, onDelete }: ExpenseTableProps) 
     },
   });
 
+  // Get filtered/sorted data for mobile view
+  const displayedRows = table.getRowModel().rows;
+
   return (
     <div className="space-y-4">
       <Input
         placeholder="Search expenses..."
         value={globalFilter}
         onChange={(e) => setGlobalFilter(e.target.value)}
-        className="max-w-sm"
+        className="max-w-full sm:max-w-sm"
       />
 
-      <div className="rounded-md border">
+      {/* Mobile Card View */}
+      <div className="space-y-3 md:hidden">
+        {displayedRows.length ? (
+          displayedRows.map((row) => (
+            <ExpenseCard
+              key={row.id}
+              expense={row.original}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          ))
+        ) : (
+          <p className="py-8 text-center text-muted-foreground">
+            No expenses found.
+          </p>
+        )}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden md:block rounded-md border overflow-x-auto">
         <table className="w-full">
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -233,8 +342,8 @@ export function ExpenseTable({ expenses, onEdit, onDelete }: ExpenseTableProps) 
             ))}
           </thead>
           <tbody>
-            {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
+            {displayedRows.length ? (
+              displayedRows.map((row) => (
                 <tr key={row.id} className="border-b last:border-0">
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="px-4 py-3 text-sm">
@@ -260,8 +369,9 @@ export function ExpenseTable({ expenses, onEdit, onDelete }: ExpenseTableProps) 
         </table>
       </div>
 
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
+      {/* Pagination */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p className="text-sm text-muted-foreground text-center sm:text-left">
           Showing {table.getState().pagination.pageIndex * 10 + 1} to{" "}
           {Math.min(
             (table.getState().pagination.pageIndex + 1) * 10,
@@ -277,7 +387,7 @@ export function ExpenseTable({ expenses, onEdit, onDelete }: ExpenseTableProps) 
             disabled={!table.getCanPreviousPage()}
           >
             <ChevronLeft className="h-4 w-4" />
-            Previous
+            <span className="hidden sm:inline ml-1">Previous</span>
           </Button>
           <Button
             variant="outline"
@@ -285,7 +395,7 @@ export function ExpenseTable({ expenses, onEdit, onDelete }: ExpenseTableProps) 
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            Next
+            <span className="hidden sm:inline mr-1">Next</span>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>

@@ -149,8 +149,8 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Welcome back, {displayName}!</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-xl sm:text-2xl font-bold">Welcome back, {displayName}!</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Here&apos;s an overview of your expenses
           </p>
         </div>
@@ -160,7 +160,7 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
             value={selectedAccountId || ""}
             onValueChange={setSelectedAccountId}
           >
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-full sm:w-48">
               <SelectValue placeholder="Select account" />
             </SelectTrigger>
             <SelectContent>
@@ -181,7 +181,7 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
       ) : (
         <>
           {/* Stats Cards */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             <StatCard
               title="Total Expenses"
               value={`€${totalExpenses.toLocaleString(undefined, {
@@ -215,7 +215,7 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
           </div>
 
           {/* Charts */}
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-2">
             <ExpenseBarChart data={monthlyData} title="Monthly Expenses" />
             <ExpensePieChart data={categoryData} title="This Month by Category" />
           </div>
@@ -235,26 +235,26 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
                   {recentExpenses.map((expense) => (
                     <div
                       key={expense.id}
-                      className="flex items-center justify-between border-b pb-3 last:border-0"
+                      className="flex items-start sm:items-center justify-between gap-2 border-b pb-3 last:border-0"
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-start sm:items-center gap-2 sm:gap-3 min-w-0">
                         {expense.category && (
                           <div
-                            className="h-8 w-8 rounded-full"
+                            className="h-6 w-6 sm:h-8 sm:w-8 rounded-full shrink-0"
                             style={{ backgroundColor: expense.category.color }}
                           />
                         )}
-                        <div>
-                          <p className="font-medium">
+                        <div className="min-w-0">
+                          <p className="font-medium text-sm sm:text-base truncate">
                             {expense.description || "No description"}
                           </p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             {expense.category?.name || "Uncategorized"} •{" "}
-                            {format(new Date(expense.date), "MMM d, yyyy")}
+                            {format(new Date(expense.date), "MMM d")}
                           </p>
                         </div>
                       </div>
-                      <span className="font-medium">
+                      <span className="font-medium text-sm sm:text-base whitespace-nowrap">
                         €
                         {expense.amount.toLocaleString(undefined, {
                           minimumFractionDigits: 2,
