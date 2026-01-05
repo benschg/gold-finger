@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Receipt, PieChart, Users } from "lucide-react";
+import { HeroFingerAnimation } from "./hero-finger-animation";
 
 export function HeroSection() {
   return (
     <section className="container py-24 md:py-32">
       <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
+        <HeroFingerAnimation />
+
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
           Track expenses with{" "}
           <span className="text-yellow-500">golden precision</span>
