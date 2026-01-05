@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SettingsCategoriesTags } from "@/components/settings";
 
 export const metadata = {
   title: "Settings | Gold-Finger",
@@ -118,6 +119,9 @@ export default async function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Categories & Tags */}
+        <SettingsCategoriesTags />
       </div>
     </div>
   );
