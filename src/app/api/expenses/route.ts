@@ -127,6 +127,7 @@ export async function POST(request: Request) {
       description: body.description || null,
       date: body.date,
       category_id: body.category_id || null,
+      receipt_url: body.receipt_url || null,
     })
     .select()
     .single();

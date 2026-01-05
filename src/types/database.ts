@@ -109,6 +109,7 @@ export interface CreateExpenseInput {
   date: string;
   category_id?: string;
   tag_ids?: string[];
+  receipt_url?: string | null;
 }
 
 export interface UpdateExpenseInput {
@@ -118,6 +119,7 @@ export interface UpdateExpenseInput {
   date?: string;
   category_id?: string | null;
   tag_ids?: string[];
+  receipt_url?: string | null;
 }
 
 export interface CreateCategoryInput {
