@@ -77,6 +77,7 @@ export async function PUT(
   if (body.description !== undefined) updateData.description = body.description;
   if (body.date !== undefined) updateData.date = body.date;
   if (body.category_id !== undefined) updateData.category_id = body.category_id;
+  if (body.receipt_url !== undefined) updateData.receipt_url = body.receipt_url;
 
   // Update expense
   const { data: expense, error } = await supabase

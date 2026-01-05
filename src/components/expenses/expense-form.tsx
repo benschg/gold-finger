@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { CalendarIcon, Loader2, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ReceiptUpload } from "./receipt-upload";
 import type { Category, Tag, Currency, ExpenseWithDetails } from "@/types/database";
 
 const currencies: { value: Currency; label: string; symbol: string }[] = [
@@ -60,6 +61,10 @@ export function ExpenseForm({
   const [selectedTags, setSelectedTags] = useState<string[]>(
     expense?.tags?.map((t) => t.id) || []
   );
+  const [receiptUrl, setReceiptUrl] = useState<string | null>(
+    expense?.receipt_url || null
+  );
+  const [aiAutoFilled, setAiAutoFilled] = useState(false);
 
   const {
     register,
@@ -94,6 +99,7 @@ export function ExpenseForm({
           account_id: accountId,
           tag_ids: selectedTags,
           category_id: data.category_id || null,
+          receipt_url: receiptUrl,
         }),
       });
 
@@ -118,8 +124,62 @@ export function ExpenseForm({
     );
   };
 
+  const handleReceiptAnalysis = (data: {
+    amount?: number;
+    currency?: string;
+    date?: string;
+    description?: string;
+    merchant?: string;
+    category?: string;
+  }) => {
+    // Auto-fill form with AI-extracted data
+    if (data.amount) {
+      setValue("amount", data.amount);
+    }
+    if (data.currency && currencies.some((c) => c.value === data.currency)) {
+      setValue("currency", data.currency);
+    }
+    if (data.date) {
+      setValue("date", data.date);
+    }
+    if (data.description || data.merchant) {
+      const desc = data.merchant
+        ? data.description
+          ? `${data.merchant} - ${data.description}`
+          : data.merchant
+        : data.description;
+      if (desc) setValue("description", desc);
+    }
+    // Try to match category by name
+    if (data.category) {
+      const matchedCategory = categories.find(
+        (c) => c.name.toLowerCase() === data.category?.toLowerCase()
+      );
+      if (matchedCategory) {
+        setValue("category_id", matchedCategory.id);
+      }
+    }
+    setAiAutoFilled(true);
+  };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {/* Receipt Upload */}
+      <div className="space-y-2">
+        <Label>Receipt (optional)</Label>
+        <ReceiptUpload
+          existingUrl={expense?.receipt_url || undefined}
+          onUploadComplete={(url) => setReceiptUrl(url)}
+          onAnalysisComplete={handleReceiptAnalysis}
+        />
+        {aiAutoFilled && (
+          <div className="flex items-center gap-2 text-sm text-primary">
+            <Sparkles className="h-4 w-4" />
+            Form auto-filled from receipt
+          </div>
+        )}
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="amount">Amount</Label>
