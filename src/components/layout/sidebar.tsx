@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
@@ -8,7 +9,6 @@ import {
   Receipt,
   Users,
   Settings,
-  Wallet,
   LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -55,7 +55,7 @@ export function Sidebar() {
         {/* Logo */}
         <div className="flex h-16 items-center border-b px-6">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <Wallet className="h-6 w-6 text-primary" />
+            <Image src="/gold-finger.svg" alt="Gold-Finger" width={24} height={24} />
             <span className="text-xl font-bold">Gold-Finger</span>
           </Link>
         </div>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Coins } from "lucide-react";
+import Image from "next/image";
 
 export function MarketingFooter() {
   return (
@@ -7,7 +7,7 @@ export function MarketingFooter() {
       <div className="container">
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
           <Link href="/" className="flex items-center gap-2">
-            <Coins className="h-5 w-5 text-yellow-500" />
+            <Image src="/gold-finger.svg" alt="Gold-Finger" width={20} height={20} />
             <span className="font-semibold">Gold-Finger</span>
           </Link>
 
