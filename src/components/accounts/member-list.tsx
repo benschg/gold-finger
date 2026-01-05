@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Crown, MoreVertical, UserMinus, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,7 @@ export function MemberList({
 
   const handleRemoveMember = async (userId: string) => {
     setIsRemoving(userId);
+    const isLeavingAccount = userId === currentUserId;
     try {
       const response = await fetch(
         `/api/accounts/${accountId}/members?user_id=${userId}`,
@@ -64,12 +66,13 @@ export function MemberList({
       if (response.ok) {
         onMemberRemoved?.();
         router.refresh();
+        toast.success(isLeavingAccount ? "You have left the account" : "Member removed");
       } else {
         const error = await response.json();
-        alert(error.error || "Failed to remove member");
+        toast.error(error.error || "Failed to remove member");
       }
     } catch {
-      alert("Failed to remove member");
+      toast.error("Failed to remove member");
     } finally {
       setIsRemoving(null);
       setMemberToRemove(null);

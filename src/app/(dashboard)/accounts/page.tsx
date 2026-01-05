@@ -5,6 +5,16 @@ import { Plus, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { AccountCard, CreateAccountDialog } from "@/components/accounts";
 import { useAccounts } from "@/lib/hooks/use-accounts";
 import type { Tables } from "@/types/database.types";
@@ -17,13 +27,18 @@ interface AccountWithRole extends Account {
 
 export default function AccountsPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [accountToDelete, setAccountToDelete] = useState<AccountWithRole | null>(null);
   const { accounts, isLoading, refetch } = useAccounts();
 
-  const handleDeleteAccount = async (account: AccountWithRole) => {
-    if (!confirm(`Are you sure you want to delete "${account.name}"?`)) return;
+  const handleDeleteAccount = (account: AccountWithRole) => {
+    setAccountToDelete(account);
+  };
+
+  const confirmDeleteAccount = async () => {
+    if (!accountToDelete) return;
 
     try {
-      const response = await fetch(`/api/accounts/${account.id}`, {
+      const response = await fetch(`/api/accounts/${accountToDelete.id}`, {
         method: "DELETE",
       });
 
@@ -32,6 +47,8 @@ export default function AccountsPage() {
       }
     } catch (error) {
       console.error("Error deleting account:", error);
+    } finally {
+      setAccountToDelete(null);
     }
   };
 
@@ -86,6 +103,31 @@ export default function AccountsPage() {
         onOpenChange={setIsCreateOpen}
         onSuccess={refetch}
       />
+
+      <AlertDialog
+        open={!!accountToDelete}
+        onOpenChange={() => setAccountToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete account?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete &quot;{accountToDelete?.name}&quot;? This will
+              permanently delete all expenses and data associated with this account.
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteAccount}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -11,6 +11,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -38,6 +48,8 @@ export default function ExpensesPage() {
   const [isLoadingExpenses, setIsLoadingExpenses] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingExpense, setEditingExpense] =
+    useState<ExpenseWithDetails | null>(null);
+  const [expenseToDelete, setExpenseToDelete] =
     useState<ExpenseWithDetails | null>(null);
 
   const { accounts, isLoading: isLoadingAccounts } = useAccounts();
@@ -85,11 +97,15 @@ export default function ExpensesPage() {
     setIsDialogOpen(true);
   };
 
-  const handleDeleteExpense = async (expense: ExpenseWithDetails) => {
-    if (!confirm("Are you sure you want to delete this expense?")) return;
+  const handleDeleteExpense = (expense: ExpenseWithDetails) => {
+    setExpenseToDelete(expense);
+  };
+
+  const confirmDeleteExpense = async () => {
+    if (!expenseToDelete) return;
 
     try {
-      const response = await fetch(`/api/expenses/${expense.id}`, {
+      const response = await fetch(`/api/expenses/${expenseToDelete.id}`, {
         method: "DELETE",
       });
 
@@ -98,6 +114,8 @@ export default function ExpensesPage() {
       }
     } catch (error) {
       console.error("Error deleting expense:", error);
+    } finally {
+      setExpenseToDelete(null);
     }
   };
 
@@ -193,6 +211,30 @@ export default function ExpensesPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog
+        open={!!expenseToDelete}
+        onOpenChange={() => setExpenseToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete expense?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this expense? This action cannot be
+              undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteExpense}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
