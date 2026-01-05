@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gold-Finger
+
+A modern expense tracking application built with Next.js, Supabase, and AI-powered receipt analysis.
+
+## Features
+
+- **Expense Management**: Track spending with categories, tags, and receipt uploads
+- **Multi-Currency Support**: Store expenses in any currency with automatic conversion
+- **Shared Accounts**: Create private or shared accounts with partners/family
+- **AI Receipt Analysis**: Upload receipts and automatically extract expense data using Google Gemini
+- **Interactive Dashboard**: Visualize spending with charts and cross-filtering
+- **OTP Authentication**: Secure passwordless login via Supabase
+
+## Tech Stack
+
+- **Frontend**: Next.js 16, TypeScript, Tailwind CSS 4
+- **UI Components**: shadcn/ui, Lucide Icons, Recharts
+- **Backend**: Next.js API Routes, Supabase
+- **Database**: PostgreSQL (Supabase)
+- **Authentication**: Supabase Auth (OTP/Magic Link)
+- **AI**: Google Gemini API
+- **Package Manager**: Bun
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- [Bun](https://bun.sh/) >= 1.0
+- [Supabase](https://supabase.com/) account
+- [Google AI](https://ai.google.dev/) API key
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/gold-finger.git
+   cd gold-finger
+   ```
+
+2. Install dependencies:
+   ```bash
+   bun install
+   ```
+
+3. Set up environment variables:
+   ```bash
+   cp .env.example .env.local
+   ```
+   Edit `.env.local` with your configuration.
+
+4. Run database migrations:
+   ```bash
+   bun run db:migrate
+   ```
+
+5. Start the development server:
+   ```bash
+   bun dev
+   ```
+
+6. Open [http://localhost:3000](http://localhost:3000)
+
+### Docker Development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+docker-compose -f docker-compose.dev.yml up
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Project Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── (marketing)/        # Public marketing pages
+│   ├── (auth)/             # Authentication pages
+│   ├── (dashboard)/        # Protected dashboard
+│   └── api/                # API routes
+├── components/
+│   ├── ui/                 # shadcn/ui components
+│   ├── layout/             # Layout components
+│   ├── dashboard/          # Dashboard components
+│   ├── expenses/           # Expense management
+│   └── accounts/           # Account management
+├── lib/
+│   ├── supabase/           # Supabase clients
+│   ├── gemini/             # Google AI client
+│   └── hooks/              # Custom React hooks
+├── types/                  # TypeScript types
+└── store/                  # Zustand stores
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Testing
 
-## Learn More
+```bash
+# Run unit tests
+bun test
 
-To learn more about Next.js, take a look at the following resources:
+# Run E2E tests
+bun test:e2e
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Run tests with coverage
+bun test:coverage
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## License
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Apache License 2.0 - see [LICENSE](LICENSE) for details.
