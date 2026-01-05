@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Coins } from "lucide-react";
+import { DevTools } from "@/components/layout/dev-tools";
 
 export function MarketingHeader() {
   return (
@@ -14,6 +15,7 @@ export function MarketingHeader() {
         </Link>
 
         <nav className="flex items-center gap-4">
+          <DevTools />
           <Button variant="ghost" asChild>
             <Link href="/login">Login</Link>
           </Button>
