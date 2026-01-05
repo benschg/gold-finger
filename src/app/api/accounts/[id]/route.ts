@@ -59,6 +59,12 @@ export async function GET(
     .select("id")
     .in("id", memberIds);
 
+  // Get expense count
+  const { count: expenseCount } = await supabase
+    .from("expenses")
+    .select("*", { count: "exact", head: true })
+    .eq("account_id", id);
+
   return NextResponse.json({
     ...account,
     role: membership.role,
@@ -66,6 +72,7 @@ export async function GET(
       ...m,
       profile: profiles?.find((p) => p.id === m.user_id),
     })),
+    expense_count: expenseCount ?? 0,
   });
 }
 
@@ -107,6 +114,7 @@ export async function PUT(
   if (body.name !== undefined) updateData.name = body.name;
   if (body.icon !== undefined) updateData.icon = body.icon;
   if (body.color !== undefined) updateData.color = body.color;
+  if (body.currency !== undefined) updateData.currency = body.currency;
 
   const { data: account, error } = await supabase
     .from("accounts")
