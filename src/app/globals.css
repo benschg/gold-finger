@@ -129,3 +129,33 @@
     @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 }
+
+/* Hero finger animation - emerges upward from circle */
+@keyframes finger-emerge {
+  0% {
+    transform: translateY(80px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(-160px);
+    opacity: 1;
+  }
+}
+
+.finger-emerge {
+  animation: finger-emerge 0.8s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+@media (min-width: 640px) {
+  @keyframes finger-emerge {
+    0% {
+      transform: translateY(80px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(-192px);
+      opacity: 1;
+    }
+  }
+}
