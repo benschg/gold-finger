@@ -260,14 +260,14 @@ export function ExpenseForm({
         <div className="space-y-2">
           <Label htmlFor="category">Category</Label>
           <Select
-            defaultValue={expense?.category_id || ""}
-            onValueChange={(value) => setValue("category_id", value)}
+            defaultValue={expense?.category_id || "none"}
+            onValueChange={(value) => setValue("category_id", value === "none" ? undefined : value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">No category</SelectItem>
+              <SelectItem value="none">No category</SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category.id} value={category.id}>
                   <span className="flex items-center gap-2">
