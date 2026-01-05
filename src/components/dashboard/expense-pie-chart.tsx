@@ -26,7 +26,7 @@ export function ExpensePieChart({
           <CardTitle className="text-lg">{title}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex h-[300px] items-center justify-center text-muted-foreground">
+          <div className="flex h-[250px] sm:h-[300px] items-center justify-center text-muted-foreground">
             No data to display
           </div>
         </CardContent>
@@ -40,7 +40,7 @@ export function ExpensePieChart({
         <CardTitle className="text-lg">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px]">
+        <div className="h-[250px] sm:h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -65,6 +65,11 @@ export function ExpensePieChart({
                       })}`
                     : value
                 }
+                contentStyle={{
+                  backgroundColor: "hsl(var(--card))",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "8px",
+                }}
               />
               <Legend />
             </PieChart>

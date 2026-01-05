@@ -150,18 +150,18 @@ export default function ExpensesPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Expenses</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-xl sm:text-2xl font-bold">Expenses</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Track and manage your expenses
           </p>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
           <Select
             value={selectedAccountId || ""}
             onValueChange={setSelectedAccountId}
           >
-            <SelectTrigger className="w-50">
+            <SelectTrigger className="w-full sm:w-48">
               <SelectValue placeholder="Select account" />
             </SelectTrigger>
             <SelectContent>
@@ -173,7 +173,7 @@ export default function ExpensesPage() {
             </SelectContent>
           </Select>
 
-          <Button onClick={handleAddExpense}>
+          <Button onClick={handleAddExpense} className="w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" />
             Add Expense
           </Button>
@@ -193,7 +193,7 @@ export default function ExpensesPage() {
       )}
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>
               {editingExpense ? "Edit Expense" : "Add Expense"}

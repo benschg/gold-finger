@@ -122,9 +122,9 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-6">
+      <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
         <div className="relative">
-          <Avatar className="h-20 w-20">
+          <Avatar className="h-16 w-16 sm:h-20 sm:w-20">
             <AvatarImage src={avatarUrl} alt="Avatar" />
             <AvatarFallback className="text-2xl">{userInitials}</AvatarFallback>
           </Avatar>
@@ -167,7 +167,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         </Button>
       </div>
 
-      <div className="grid gap-4 max-w-md">
+      <div className="grid gap-4 max-w-full sm:max-w-md">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input

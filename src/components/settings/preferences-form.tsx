@@ -88,7 +88,7 @@ export function PreferencesForm({ profile }: PreferencesFormProps) {
   };
 
   return (
-    <div className="grid gap-4 max-w-md">
+    <div className="grid gap-4 max-w-full sm:max-w-md">
       <div className="space-y-2">
         <Label htmlFor="currency">Default Currency</Label>
         <Select value={currency} onValueChange={(v) => setCurrency(v as Currency)}>
