@@ -25,7 +25,7 @@ export function HeroFingerAnimation() {
               priority
             />
             {/* Fingertip glow effect */}
-            <div className="fingertip-glow absolute -top-2 left-[55%] h-12 w-6 rounded-full bg-yellow-200 blur-lg sm:h-16 sm:w-8" />
+            <div className="fingertip-glow absolute -top-4 left-[45%] h-12 w-6 rounded-full bg-yellow-200 blur-lg sm:h-16 sm:w-8" />
           </div>
         </div>
       </div>
