@@ -12,7 +12,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { Tag } from "@/types/database";
+import type { Tables } from "@/types/database.types";
+
+type Tag = Tables<"tags">;
 
 const tagColors = [
   "#ef4444",
@@ -109,7 +111,7 @@ export function TagManager({ accountId, tags, onRefresh }: TagManagerProps) {
             <span
               key={tag.id}
               className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm text-white"
-              style={{ backgroundColor: tag.color }}
+              style={{ backgroundColor: tag.color ?? "#6366f1" }}
             >
               {tag.name}
               <button

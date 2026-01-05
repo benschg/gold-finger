@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AccountCard, CreateAccountDialog } from "@/components/accounts";
 import { useAccounts } from "@/lib/hooks/use-accounts";
-import type { Account } from "@/types/database";
+import type { Tables } from "@/types/database.types";
+
+type Account = Tables<"accounts">;
 
 interface AccountWithRole extends Account {
   role: "owner" | "member";

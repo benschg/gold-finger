@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { inviteUserSchema } from "@/lib/validations/schemas";
 
 export async function POST(
   request: Request,
@@ -32,41 +33,25 @@ export async function POST(
     );
   }
 
-  const { email } = await request.json();
+  const json = await request.json();
+  const parsed = inviteUserSchema.safeParse(json);
 
-  if (!email) {
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: "Email is required" },
+      { error: parsed.error.issues[0].message },
       { status: 400 }
     );
   }
 
-  // Check if user is already a member
-  const { data: existingUser } = await supabase
-    .rpc("get_user_by_email", { email_address: email });
-
-  if (existingUser) {
-    const { data: existingMember } = await supabase
-      .from("account_members")
-      .select("user_id")
-      .eq("account_id", accountId)
-      .eq("user_id", existingUser.id)
-      .single();
-
-    if (existingMember) {
-      return NextResponse.json(
-        { error: "User is already a member" },
-        { status: 400 }
-      );
-    }
-  }
+  const { email } = parsed.data;
 
   // Check for existing pending invitation
   const { data: existingInvite } = await supabase
     .from("account_invitations")
     .select("id")
     .eq("account_id", accountId)
-    .eq("email", email.toLowerCase())
+    .eq("invitee_email", email.toLowerCase())
+    .eq("status", "pending")
     .gt("expires_at", new Date().toISOString())
     .single();
 
@@ -85,8 +70,8 @@ export async function POST(
     .from("account_invitations")
     .insert({
       account_id: accountId,
-      email: email.toLowerCase(),
-      invited_by: user.id,
+      invitee_email: email.toLowerCase(),
+      inviter_id: user.id,
       expires_at: expiresAt.toISOString(),
     })
     .select()

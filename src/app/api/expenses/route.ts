@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
-import type { CreateExpenseInput } from "@/types/database";
+import { createExpenseSchema } from "@/lib/validations/schemas";
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -106,15 +106,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body: CreateExpenseInput = await request.json();
+  const json = await request.json();
+  const parsed = createExpenseSchema.safeParse(json);
 
-  // Validate required fields
-  if (!body.account_id || !body.amount || !body.currency || !body.date) {
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: "Missing required fields: account_id, amount, currency, date" },
+      { error: parsed.error.issues[0].message },
       { status: 400 }
     );
   }
+
+  const body = parsed.data;
 
   // Insert expense
   const { data: expense, error } = await supabase

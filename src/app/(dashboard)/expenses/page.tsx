@@ -21,7 +21,14 @@ import { ExpenseForm, ExpenseTable } from "@/components/expenses";
 import { useAccounts } from "@/lib/hooks/use-accounts";
 import { useCategories } from "@/lib/hooks/use-categories";
 import { useTags } from "@/lib/hooks/use-tags";
-import type { ExpenseWithDetails } from "@/types/database";
+import type { Tables } from "@/types/database.types";
+
+type Category = Tables<"categories">;
+type Tag = Tables<"tags">;
+type ExpenseWithDetails = Tables<"expenses"> & {
+  category?: Category | null;
+  tags?: Tag[];
+};
 
 export default function ExpensesPage() {
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(

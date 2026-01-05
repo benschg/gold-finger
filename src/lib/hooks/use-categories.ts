@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { Category } from "@/types/database";
+import type { Tables } from "@/types/database.types";
+
+type Category = Tables<"categories">;
 
 export function useCategories(accountId: string | null) {
   const [categories, setCategories] = useState<Category[]>([]);

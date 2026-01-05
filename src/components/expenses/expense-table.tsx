@@ -30,7 +30,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import type { ExpenseWithDetails } from "@/types/database";
+import type { Tables } from "@/types/database.types";
+
+type Category = Tables<"categories">;
+type Tag = Tables<"tags">;
+type ExpenseWithDetails = Tables<"expenses"> & {
+  category?: Category | null;
+  tags?: Tag[];
+};
 
 const currencySymbols: Record<string, string> = {
   EUR: "€",
@@ -89,7 +96,7 @@ export function ExpenseTable({ expenses, onEdit, onDelete }: ExpenseTableProps) 
           <span className="flex items-center gap-2">
             <span
               className="h-3 w-3 rounded-full"
-              style={{ backgroundColor: category.color }}
+              style={{ backgroundColor: category.color ?? "#6366f1" }}
             />
             {category.name}
           </span>
@@ -109,7 +116,7 @@ export function ExpenseTable({ expenses, onEdit, onDelete }: ExpenseTableProps) 
               <span
                 key={tag.id}
                 className="rounded-full px-2 py-0.5 text-xs text-white"
-                style={{ backgroundColor: tag.color }}
+                style={{ backgroundColor: tag.color ?? "#6366f1" }}
               >
                 {tag.name}
               </span>

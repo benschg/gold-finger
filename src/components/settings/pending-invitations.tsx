@@ -2,20 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { InvitationList } from "@/components/accounts/invitation-list";
+import type { Tables } from "@/types/database.types";
 
-interface Invitation {
-  id: string;
-  email: string;
-  account_id: string;
-  created_at: string;
-  expires_at: string;
-  account?: {
-    id: string;
-    name: string;
-    icon: string;
-    color: string;
-  };
-}
+type Invitation = Tables<"account_invitations"> & {
+  account?: Pick<Tables<"accounts">, "id" | "name" | "icon" | "color">;
+};
 
 export function PendingInvitations() {
   const [invitations, setInvitations] = useState<Invitation[]>([]);

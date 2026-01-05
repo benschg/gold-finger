@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
-import type { UpdateExpenseInput } from "@/types/database";
+import { updateExpenseSchema } from "@/lib/validations/schemas";
 
 export async function GET(
   request: Request,
@@ -68,7 +68,17 @@ export async function PUT(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body: UpdateExpenseInput = await request.json();
+  const json = await request.json();
+  const parsed = updateExpenseSchema.safeParse(json);
+
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0].message },
+      { status: 400 }
+    );
+  }
+
+  const body = parsed.data;
 
   // Build update object (only include provided fields)
   const updateData: Record<string, unknown> = {};

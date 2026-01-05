@@ -1,6 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
-import type { CreateAccountInput } from "@/types/database";
+import { createAccountSchema } from "@/lib/validations/schemas";
 
 export async function GET() {
   const supabase = await createClient();
@@ -40,6 +40,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const supabase = await createClient();
+  const adminClient = createAdminClient();
 
   // Get current user
   const {
@@ -51,18 +52,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body: CreateAccountInput = await request.json();
+  const json = await request.json();
+  const parsed = createAccountSchema.safeParse(json);
 
-  // Validate required fields
-  if (!body.name) {
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: "Missing required field: name" },
+      { error: parsed.error.issues[0].message },
       { status: 400 }
     );
   }
 
-  // Create account
-  const { data: account, error: accountError } = await supabase
+  const body = parsed.data;
+
+  // Create account using admin client (bypasses RLS)
+  const { data: account, error: accountError } = await adminClient
     .from("accounts")
     .insert({
       name: body.name,
@@ -73,19 +76,23 @@ export async function POST(request: Request) {
     .single();
 
   if (accountError) {
+    console.error("Account creation error:", accountError);
     return NextResponse.json({ error: accountError.message }, { status: 500 });
   }
 
-  // Add user as owner
-  const { error: memberError } = await supabase.from("account_members").insert({
-    account_id: account.id,
-    user_id: user.id,
-    role: "owner",
-  });
+  // Add user as owner using admin client
+  const { error: memberError } = await adminClient
+    .from("account_members")
+    .insert({
+      account_id: account.id,
+      user_id: user.id,
+      role: "owner",
+    });
 
   if (memberError) {
+    console.error("Member insert error:", memberError);
     // Rollback account creation
-    await supabase.from("accounts").delete().eq("id", account.id);
+    await adminClient.from("accounts").delete().eq("id", account.id);
     return NextResponse.json({ error: memberError.message }, { status: 500 });
   }
 

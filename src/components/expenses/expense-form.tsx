@@ -18,9 +18,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ReceiptUpload } from "./receipt-upload";
-import type { Category, Tag, Currency, ExpenseWithDetails } from "@/types/database";
+import type { Tables } from "@/types/database.types";
 
-const currencies: { value: Currency; label: string; symbol: string }[] = [
+type Category = Tables<"categories">;
+type Tag = Tables<"tags">;
+type ExpenseWithDetails = Tables<"expenses"> & {
+  category?: Category | null;
+  tags?: Tag[];
+};
+
+const currencies = [
   { value: "EUR", label: "Euro", symbol: "€" },
   { value: "USD", label: "US Dollar", symbol: "$" },
   { value: "GBP", label: "British Pound", symbol: "£" },
@@ -293,7 +300,7 @@ export function ExpenseForm({
                 }`}
                 style={
                   selectedTags.includes(tag.id)
-                    ? { backgroundColor: tag.color }
+                    ? { backgroundColor: tag.color ?? "#6366f1" }
                     : undefined
                 }
               >

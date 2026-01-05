@@ -7,20 +7,11 @@ import { formatDistanceToNow } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import type { Tables } from "@/types/database.types";
 
-interface Invitation {
-  id: string;
-  email: string;
-  account_id: string;
-  created_at: string;
-  expires_at: string;
-  account?: {
-    id: string;
-    name: string;
-    icon: string;
-    color: string;
-  };
-}
+type Invitation = Tables<"account_invitations"> & {
+  account?: Pick<Tables<"accounts">, "id" | "name" | "icon" | "color">;
+};
 
 interface InvitationListProps {
   invitations: Invitation[];
@@ -127,7 +118,7 @@ export function InvitationList({
               {mode === "received" && invitation.account && (
                 <span
                   className="h-8 w-8 rounded-full flex items-center justify-center text-white font-medium"
-                  style={{ backgroundColor: invitation.account.color }}
+                  style={{ backgroundColor: invitation.account.color ?? "#6366f1" }}
                 >
                   {invitation.account.name.charAt(0).toUpperCase()}
                 </span>
@@ -135,13 +126,13 @@ export function InvitationList({
               <div>
                 <p className="font-medium">
                   {mode === "sent"
-                    ? invitation.email
+                    ? invitation.invitee_email
                     : invitation.account?.name || "Account"}
                 </p>
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Clock className="h-3 w-3" />
                   Expires{" "}
-                  {formatDistanceToNow(new Date(invitation.expires_at), {
+                  {invitation.expires_at && formatDistanceToNow(new Date(invitation.expires_at), {
                     addSuffix: true,
                   })}
                 </div>

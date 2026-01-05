@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
-import type { CreateTagInput } from "@/types/database";
+import { createTagSchema } from "@/lib/validations/schemas";
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -52,15 +52,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body: CreateTagInput = await request.json();
+  const json = await request.json();
+  const parsed = createTagSchema.safeParse(json);
 
-  // Validate required fields
-  if (!body.account_id || !body.name || !body.color) {
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: "Missing required fields: account_id, name, color" },
+      { error: parsed.error.issues[0].message },
       { status: 400 }
     );
   }
+
+  const body = parsed.data;
 
   const { data: tag, error } = await supabase
     .from("tags")

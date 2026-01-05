@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { Account } from "@/types/database";
+import type { Tables } from "@/types/database.types";
+
+type Account = Tables<"accounts">;
 
 interface AccountWithRole extends Account {
   role: "owner" | "member";
