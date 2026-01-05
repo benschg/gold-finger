@@ -49,19 +49,19 @@ export function ExpenseBarChart({
         <div className="h-[250px] sm:h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis
                 dataKey="month"
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: "hsl(var(--foreground))" }}
+                tick={{ fill: "var(--foreground)" }}
               />
               <YAxis
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: "hsl(var(--foreground))" }}
+                tick={{ fill: "var(--foreground)" }}
                 tickFormatter={(value) => `€${value}`}
               />
               <Tooltip
@@ -73,15 +73,16 @@ export function ExpenseBarChart({
                     : value
                 }
                 contentStyle={{
-                  backgroundColor: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
+                  backgroundColor: "var(--card)",
+                  border: "1px solid var(--border)",
                   borderRadius: "8px",
                 }}
-                labelStyle={{ color: "hsl(var(--foreground))" }}
+                labelStyle={{ color: "var(--foreground)" }}
+                itemStyle={{ color: "var(--foreground)" }}
               />
               <Bar
                 dataKey="amount"
-                fill="hsl(var(--chart-1))"
+                fill="var(--chart-1)"
                 radius={[4, 4, 0, 0]}
               />
             </BarChart>
