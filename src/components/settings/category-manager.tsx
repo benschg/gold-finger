@@ -12,6 +12,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { Tables } from "@/types/database.types";
 
 type Category = Tables<"categories">;
@@ -64,6 +74,7 @@ export function CategoryManager({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
 
   const [name, setName] = useState("");
   const [icon, setIcon] = useState(categoryIcons[0]);
@@ -122,11 +133,15 @@ export function CategoryManager({
     }
   };
 
-  const handleDelete = async (categoryId: string) => {
-    if (!confirm("Are you sure you want to delete this category?")) return;
+  const handleDelete = (category: Category) => {
+    setCategoryToDelete(category);
+  };
+
+  const confirmDeleteCategory = async () => {
+    if (!categoryToDelete) return;
 
     try {
-      const response = await fetch(`/api/categories/${categoryId}`, {
+      const response = await fetch(`/api/categories/${categoryToDelete.id}`, {
         method: "DELETE",
       });
 
@@ -135,6 +150,8 @@ export function CategoryManager({
       }
     } catch (error) {
       console.error("Error deleting category:", error);
+    } finally {
+      setCategoryToDelete(null);
     }
   };
 
@@ -179,7 +196,7 @@ export function CategoryManager({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => handleDelete(category.id)}
+                  onClick={() => handleDelete(category)}
                 >
                   <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
@@ -263,6 +280,30 @@ export function CategoryManager({
           </form>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog
+        open={!!categoryToDelete}
+        onOpenChange={() => setCategoryToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete category?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete &quot;{categoryToDelete?.name}&quot;? Expenses
+              using this category will no longer have a category assigned.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteCategory}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

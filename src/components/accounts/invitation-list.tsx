@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Clock, X, Check, Loader2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -41,12 +42,13 @@ export function InvitationList({
       if (response.ok) {
         onAction?.();
         router.refresh();
+        toast.success("Invitation accepted");
       } else {
         const data = await response.json();
-        alert(data.error || "Failed to accept invitation");
+        toast.error(data.error || "Failed to accept invitation");
       }
     } catch {
-      alert("Failed to accept invitation");
+      toast.error("Failed to accept invitation");
     } finally {
       setLoadingId(null);
       setAction(null);
@@ -64,12 +66,13 @@ export function InvitationList({
       if (response.ok) {
         onAction?.();
         router.refresh();
+        toast.success("Invitation declined");
       } else {
         const data = await response.json();
-        alert(data.error || "Failed to decline invitation");
+        toast.error(data.error || "Failed to decline invitation");
       }
     } catch {
-      alert("Failed to decline invitation");
+      toast.error("Failed to decline invitation");
     } finally {
       setLoadingId(null);
       setAction(null);
@@ -87,12 +90,13 @@ export function InvitationList({
       if (response.ok) {
         onAction?.();
         router.refresh();
+        toast.success("Invitation cancelled");
       } else {
         const data = await response.json();
-        alert(data.error || "Failed to cancel invitation");
+        toast.error(data.error || "Failed to cancel invitation");
       }
     } catch {
-      alert("Failed to cancel invitation");
+      toast.error("Failed to cancel invitation");
     } finally {
       setLoadingId(null);
       setAction(null);
