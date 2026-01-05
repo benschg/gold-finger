@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Coins } from "lucide-react";
 import { DevTools } from "@/components/layout/dev-tools";
 
 export function MarketingHeader() {
@@ -10,7 +10,7 @@ export function MarketingHeader() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <Coins className="h-6 w-6 text-yellow-500" />
+          <Image src="/gold-finger.svg" alt="Gold-Finger" width={24} height={24} />
           <span className="text-xl font-bold">Gold-Finger</span>
         </Link>
 
