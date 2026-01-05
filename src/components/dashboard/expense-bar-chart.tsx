@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { tooltipStyles, axisStyles, formatCurrency } from "./chart-styles";
 
 interface MonthlyData {
   month: string;
@@ -50,36 +51,12 @@ export function ExpenseBarChart({
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis
-                dataKey="month"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                tick={{ fill: "var(--foreground)" }}
-              />
+              <XAxis dataKey="month" {...axisStyles} />
               <YAxis
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                tick={{ fill: "var(--foreground)" }}
+                {...axisStyles}
                 tickFormatter={(value) => `€${value}`}
               />
-              <Tooltip
-                formatter={(value) =>
-                  typeof value === "number"
-                    ? `€${value.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                      })}`
-                    : value
-                }
-                contentStyle={{
-                  backgroundColor: "var(--card)",
-                  border: "1px solid var(--border)",
-                  borderRadius: "8px",
-                }}
-                labelStyle={{ color: "var(--foreground)" }}
-                itemStyle={{ color: "var(--foreground)" }}
-              />
+              <Tooltip formatter={formatCurrency} {...tooltipStyles} />
               <Bar
                 dataKey="amount"
                 fill="var(--chart-1)"

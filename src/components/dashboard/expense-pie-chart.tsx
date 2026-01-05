@@ -2,6 +2,7 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { tooltipStyles, formatCurrency } from "./chart-styles";
 
 interface CategoryData {
   name: string;
@@ -57,22 +58,7 @@ export function ExpensePieChart({
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip
-                formatter={(value) =>
-                  typeof value === "number"
-                    ? `€${value.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                      })}`
-                    : value
-                }
-                contentStyle={{
-                  backgroundColor: "var(--card)",
-                  border: "1px solid var(--border)",
-                  borderRadius: "8px",
-                }}
-                labelStyle={{ color: "var(--foreground)" }}
-                itemStyle={{ color: "var(--foreground)" }}
-              />
+              <Tooltip formatter={formatCurrency} {...tooltipStyles} />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
