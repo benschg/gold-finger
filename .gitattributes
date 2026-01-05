@@ -1,0 +1,6 @@
+tests/fixtures/**/*.png !text !filter !merge !diff
+tests/fixtures/**/*.jpg !text !filter !merge !diff
+tests/fixtures/**/*.jpeg !text !filter !merge !diff
+tests/fixtures/**/*.webp !text !filter !merge !diff
+tests/fixtures/**/*.gif !text !filter !merge !diff
+tests/fixtures/**/*.pdf !text !filter !merge !diff
