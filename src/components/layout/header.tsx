@@ -15,6 +15,7 @@ import {
 import { User, Settings, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
+import { DevTools } from "./dev-tools";
 
 export function Header() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
@@ -44,7 +45,9 @@ export function Header() {
         {/* Breadcrumb or page title can go here */}
       </div>
 
-      <DropdownMenu>
+      <div className="flex items-center gap-3">
+        <DevTools />
+        <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-10 w-10 rounded-full">
             <Avatar className="h-10 w-10">
@@ -80,6 +83,7 @@ export function Header() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      </div>
     </header>
   );
 }
