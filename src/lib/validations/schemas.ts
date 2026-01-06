@@ -4,7 +4,7 @@ import { z } from "zod";
 export const createAccountSchema = z.object({
   name: z.string().min(1, "Account name is required").max(100),
   description: z.string().max(500).optional(),
-  icon: z.string().max(10).optional(),
+  icon: z.string().max(50).optional(),
   color: z
     .string()
     .regex(/^#[0-9A-Fa-f]{6}$/, "Invalid color format")
@@ -17,7 +17,7 @@ export const updateAccountSchema = createAccountSchema.partial();
 // Category schemas
 export const createCategorySchema = z.object({
   name: z.string().min(1, "Category name is required").max(50),
-  icon: z.string().min(1, "Icon is required").max(10),
+  icon: z.string().min(1, "Icon is required").max(50),
   color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Invalid color format"),
   account_id: z.string().uuid(),
 });
@@ -69,6 +69,11 @@ export const createExpenseSchema = z.object({
   receipt_url: z.string().url().optional().nullable(),
   receipt_analysis: receiptAnalysisSchema.optional().nullable(),
   tag_ids: z.array(z.string().uuid()).optional(),
+  // Exchange rate fields (computed server-side)
+  converted_amount: z.number().optional().nullable(),
+  exchange_rate: z.number().optional().nullable(),
+  account_currency: z.string().length(3).optional().nullable(),
+  rate_date: z.string().optional().nullable(),
 });
 
 export const updateExpenseSchema = createExpenseSchema

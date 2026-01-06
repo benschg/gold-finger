@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { updateExpenseSchema } from "@/lib/validations/schemas";
+import { getExchangeRate, convertAmount } from "@/lib/exchange-rates";
 
 export async function GET(
   request: Request,
@@ -80,6 +81,17 @@ export async function PUT(
 
   const body = parsed.data;
 
+  // Get current expense to check if we need to recalculate exchange rate
+  const { data: currentExpense } = await supabase
+    .from("expenses")
+    .select("amount, currency, account_id")
+    .eq("id", id)
+    .single();
+
+  if (!currentExpense) {
+    return NextResponse.json({ error: "Expense not found" }, { status: 404 });
+  }
+
   // Build update object (only include provided fields)
   const updateData: Record<string, unknown> = {};
   if (body.amount !== undefined) updateData.amount = body.amount;
@@ -88,6 +100,39 @@ export async function PUT(
   if (body.date !== undefined) updateData.date = body.date;
   if (body.category_id !== undefined) updateData.category_id = body.category_id;
   if (body.receipt_url !== undefined) updateData.receipt_url = body.receipt_url;
+
+  // Check if we need to recalculate exchange rate
+  const newAmount = body.amount ?? currentExpense.amount;
+  const newCurrency = body.currency ?? currentExpense.currency;
+  const currencyOrAmountChanged =
+    body.amount !== undefined || body.currency !== undefined;
+
+  if (currencyOrAmountChanged) {
+    // Fetch account's default currency
+    const { data: account } = await supabase
+      .from("accounts")
+      .select("currency")
+      .eq("id", currentExpense.account_id)
+      .single();
+
+    const accountCurrency = account?.currency || "EUR";
+
+    if (newCurrency !== accountCurrency) {
+      const rateResult = await getExchangeRate(newCurrency, accountCurrency);
+      if (rateResult) {
+        updateData.exchange_rate = rateResult.rate;
+        updateData.converted_amount = convertAmount(newAmount, rateResult.rate);
+        updateData.account_currency = accountCurrency;
+        updateData.rate_date = rateResult.date;
+      }
+    } else {
+      // Same currency - clear exchange rate fields
+      updateData.exchange_rate = null;
+      updateData.converted_amount = null;
+      updateData.account_currency = null;
+      updateData.rate_date = null;
+    }
+  }
 
   // Update expense
   const { data: expense, error } = await supabase
