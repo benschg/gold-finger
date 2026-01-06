@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
 import {
   Wallet,
@@ -21,8 +21,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IconBadge } from "@/components/ui/icon-picker";
 import { StatCard } from "./stat-card";
 import { ExpensePieChart } from "./expense-pie-chart";
-import { ExpenseBarChart } from "./expense-bar-chart";
+import { StackedBarChart } from "./stacked-bar-chart";
+import { TagDistributionChart } from "./tag-distribution-chart";
+import { DateRangePicker } from "./date-range-picker";
+import { ActiveFilters } from "./active-filters";
 import { useAccounts } from "@/lib/hooks/use-accounts";
+import { useDashboardUrlSync } from "@/hooks/use-dashboard-url-sync";
+import { useDashboardFilterStore } from "@/store/dashboard-filter-store";
+import {
+  filterExpenses,
+  transformToStackedBarData,
+  calculateCategoryBreakdown,
+  calculateTagDistribution,
+  buildCategoryColorMap,
+  buildCategoryIdMap,
+} from "@/lib/dashboard-utils";
 import type { Tables } from "@/types/database.types";
 
 type Category = Tables<"categories">;
@@ -41,9 +54,18 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
     null
   );
   const [expenses, setExpenses] = useState<ExpenseWithDetails[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const { accounts, isLoading: isLoadingAccounts } = useAccounts();
+
+  // Sync filter state with URL
+  useDashboardUrlSync();
+
+  // Get filter state from store
+  const { dateRange, selectedCategoryId, selectedTagId } =
+    useDashboardFilterStore();
 
   // Set default account when accounts load
   useEffect(() => {
@@ -52,16 +74,48 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
     }
   }, [accounts, selectedAccountId]);
 
+  // Fetch categories for the selected account
+  const fetchCategories = useCallback(async () => {
+    if (!selectedAccountId) return;
+
+    try {
+      const response = await fetch(
+        `/api/categories?account_id=${selectedAccountId}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  }, [selectedAccountId]);
+
+  // Fetch tags for the selected account
+  const fetchTags = useCallback(async () => {
+    if (!selectedAccountId) return;
+
+    try {
+      const response = await fetch(`/api/tags?account_id=${selectedAccountId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setTags(data);
+      }
+    } catch (error) {
+      console.error("Error fetching tags:", error);
+    }
+  }, [selectedAccountId]);
+
   // Fetch expenses
   const fetchExpenses = useCallback(async () => {
     if (!selectedAccountId) return;
 
     setIsLoading(true);
     try {
-      // Fetch last 12 months of expenses
-      const startDate = format(subMonths(new Date(), 12), "yyyy-MM-dd");
+      // Fetch last 24 months of expenses to have data for all presets
+      const startDate = format(subMonths(new Date(), 24), "yyyy-MM-dd");
       const response = await fetch(
-        `/api/expenses?account_id=${selectedAccountId}&start_date=${startDate}&limit=1000`
+        `/api/expenses?account_id=${selectedAccountId}&start_date=${startDate}&limit=2000`
       );
       if (response.ok) {
         const data = await response.json();
@@ -76,67 +130,81 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
 
   useEffect(() => {
     fetchExpenses();
-  }, [fetchExpenses]);
+    fetchCategories();
+    fetchTags();
+  }, [fetchExpenses, fetchCategories, fetchTags]);
 
-  // Calculate stats
+  // Filter expenses based on current filters
+  const filteredExpenses = useMemo(() => {
+    return filterExpenses(expenses, {
+      startDate: dateRange.startDate,
+      endDate: dateRange.endDate,
+      categoryId: selectedCategoryId,
+      tagId: selectedTagId,
+    });
+  }, [expenses, dateRange, selectedCategoryId, selectedTagId]);
+
+  // Calculate stats from filtered expenses
   const now = new Date();
   const thisMonthStart = startOfMonth(now);
   const thisMonthEnd = endOfMonth(now);
   const lastMonthStart = startOfMonth(subMonths(now, 1));
   const lastMonthEnd = endOfMonth(subMonths(now, 1));
 
-  const thisMonthExpenses = expenses.filter((e) => {
-    const date = new Date(e.date);
-    return date >= thisMonthStart && date <= thisMonthEnd;
-  });
+  const thisMonthExpenses = useMemo(() => {
+    return filteredExpenses.filter((e) => {
+      const date = new Date(e.date);
+      return date >= thisMonthStart && date <= thisMonthEnd;
+    });
+  }, [filteredExpenses, thisMonthStart, thisMonthEnd]);
 
-  const lastMonthExpenses = expenses.filter((e) => {
-    const date = new Date(e.date);
-    return date >= lastMonthStart && date <= lastMonthEnd;
-  });
+  const lastMonthExpenses = useMemo(() => {
+    return filteredExpenses.filter((e) => {
+      const date = new Date(e.date);
+      return date >= lastMonthStart && date <= lastMonthEnd;
+    });
+  }, [filteredExpenses, lastMonthStart, lastMonthEnd]);
 
   const thisMonthTotal = thisMonthExpenses.reduce((sum, e) => sum + e.amount, 0);
   const lastMonthTotal = lastMonthExpenses.reduce((sum, e) => sum + e.amount, 0);
-  const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+  const totalExpenses = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
+
+  // Build category maps for charts
+  const categoryColorMap = useMemo(
+    () => buildCategoryColorMap(categories),
+    [categories]
+  );
+  const categoryIdMap = useMemo(
+    () => buildCategoryIdMap(categories),
+    [categories]
+  );
+
+  // Calculate stacked bar chart data
+  const { data: stackedBarData, categoryKeys } = useMemo(() => {
+    return transformToStackedBarData(filteredExpenses, categories, 6);
+  }, [filteredExpenses, categories]);
 
   // Calculate category breakdown for pie chart
-  const categoryMap = new Map<string, { name: string; value: number; color: string }>();
-  thisMonthExpenses.forEach((expense) => {
-    const categoryName = expense.category?.name || "Uncategorized";
-    const categoryColor = expense.category?.color || "#94a3b8";
-    const existing = categoryMap.get(categoryName);
-    if (existing) {
-      existing.value += expense.amount;
-    } else {
-      categoryMap.set(categoryName, {
-        name: categoryName,
-        value: expense.amount,
-        color: categoryColor,
-      });
-    }
-  });
-  const categoryData = Array.from(categoryMap.values());
+  const categoryData = useMemo(() => {
+    return calculateCategoryBreakdown(filteredExpenses);
+  }, [filteredExpenses]);
 
-  // Calculate monthly data for bar chart
-  const monthlyMap = new Map<string, number>();
-  for (let i = 5; i >= 0; i--) {
-    const month = subMonths(now, i);
-    const monthKey = format(month, "MMM");
-    monthlyMap.set(monthKey, 0);
-  }
-  expenses.forEach((expense) => {
-    const month = format(new Date(expense.date), "MMM");
-    if (monthlyMap.has(month)) {
-      monthlyMap.set(month, (monthlyMap.get(month) || 0) + expense.amount);
-    }
-  });
-  const monthlyData = Array.from(monthlyMap.entries()).map(([month, amount]) => ({
-    month,
-    amount,
-  }));
+  // Calculate tag distribution
+  const tagData = useMemo(() => {
+    return calculateTagDistribution(filteredExpenses);
+  }, [filteredExpenses]);
 
   // Recent expenses
-  const recentExpenses = expenses.slice(0, 5);
+  const recentExpenses = filteredExpenses.slice(0, 5);
+
+  // Dynamic title based on date range
+  const dateRangeTitle = useMemo(() => {
+    if (dateRange.preset === "ALL") return "All Time";
+    if (dateRange.preset === "custom") {
+      return `${format(dateRange.startDate, "MMM d")} - ${format(dateRange.endDate, "MMM d, yyyy")}`;
+    }
+    return `Last ${dateRange.preset}`;
+  }, [dateRange]);
 
   if (isLoadingAccounts) {
     return (
@@ -148,38 +216,49 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold">Welcome back, {displayName}!</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Here&apos;s an overview of your expenses
-          </p>
+      {/* Header with Account Selector and Date Range Picker */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold">
+              Welcome back, {displayName}!
+            </h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Here&apos;s an overview of your expenses
+            </p>
+          </div>
+
+          {accounts.length > 0 && (
+            <Select
+              value={selectedAccountId || ""}
+              onValueChange={setSelectedAccountId}
+            >
+              <SelectTrigger className="w-full sm:w-48">
+                <SelectValue placeholder="Select account" />
+              </SelectTrigger>
+              <SelectContent>
+                {accounts.map((account) => (
+                  <SelectItem key={account.id} value={account.id}>
+                    <div className="flex items-center gap-2">
+                      <IconBadge
+                        icon={account.icon ?? "wallet"}
+                        color={account.color ?? "#6366f1"}
+                        size="xs"
+                      />
+                      {account.name}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
-        {accounts.length > 0 && (
-          <Select
-            value={selectedAccountId || ""}
-            onValueChange={setSelectedAccountId}
-          >
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="Select account" />
-            </SelectTrigger>
-            <SelectContent>
-              {accounts.map((account) => (
-                <SelectItem key={account.id} value={account.id}>
-                  <div className="flex items-center gap-2">
-                    <IconBadge
-                      icon={account.icon ?? "wallet"}
-                      color={account.color ?? "#6366f1"}
-                      size="xs"
-                    />
-                    {account.name}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
+        {/* Date Range Picker */}
+        <DateRangePicker />
+
+        {/* Active Filters */}
+        <ActiveFilters categories={categories} tags={tags} />
       </div>
 
       {isLoading ? (
@@ -195,7 +274,7 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
               value={`€${totalExpenses.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
               })}`}
-              description="All time"
+              description={dateRangeTitle}
               icon={Wallet}
             />
             <StatCard
@@ -216,17 +295,34 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
             />
             <StatCard
               title="Transactions"
-              value={thisMonthExpenses.length.toString()}
-              description="This month"
+              value={filteredExpenses.length.toString()}
+              description={dateRangeTitle}
               icon={CreditCard}
             />
           </div>
 
-          {/* Charts */}
+          {/* Charts - Stacked Bar and Pie */}
           <div className="grid gap-4 lg:grid-cols-2">
-            <ExpenseBarChart data={monthlyData} title="Monthly Expenses" />
-            <ExpensePieChart data={categoryData} title="This Month by Category" />
+            <StackedBarChart
+              data={stackedBarData}
+              categoryKeys={categoryKeys}
+              categoryColorMap={categoryColorMap}
+              categoryIdMap={categoryIdMap}
+              title="Monthly Expenses by Category"
+            />
+            <ExpensePieChart
+              data={categoryData}
+              title={`Category Breakdown (${dateRangeTitle})`}
+            />
           </div>
+
+          {/* Tag Distribution Chart */}
+          {tagData.length > 0 && (
+            <TagDistributionChart
+              data={tagData}
+              title={`Expenses by Tag (${dateRangeTitle})`}
+            />
+          )}
 
           {/* Recent Expenses */}
           <Card>
@@ -236,7 +332,7 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
             <CardContent>
               {recentExpenses.length === 0 ? (
                 <div className="py-8 text-center text-muted-foreground">
-                  No expenses yet. Add your first expense!
+                  No expenses match the current filters
                 </div>
               ) : (
                 <div className="space-y-3">
