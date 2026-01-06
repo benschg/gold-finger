@@ -42,7 +42,7 @@ export function CreateAccountDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("wallet");
-  const [color, setColor] = useState(DEFAULT_ACCOUNT_COLOR);
+  const [color, setColor] = useState<string>(DEFAULT_ACCOUNT_COLOR);
   const [currency, setCurrency] = useState<Currency>(DEFAULT_CURRENCY);
 
   const handleSubmit = async (e: React.FormEvent) => {
