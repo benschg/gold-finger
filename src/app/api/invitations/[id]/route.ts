@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { sanitizeDbError } from "@/lib/api-errors";
+import { checkAccountMembership } from "@/lib/api-helpers";
 
 // Accept invitation
 export async function POST(
@@ -135,14 +136,8 @@ export async function DELETE(
 
   let isOwner = false;
   if (!isRecipient) {
-    const { data: membership } = await supabase
-      .from("account_members")
-      .select("role")
-      .eq("account_id", invitation.account_id)
-      .eq("user_id", user.id)
-      .single();
-
-    isOwner = membership?.role === "owner";
+    const { role } = await checkAccountMembership(supabase, invitation.account_id, user.id);
+    isOwner = role === "owner";
   }
 
   if (!isRecipient && !isOwner) {

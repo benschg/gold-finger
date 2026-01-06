@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { sanitizeDbError } from "@/lib/api-errors";
+import { checkAccountMembership, requireAccountOwner } from "@/lib/api-helpers";
 
 export async function GET(
   request: Request,
@@ -19,14 +20,8 @@ export async function GET(
   }
 
   // Check membership
-  const { data: membership } = await supabase
-    .from("account_members")
-    .select("role")
-    .eq("account_id", id)
-    .eq("user_id", user.id)
-    .single();
-
-  if (!membership) {
+  const { isMember, role } = await checkAccountMembership(supabase, id, user.id);
+  if (!isMember) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
@@ -71,7 +66,7 @@ export async function GET(
 
   return NextResponse.json({
     ...account,
-    role: membership.role,
+    role,
     members: members?.map((m) => ({
       ...m,
       profile: profiles?.find((p) => p.id === m.user_id),
@@ -97,19 +92,8 @@ export async function PUT(
   }
 
   // Check if user is owner
-  const { data: membership } = await supabase
-    .from("account_members")
-    .select("role")
-    .eq("account_id", id)
-    .eq("user_id", user.id)
-    .single();
-
-  if (!membership || membership.role !== "owner") {
-    return NextResponse.json(
-      { error: "Only owners can update accounts" },
-      { status: 403 }
-    );
-  }
+  const ownerError = await requireAccountOwner(supabase, id, user.id, "Only owners can update accounts");
+  if (ownerError) return ownerError;
 
   const body = await request.json();
 
@@ -154,19 +138,8 @@ export async function DELETE(
   }
 
   // Check if user is owner
-  const { data: membership } = await supabase
-    .from("account_members")
-    .select("role")
-    .eq("account_id", id)
-    .eq("user_id", user.id)
-    .single();
-
-  if (!membership || membership.role !== "owner") {
-    return NextResponse.json(
-      { error: "Only owners can delete accounts" },
-      { status: 403 }
-    );
-  }
+  const ownerError = await requireAccountOwner(supabase, id, user.id, "Only owners can delete accounts");
+  if (ownerError) return ownerError;
 
   // Delete account (cascade will handle members, expenses, etc.)
   const { error } = await supabase.from("accounts").delete().eq("id", id);

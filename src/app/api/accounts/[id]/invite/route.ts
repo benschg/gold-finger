@@ -1,12 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { inviteUserSchema } from "@/lib/validations/schemas";
-import {
-  checkRateLimit,
-  getClientIdentifier,
-  RATE_LIMITS,
-} from "@/lib/rate-limit";
+import { RATE_LIMITS } from "@/lib/rate-limit";
 import { sanitizeDbError } from "@/lib/api-errors";
+import {
+  requireAccountOwner,
+  requireAccountMembership,
+  applyRateLimit,
+} from "@/lib/api-helpers";
 
 export async function POST(
   request: Request,
@@ -25,37 +26,12 @@ export async function POST(
   }
 
   // Rate limiting for invitations
-  const identifier = getClientIdentifier(request, user.id);
-  const rateLimitResult = checkRateLimit(identifier, RATE_LIMITS.medium);
-
-  if (!rateLimitResult.allowed) {
-    return NextResponse.json(
-      { error: "Too many requests. Please try again later." },
-      {
-        status: 429,
-        headers: {
-          "Retry-After": String(
-            Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)
-          ),
-        },
-      }
-    );
-  }
+  const rateLimitError = applyRateLimit(request, user.id, RATE_LIMITS.medium);
+  if (rateLimitError) return rateLimitError;
 
   // Check if user is owner
-  const { data: membership } = await supabase
-    .from("account_members")
-    .select("role")
-    .eq("account_id", accountId)
-    .eq("user_id", user.id)
-    .single();
-
-  if (!membership || membership.role !== "owner") {
-    return NextResponse.json(
-      { error: "Only owners can invite members" },
-      { status: 403 }
-    );
-  }
+  const ownerError = await requireAccountOwner(supabase, accountId, user.id, "Only owners can invite members");
+  if (ownerError) return ownerError;
 
   const json = await request.json();
   const parsed = inviteUserSchema.safeParse(json);
@@ -130,14 +106,8 @@ export async function GET(
   }
 
   // Check membership
-  const { data: membership } = await supabase
-    .from("account_members")
-    .select("role")
-    .eq("account_id", accountId)
-    .eq("user_id", user.id)
-    .single();
-
-  if (!membership) {
+  const membershipError = await requireAccountMembership(supabase, accountId, user.id);
+  if (membershipError) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
