@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { IconBadge } from "@/components/ui/icon-picker";
 import { cn } from "@/lib/utils";
 
 interface Account {
@@ -72,18 +73,20 @@ export function AccountSwitcher({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="w-[200px] justify-between">
+        <Button variant="outline" className="w-50 justify-between">
           <div className="flex items-center gap-2 truncate">
             <span
-              className="h-3 w-3 rounded-full shrink-0"
+              className="flex h-5 w-5 items-center justify-center rounded-full text-white shrink-0"
               style={{ backgroundColor: selectedAccount?.color }}
-            />
+            >
+              <DynamicIcon name={selectedAccount?.icon || "wallet"} className="h-3 w-3" />
+            </span>
             <span className="truncate">{selectedAccount?.name}</span>
           </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-[200px]">
+      <DropdownMenuContent align="start" className="w-50">
         <DropdownMenuLabel>Your Accounts</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {accounts.map((account) => (
@@ -94,9 +97,11 @@ export function AccountSwitcher({
           >
             <div className="flex items-center gap-2 flex-1">
               <span
-                className="h-3 w-3 rounded-full shrink-0"
+                className="flex h-5 w-5 items-center justify-center rounded-full text-white shrink-0"
                 style={{ backgroundColor: account.color }}
-              />
+              >
+                <DynamicIcon name={account.icon || "wallet"} className="h-3 w-3" />
+              </span>
               <span className="truncate">{account.name}</span>
               {account.role === "member" && (
                 <Users className="h-3 w-3 text-muted-foreground ml-auto" />

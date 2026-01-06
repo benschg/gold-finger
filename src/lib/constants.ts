@@ -17,3 +17,35 @@ export const CURRENCIES: CurrencyOption[] = [
 ];
 
 export const DEFAULT_CURRENCY: Currency = "EUR";
+
+// Color palettes for accounts and categories
+export const ACCOUNT_COLORS = [
+  "#6366f1",
+  "#8b5cf6",
+  "#ec4899",
+  "#ef4444",
+  "#f97316",
+  "#eab308",
+  "#22c55e",
+  "#14b8a6",
+  "#06b6d4",
+  "#3b82f6",
+] as const;
+
+export const CATEGORY_COLORS = [
+  "#ef4444",
+  "#f97316",
+  "#eab308",
+  "#22c55e",
+  "#14b8a6",
+  "#06b6d4",
+  "#3b82f6",
+  "#6366f1",
+  "#8b5cf6",
+  "#a855f7",
+  "#d946ef",
+  "#ec4899",
+] as const;
+
+export const DEFAULT_ACCOUNT_COLOR = ACCOUNT_COLORS[0];
+export const DEFAULT_CATEGORY_COLOR = CATEGORY_COLORS[0];

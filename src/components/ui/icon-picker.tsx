@@ -163,3 +163,125 @@ export function DynamicIcon({ name, className }: DynamicIconProps) {
 
   return <Icon className={className} />;
 }
+
+// Reusable component for icon inside a colored circle
+const iconBadgeSizes = {
+  xs: { badge: "h-4 w-4", icon: "h-2.5 w-2.5" },
+  sm: { badge: "h-5 w-5", icon: "h-3 w-3" },
+  md: { badge: "h-7 w-7 sm:h-8 sm:w-8", icon: "h-4 w-4" },
+  lg: { badge: "h-8 w-8", icon: "h-4 w-4" },
+} as const;
+
+interface IconBadgeProps {
+  icon: string;
+  color: string;
+  size?: keyof typeof iconBadgeSizes;
+  className?: string;
+}
+
+export function IconBadge({
+  icon,
+  color,
+  size = "md",
+  className,
+}: IconBadgeProps) {
+  const sizeClasses = iconBadgeSizes[size];
+
+  return (
+    <span
+      className={cn(
+        "flex items-center justify-center rounded-full text-white shrink-0",
+        sizeClasses.badge,
+        className
+      )}
+      style={{ backgroundColor: color }}
+    >
+      <DynamicIcon name={icon} className={sizeClasses.icon} />
+    </span>
+  );
+}
+
+// Reusable color picker with icon preview and custom color support
+interface ColorPickerProps {
+  value: string;
+  onChange: (color: string) => void;
+  colors: readonly string[];
+  icon?: string;
+  columns?: number;
+}
+
+export function ColorPicker({
+  value,
+  onChange,
+  colors,
+  icon,
+  columns = 6,
+}: ColorPickerProps) {
+  const [customColor, setCustomColor] = React.useState("");
+  const isCustom = value && !colors.includes(value);
+
+  const handleCustomChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const color = e.target.value;
+    setCustomColor(color);
+    if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
+      onChange(color);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <div
+        className="grid gap-2"
+        style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+      >
+        {colors.map((colorValue) => (
+          <button
+            key={colorValue}
+            type="button"
+            onClick={() => onChange(colorValue)}
+            className={cn(
+              "flex h-8 w-8 items-center justify-center rounded-full transition-all",
+              value === colorValue
+                ? "ring-2 ring-primary ring-offset-2"
+                : "hover:scale-110"
+            )}
+            style={{ backgroundColor: colorValue }}
+          >
+            {icon && <DynamicIcon name={icon} className="h-4 w-4 text-white" />}
+          </button>
+        ))}
+      </div>
+      <div className="flex items-center gap-2">
+        <label
+          className={cn(
+            "flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-dashed transition-all",
+            isCustom
+              ? "ring-2 ring-primary ring-offset-2 border-solid"
+              : "border-muted-foreground/30 hover:border-muted-foreground"
+          )}
+          style={{ backgroundColor: isCustom ? value : "transparent" }}
+        >
+          <input
+            type="color"
+            value={isCustom ? value : "#6366f1"}
+            onChange={(e) => onChange(e.target.value)}
+            className="sr-only"
+          />
+          {icon && isCustom ? (
+            <DynamicIcon name={icon} className="h-4 w-4 text-white" />
+          ) : (
+            <span className="text-xs text-muted-foreground">+</span>
+          )}
+        </label>
+        <input
+          type="text"
+          placeholder="#HEX"
+          value={isCustom ? value : customColor}
+          onChange={handleCustomChange}
+          className="h-8 w-20 rounded-md border bg-transparent px-2 text-xs font-mono"
+        />
+        <span className="text-xs text-muted-foreground">Custom</span>
+      </div>
+    </div>
+  );
+}
