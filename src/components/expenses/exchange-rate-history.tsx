@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Loader2, TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowRightLeft, Loader2, TrendingUp, TrendingDown } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -59,12 +59,14 @@ export function ExchangeRateHistory({
 }: ExchangeRateHistoryProps) {
   const [open, setOpen] = useState(false);
   const [period, setPeriod] = useState("1M");
+  const [isSwapped, setIsSwapped] = useState(false);
   const [data, setData] = useState<HistoryData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fromSymbol = CURRENCIES.find((c) => c.code === fromCurrency)?.symbol || fromCurrency;
-  const toSymbol = CURRENCIES.find((c) => c.code === toCurrency)?.symbol || toCurrency;
+  // Use swapped currencies if toggled
+  const displayFrom = isSwapped ? toCurrency : fromCurrency;
+  const displayTo = isSwapped ? fromCurrency : toCurrency;
 
   // Only fetch when dialog is open
   useEffect(() => {
@@ -76,7 +78,7 @@ export function ExchangeRateHistory({
 
       try {
         const response = await fetch(
-          `/api/exchange-rates/history?from=${fromCurrency}&to=${toCurrency}&period=${period}`
+          `/api/exchange-rates/history?from=${displayFrom}&to=${displayTo}&period=${period}`
         );
 
         if (!response.ok) {
@@ -93,7 +95,7 @@ export function ExchangeRateHistory({
     };
 
     fetchHistory();
-  }, [open, period, fromCurrency, toCurrency]);
+  }, [open, period, displayFrom, displayTo]);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -114,8 +116,17 @@ export function ExchangeRateHistory({
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>
-            {fromCurrency} to {toCurrency} Exchange Rate
+          <DialogTitle className="flex items-center gap-2">
+            <span>{displayFrom}</span>
+            <button
+              type="button"
+              onClick={() => setIsSwapped(!isSwapped)}
+              className="rounded-md p-1 hover:bg-muted transition-colors"
+              title="Swap currencies"
+            >
+              <ArrowRightLeft className="h-4 w-4" />
+            </button>
+            <span>{displayTo}</span>
           </DialogTitle>
         </DialogHeader>
 
@@ -172,7 +183,7 @@ export function ExchangeRateHistory({
                             {new Date(item.date).toLocaleDateString()}
                           </p>
                           <p className="font-medium">
-                            1 {fromCurrency} = {item.rate.toFixed(4)} {toCurrency}
+                            1 {displayFrom} = {item.rate.toFixed(4)} {displayTo}
                           </p>
                         </div>
                       );
