@@ -6,6 +6,7 @@ import {
   getClientIdentifier,
   RATE_LIMITS,
 } from "@/lib/rate-limit";
+import { sanitizeDbError } from "@/lib/api-errors";
 
 export async function POST(
   request: Request,
@@ -101,7 +102,10 @@ export async function POST(
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: sanitizeDbError(error, "POST /api/accounts/[id]/invite") },
+      { status: 500 }
+    );
   }
 
   // TODO: Send invitation email
@@ -146,7 +150,10 @@ export async function GET(
     .order("created_at", { ascending: false });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: sanitizeDbError(error, "GET /api/accounts/[id]/invite") },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json(invitations || []);

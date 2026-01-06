@@ -1,6 +1,7 @@
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { createAccountSchema } from "@/lib/validations/schemas";
+import { sanitizeDbError } from "@/lib/api-errors";
 
 export async function GET() {
   const supabase = await createClient();
@@ -27,7 +28,10 @@ export async function GET() {
     .eq("user_id", user.id);
 
   if (memberError) {
-    return NextResponse.json({ error: memberError.message }, { status: 500 });
+    return NextResponse.json(
+      { error: sanitizeDbError(memberError, "GET /api/accounts") },
+      { status: 500 }
+    );
   }
 
   const accounts = memberships?.map((m) => ({
@@ -77,8 +81,10 @@ export async function POST(request: Request) {
     .single();
 
   if (accountError) {
-    console.error("Account creation error:", accountError);
-    return NextResponse.json({ error: accountError.message }, { status: 500 });
+    return NextResponse.json(
+      { error: sanitizeDbError(accountError, "POST /api/accounts") },
+      { status: 500 }
+    );
   }
 
   // Add user as owner using admin client
@@ -91,10 +97,12 @@ export async function POST(request: Request) {
     });
 
   if (memberError) {
-    console.error("Member insert error:", memberError);
     // Rollback account creation
     await adminClient.from("accounts").delete().eq("id", account.id);
-    return NextResponse.json({ error: memberError.message }, { status: 500 });
+    return NextResponse.json(
+      { error: sanitizeDbError(memberError, "POST /api/accounts (member)") },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({ ...account, role: "owner" }, { status: 201 });

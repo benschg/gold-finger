@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { sanitizeDbError } from "@/lib/api-errors";
 
 // Accept invitation
 export async function POST(
@@ -76,7 +77,10 @@ export async function POST(
     });
 
   if (memberError) {
-    return NextResponse.json({ error: memberError.message }, { status: 500 });
+    return NextResponse.json(
+      { error: sanitizeDbError(memberError, "POST /api/invitations/[id]") },
+      { status: 500 }
+    );
   }
 
   // Delete the invitation
@@ -155,7 +159,10 @@ export async function DELETE(
     .eq("id", invitationId);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: sanitizeDbError(error, "DELETE /api/invitations/[id]") },
+      { status: 500 }
+    );
   }
 
   return new NextResponse(null, { status: 204 });
