@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import { ArrowRightLeft, CalendarIcon, Loader2, Sparkles } from "lucide-react";
+import { ArrowRightLeft, CalendarIcon, History, Loader2, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ReceiptUpload } from "./receipt-upload";
+import { ExchangeRateHistory } from "./exchange-rate-history";
 import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/constants";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import type { Tables } from "@/types/database.types";
@@ -272,14 +273,30 @@ export function ExpenseForm({
                 <span>
                   Rate: 1 {selectedCurrency} = {exchangeRate.toFixed(4)} {accountCurrency}
                 </span>
-                <a
-                  href="https://frankfurter.dev"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline"
-                >
-                  ECB via Frankfurter
-                </a>
+                <div className="flex items-center gap-2">
+                  <ExchangeRateHistory
+                    fromCurrency={selectedCurrency}
+                    toCurrency={accountCurrency}
+                    trigger={
+                      <button
+                        type="button"
+                        className="flex items-center gap-1 hover:underline"
+                      >
+                        <History className="h-3 w-3" />
+                        History
+                      </button>
+                    }
+                  />
+                  <span className="text-muted-foreground/50">|</span>
+                  <a
+                    href="https://frankfurter.dev"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                  >
+                    ECB
+                  </a>
+                </div>
               </div>
             </>
           ) : rateError ? (
