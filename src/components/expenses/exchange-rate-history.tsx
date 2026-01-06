@@ -150,13 +150,13 @@ export function ExchangeRateHistory({
                 <XAxis
                   dataKey="date"
                   tickFormatter={formatDate}
-                  tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                  tick={{ fontSize: 12, fill: "var(--color-muted-foreground)" }}
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
                   domain={["auto", "auto"]}
-                  tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                  tick={{ fontSize: 12, fill: "var(--color-muted-foreground)" }}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={(v) => v.toFixed(3)}
