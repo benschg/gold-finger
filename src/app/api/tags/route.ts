@@ -26,6 +26,18 @@ export async function GET(request: Request) {
     );
   }
 
+  // Verify user is a member of this account
+  const { data: membership } = await supabase
+    .from("account_members")
+    .select("role")
+    .eq("account_id", accountId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!membership) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const { data: tags, error } = await supabase
     .from("tags")
     .select("*")
@@ -64,6 +76,18 @@ export async function POST(request: Request) {
 
   const body = parsed.data;
 
+  // Verify user is a member of this account
+  const { data: membership } = await supabase
+    .from("account_members")
+    .select("role")
+    .eq("account_id", body.account_id)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!membership) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const { data: tag, error } = await supabase
     .from("tags")
     .insert({
@@ -99,6 +123,29 @@ export async function DELETE(request: Request) {
 
   if (!tagId) {
     return NextResponse.json({ error: "id is required" }, { status: 400 });
+  }
+
+  // First fetch the tag to get its account_id
+  const { data: tag, error: fetchError } = await supabase
+    .from("tags")
+    .select("account_id")
+    .eq("id", tagId)
+    .single();
+
+  if (fetchError || !tag) {
+    return NextResponse.json({ error: "Tag not found" }, { status: 404 });
+  }
+
+  // Verify user is a member of this account
+  const { data: membership } = await supabase
+    .from("account_members")
+    .select("role")
+    .eq("account_id", tag.account_id)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!membership) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const { error } = await supabase.from("tags").delete().eq("id", tagId);
