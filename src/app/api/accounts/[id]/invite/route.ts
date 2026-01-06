@@ -1,6 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { inviteUserSchema } from "@/lib/validations/schemas";
+import {
+  checkRateLimit,
+  getClientIdentifier,
+  RATE_LIMITS,
+} from "@/lib/rate-limit";
 
 export async function POST(
   request: Request,
@@ -16,6 +21,24 @@ export async function POST(
 
   if (userError || !user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Rate limiting for invitations
+  const identifier = getClientIdentifier(request, user.id);
+  const rateLimitResult = checkRateLimit(identifier, RATE_LIMITS.medium);
+
+  if (!rateLimitResult.allowed) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(
+            Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)
+          ),
+        },
+      }
+    );
   }
 
   // Check if user is owner
