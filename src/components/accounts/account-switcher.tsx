@@ -75,12 +75,11 @@ export function AccountSwitcher({
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="w-50 justify-between">
           <div className="flex items-center gap-2 truncate">
-            <span
-              className="flex h-5 w-5 items-center justify-center rounded-full text-white shrink-0"
-              style={{ backgroundColor: selectedAccount?.color }}
-            >
-              <DynamicIcon name={selectedAccount?.icon || "wallet"} className="h-3 w-3" />
-            </span>
+            <IconBadge
+              icon={selectedAccount?.icon || "wallet"}
+              color={selectedAccount?.color || "#6366f1"}
+              size="sm"
+            />
             <span className="truncate">{selectedAccount?.name}</span>
           </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -96,12 +95,7 @@ export function AccountSwitcher({
             className="cursor-pointer"
           >
             <div className="flex items-center gap-2 flex-1">
-              <span
-                className="flex h-5 w-5 items-center justify-center rounded-full text-white shrink-0"
-                style={{ backgroundColor: account.color }}
-              >
-                <DynamicIcon name={account.icon || "wallet"} className="h-3 w-3" />
-              </span>
+              <IconBadge icon={account.icon || "wallet"} color={account.color} size="sm" />
               <span className="truncate">{account.name}</span>
               {account.role === "member" && (
                 <Users className="h-3 w-3 text-muted-foreground ml-auto" />
