@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { sanitizeDbError } from "@/lib/api-errors";
 
 export async function GET(
   request: Request,
@@ -37,7 +38,10 @@ export async function GET(
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: sanitizeDbError(error, "GET /api/accounts/[id]") },
+      { status: 500 }
+    );
   }
 
   // Get all members
@@ -124,7 +128,10 @@ export async function PUT(
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: sanitizeDbError(error, "PUT /api/accounts/[id]") },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json(account);
@@ -165,7 +172,10 @@ export async function DELETE(
   const { error } = await supabase.from("accounts").delete().eq("id", id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: sanitizeDbError(error, "DELETE /api/accounts/[id]") },
+      { status: 500 }
+    );
   }
 
   return new NextResponse(null, { status: 204 });

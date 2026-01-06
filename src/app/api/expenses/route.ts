@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { createExpenseSchema } from "@/lib/validations/schemas";
 import { getExchangeRate, convertAmount } from "@/lib/exchange-rates";
+import { sanitizeDbError } from "@/lib/api-errors";
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -72,7 +73,10 @@ export async function GET(request: Request) {
   const { data: expenses, error } = await query;
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: sanitizeDbError(error, "GET /api/expenses") },
+      { status: 500 }
+    );
   }
 
   // Get tags for each expense
@@ -187,7 +191,10 @@ export async function POST(request: Request) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: sanitizeDbError(error, "POST /api/expenses") },
+      { status: 500 }
+    );
   }
 
   // Insert tags if provided

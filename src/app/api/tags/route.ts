@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { createTagSchema } from "@/lib/validations/schemas";
+import { sanitizeDbError } from "@/lib/api-errors";
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -45,7 +46,10 @@ export async function GET(request: Request) {
     .order("name");
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: sanitizeDbError(error, "GET /api/tags") },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json(tags);
@@ -99,7 +103,10 @@ export async function POST(request: Request) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: sanitizeDbError(error, "POST /api/tags") },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json(tag, { status: 201 });
@@ -151,7 +158,10 @@ export async function DELETE(request: Request) {
   const { error } = await supabase.from("tags").delete().eq("id", tagId);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: sanitizeDbError(error, "DELETE /api/tags") },
+      { status: 500 }
+    );
   }
 
   return new NextResponse(null, { status: 204 });

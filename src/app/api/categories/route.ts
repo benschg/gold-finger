@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { createCategorySchema } from "@/lib/validations/schemas";
+import { sanitizeDbError } from "@/lib/api-errors";
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -45,7 +46,10 @@ export async function GET(request: Request) {
     .order("name");
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: sanitizeDbError(error, "GET /api/categories") },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json(categories);
@@ -100,7 +104,10 @@ export async function POST(request: Request) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: sanitizeDbError(error, "POST /api/categories") },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json(category, { status: 201 });
