@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
 import { ArrowRightLeft, CalendarIcon, History, Loader2, Sparkles } from "lucide-react";
+import { IconBadge } from "@/components/ui/icon-picker";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,7 @@ import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import type { Tables } from "@/types/database.types";
 import type { Currency } from "@/types/database";
 
+type Account = Tables<"accounts">;
 type Category = Tables<"categories">;
 type Tag = Tables<"tags">;
 type ExpenseWithDetails = Tables<"expenses"> & {
@@ -43,24 +45,34 @@ type ExpenseFormData = z.infer<typeof expenseSchema>;
 
 interface ExpenseFormProps {
   accountId: string;
+  accounts: Account[];
   accountCurrency?: Currency;
   categories: Category[];
   tags: Tag[];
   expense?: ExpenseWithDetails;
   onSuccess?: () => void;
   onCancel?: () => void;
+  onAccountChange?: (accountId: string) => void;
+  onAddAnother?: () => void;
 }
 
 export function ExpenseForm({
   accountId,
+  accounts,
   accountCurrency = DEFAULT_CURRENCY,
   categories,
   tags,
   expense,
   onSuccess,
   onCancel,
+  onAccountChange,
+  onAddAnother,
 }: ExpenseFormProps) {
+  const [selectedAccountId, setSelectedAccountId] = useState(accountId);
+  const selectedAccount = accounts.find((a) => a.id === selectedAccountId);
+  const effectiveAccountCurrency = (selectedAccount?.currency as Currency) || accountCurrency;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [addAnotherPending, setAddAnotherPending] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>(
     expense?.tags?.map((t) => t.id) || []
   );
@@ -89,6 +101,9 @@ export function ExpenseForm({
   const selectedCurrency = watch("currency");
   const watchedAmount = watch("amount");
 
+  // Use 1 as default for exchange rate display when no amount entered
+  const displayAmount = watchedAmount || 1;
+
   // Fetch exchange rate when currencies differ
   const {
     rate: exchangeRate,
@@ -97,10 +112,15 @@ export function ExpenseForm({
     error: rateError,
   } = useExchangeRate({
     fromCurrency: selectedCurrency,
-    toCurrency: accountCurrency,
-    amount: watchedAmount || 0,
-    enabled: selectedCurrency !== accountCurrency,
+    toCurrency: effectiveAccountCurrency,
+    amount: displayAmount,
+    enabled: selectedCurrency !== effectiveAccountCurrency,
   });
+
+  const handleAccountChange = (newAccountId: string) => {
+    setSelectedAccountId(newAccountId);
+    onAccountChange?.(newAccountId);
+  };
 
   const onSubmit = async (data: ExpenseFormData) => {
     setIsSubmitting(true);
@@ -113,7 +133,7 @@ export function ExpenseForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...data,
-          account_id: accountId,
+          account_id: selectedAccountId,
           tag_ids: selectedTags,
           category_id: data.category_id || null,
           receipt_url: receiptUrl,
@@ -125,12 +145,29 @@ export function ExpenseForm({
         throw new Error(error.error || "Failed to save expense");
       }
 
-      onSuccess?.();
+      if (addAnotherPending) {
+        // Reset form for another entry
+        setValue("amount", undefined as unknown as number);
+        setValue("description", "");
+        setValue("category_id", undefined);
+        setSelectedTags([]);
+        setReceiptUrl(null);
+        setAiAutoFilled(false);
+        setAddAnotherPending(false);
+        onAddAnother?.();
+      } else {
+        onSuccess?.();
+      }
     } catch (error) {
       console.error("Error saving expense:", error);
+      setAddAnotherPending(false);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleAddAnother = () => {
+    setAddAnotherPending(true);
   };
 
   const toggleTag = (tagId: string) => {
@@ -181,6 +218,35 @@ export function ExpenseForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {/* Account Selector */}
+      {accounts.length > 1 && (
+        <div className="space-y-2">
+          <Label htmlFor="account">Account</Label>
+          <Select
+            value={selectedAccountId}
+            onValueChange={handleAccountChange}
+          >
+            <SelectTrigger id="account">
+              <SelectValue placeholder="Select account" />
+            </SelectTrigger>
+            <SelectContent>
+              {accounts.map((account) => (
+                <SelectItem key={account.id} value={account.id}>
+                  <div className="flex items-center gap-2">
+                    <IconBadge
+                      icon={account.icon ?? "wallet"}
+                      color={account.color ?? "#6366f1"}
+                      size="xs"
+                    />
+                    {account.name}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
       {/* Receipt Upload */}
       <div className="space-y-2">
         <Label>Receipt (optional)</Label>
@@ -242,7 +308,7 @@ export function ExpenseForm({
       </div>
 
       {/* Exchange rate conversion info */}
-      {selectedCurrency !== accountCurrency && (
+      {selectedCurrency !== effectiveAccountCurrency && (
         <div className="rounded-lg border bg-muted/50 p-3 space-y-1">
           {isLoadingRate ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -255,13 +321,13 @@ export function ExpenseForm({
                 <ArrowRightLeft className="h-4 w-4 text-muted-foreground" />
                 <span>
                   {CURRENCIES.find((c) => c.code === selectedCurrency)?.symbol}
-                  {watchedAmount?.toLocaleString(undefined, {
+                  {displayAmount.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
-                  }) || "0.00"}{" "}
+                  })}{" "}
                   ={" "}
                   <strong>
-                    {CURRENCIES.find((c) => c.code === accountCurrency)?.symbol}
+                    {CURRENCIES.find((c) => c.code === effectiveAccountCurrency)?.symbol}
                     {convertedAmount.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
@@ -271,12 +337,12 @@ export function ExpenseForm({
               </div>
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>
-                  Rate: 1 {selectedCurrency} = {exchangeRate.toFixed(4)} {accountCurrency}
+                  Rate: 1 {selectedCurrency} = {exchangeRate.toFixed(4)} {effectiveAccountCurrency}
                 </span>
                 <div className="flex items-center gap-2">
                   <ExchangeRateHistory
                     fromCurrency={selectedCurrency}
-                    toCurrency={accountCurrency}
+                    toCurrency={effectiveAccountCurrency}
                     trigger={
                       <button
                         type="button"
@@ -393,8 +459,23 @@ export function ExpenseForm({
             Cancel
           </Button>
         )}
+        {onAddAnother && !expense && (
+          <Button
+            type="submit"
+            variant="secondary"
+            disabled={isSubmitting}
+            onClick={handleAddAnother}
+          >
+            {isSubmitting && addAnotherPending && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            Add & New
+          </Button>
+        )}
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isSubmitting && !addAnotherPending && (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          )}
           {expense ? "Update" : "Add"} Expense
         </Button>
       </div>
