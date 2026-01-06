@@ -45,7 +45,8 @@ describe("exchange-rates", () => {
       expect(result?.fromCurrency).toBe("USD");
       expect(result?.toCurrency).toBe("EUR");
       expect(fetch).toHaveBeenCalledWith(
-        "https://api.frankfurter.app/latest?from=USD&to=EUR"
+        "https://api.frankfurter.app/latest?from=USD&to=EUR",
+        expect.objectContaining({ signal: expect.any(AbortSignal) })
       );
     });
 
