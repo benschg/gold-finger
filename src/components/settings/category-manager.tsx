@@ -6,6 +6,7 @@ import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { IconPicker, DynamicIcon } from "@/components/ui/icon-picker";
 import {
   Dialog,
   DialogContent,
@@ -25,25 +26,6 @@ import {
 import type { Tables } from "@/types/database.types";
 
 type Category = Tables<"categories">;
-
-const categoryIcons = [
-  "shopping-cart",
-  "utensils",
-  "car",
-  "home",
-  "heart",
-  "gamepad-2",
-  "plane",
-  "gift",
-  "briefcase",
-  "graduation-cap",
-  "music",
-  "film",
-  "coffee",
-  "shirt",
-  "pill",
-  "wrench",
-];
 
 const categoryColors = [
   "#ef4444",
@@ -77,12 +59,12 @@ export function CategoryManager({
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
 
   const [name, setName] = useState("");
-  const [icon, setIcon] = useState(categoryIcons[0]);
+  const [icon, setIcon] = useState("shopping-cart");
   const [color, setColor] = useState(categoryColors[0]);
 
   const resetForm = () => {
     setName("");
-    setIcon(categoryIcons[0]);
+    setIcon("shopping-cart");
     setColor(categoryColors[0]);
     setEditingCategory(null);
   };
@@ -181,7 +163,7 @@ export function CategoryManager({
                   className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full text-white shrink-0"
                   style={{ backgroundColor: category.color }}
                 >
-                  <span className="text-xs">{category.icon.charAt(0).toUpperCase()}</span>
+                  <DynamicIcon name={category.icon} className="h-4 w-4" />
                 </div>
                 <span className="font-medium text-sm sm:text-base truncate">{category.name}</span>
               </div>
@@ -229,22 +211,11 @@ export function CategoryManager({
 
             <div className="space-y-2">
               <Label>Icon</Label>
-              <div className="grid grid-cols-8 gap-2">
-                {categoryIcons.map((iconName) => (
-                  <button
-                    key={iconName}
-                    type="button"
-                    onClick={() => setIcon(iconName)}
-                    className={`flex h-9 w-full items-center justify-center rounded-lg border text-sm ${
-                      icon === iconName
-                        ? "border-primary bg-primary/10"
-                        : "hover:bg-muted"
-                    }`}
-                  >
-                    {iconName.charAt(0).toUpperCase()}
-                  </button>
-                ))}
-              </div>
+              <IconPicker
+                value={icon}
+                onChange={setIcon}
+                placeholder="Select an icon..."
+              />
             </div>
 
             <div className="space-y-2">
