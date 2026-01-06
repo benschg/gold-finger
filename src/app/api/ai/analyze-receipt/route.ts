@@ -8,6 +8,7 @@ import {
 } from "@/lib/rate-limit";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || "");
+const IMAGE_FETCH_TIMEOUT_MS = 15000; // 15 seconds
 
 interface ReceiptAnalysis {
   amount?: number;
@@ -65,8 +66,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch the image
-    const imageResponse = await fetch(imageUrl);
+    // Fetch the image with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), IMAGE_FETCH_TIMEOUT_MS);
+
+    let imageResponse: Response;
+    try {
+      imageResponse = await fetch(imageUrl, { signal: controller.signal });
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError instanceof Error && fetchError.name === "AbortError") {
+        return NextResponse.json(
+          { error: "Image fetch timed out" },
+          { status: 408 }
+        );
+      }
+      throw fetchError;
+    }
+    clearTimeout(timeoutId);
+
     if (!imageResponse.ok) {
       return NextResponse.json(
         { error: "Failed to fetch image" },

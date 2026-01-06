@@ -4,6 +4,7 @@
  */
 
 const FRANKFURTER_API = "https://api.frankfurter.app";
+const FETCH_TIMEOUT_MS = 10000; // 10 seconds
 
 // In-memory cache for exchange rates
 const rateCache = new Map<
@@ -51,9 +52,15 @@ export async function getExchangeRate(
   }
 
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
     const response = await fetch(
-      `${FRANKFURTER_API}/latest?from=${fromCurrency}&to=${toCurrency}`
+      `${FRANKFURTER_API}/latest?from=${fromCurrency}&to=${toCurrency}`,
+      { signal: controller.signal }
     );
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       console.error(
