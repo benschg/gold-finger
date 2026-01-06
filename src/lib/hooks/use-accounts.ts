@@ -1,38 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import type { Tables } from "@/types/database.types";
-
-type Account = Tables<"accounts">;
-
-interface AccountWithRole extends Account {
-  role: "owner" | "member";
-}
+import { useFetch } from "./use-fetch";
+import type { AccountWithRole } from "@/types/database";
 
 export function useAccounts() {
-  const [accounts, setAccounts] = useState<AccountWithRole[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, error, refetch } = useFetch<AccountWithRole[]>(
+    "/api/accounts"
+  );
 
-  const fetchAccounts = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch("/api/accounts");
-      if (!response.ok) {
-        throw new Error("Failed to fetch accounts");
-      }
-      const data = await response.json();
-      setAccounts(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
-    } finally {
-      setIsLoading(false);
-    }
+  return {
+    accounts: data ?? [],
+    isLoading,
+    error,
+    refetch,
   };
-
-  useEffect(() => {
-    fetchAccounts();
-  }, []);
-
-  return { accounts, isLoading, error, refetch: fetchAccounts };
 }

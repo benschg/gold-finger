@@ -36,14 +36,7 @@ import {
   buildCategoryColorMap,
   buildCategoryIdMap,
 } from "@/lib/dashboard-utils";
-import type { Tables } from "@/types/database.types";
-
-type Category = Tables<"categories">;
-type Tag = Tables<"tags">;
-type ExpenseWithDetails = Tables<"expenses"> & {
-  category?: Category | null;
-  tags?: Tag[];
-};
+import type { Category, Tag, ExpenseWithDetails } from "@/types/database";
 
 interface DashboardContentProps {
   displayName: string;

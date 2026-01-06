@@ -18,13 +18,7 @@ import {
 import { AccountCard, CreateAccountDialog, ManageAccountDialog } from "@/components/accounts";
 import { useAccounts } from "@/lib/hooks/use-accounts";
 import { createClient } from "@/lib/supabase/client";
-import type { Tables } from "@/types/database.types";
-
-type Account = Tables<"accounts">;
-
-interface AccountWithRole extends Account {
-  role: "owner" | "member";
-}
+import type { AccountWithRole } from "@/types/database";
 
 interface DeleteAccountDetails {
   memberCount: number;

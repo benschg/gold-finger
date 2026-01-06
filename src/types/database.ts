@@ -21,11 +21,17 @@ export interface Account {
   updated_at: string;
 }
 
+export type AccountRole = "owner" | "member";
+
 export interface AccountMember {
   account_id: string;
   user_id: string;
-  role: "owner" | "member";
+  role: AccountRole;
   joined_at: string;
+}
+
+export interface AccountWithRole extends Account {
+  role: AccountRole;
 }
 
 export interface AccountInvitation {

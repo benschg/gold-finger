@@ -31,14 +31,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import type { Tables } from "@/types/database.types";
-
-type Category = Tables<"categories">;
-type Tag = Tables<"tags">;
-type ExpenseWithDetails = Tables<"expenses"> & {
-  category?: Category | null;
-  tags?: Tag[];
-};
+import type { ExpenseWithDetails } from "@/types/database";
 
 const currencySymbols: Record<string, string> = {
   EUR: "€",

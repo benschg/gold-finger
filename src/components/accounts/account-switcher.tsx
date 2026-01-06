@@ -15,17 +15,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { IconBadge } from "@/components/ui/icon-picker";
 import { cn } from "@/lib/utils";
-
-interface Account {
-  id: string;
-  name: string;
-  icon: string;
-  color: string;
-  role: "owner" | "member";
-}
+import type { AccountWithRole } from "@/types/database";
 
 interface AccountSwitcherProps {
-  accounts: Account[];
+  accounts: AccountWithRole[];
   currentAccountId?: string;
   onAccountChange?: (accountId: string) => void;
 }

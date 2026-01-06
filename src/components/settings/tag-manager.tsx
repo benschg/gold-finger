@@ -12,24 +12,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { Tables } from "@/types/database.types";
-
-type Tag = Tables<"tags">;
-
-const tagColors = [
-  "#ef4444",
-  "#f97316",
-  "#eab308",
-  "#22c55e",
-  "#14b8a6",
-  "#06b6d4",
-  "#3b82f6",
-  "#6366f1",
-  "#8b5cf6",
-  "#a855f7",
-  "#d946ef",
-  "#ec4899",
-];
+import { TAG_COLORS, DEFAULT_TAG_COLOR } from "@/lib/constants";
+import type { Tag } from "@/types/database";
 
 interface TagManagerProps {
   accountId: string;
@@ -42,11 +26,11 @@ export function TagManager({ accountId, tags, onRefresh }: TagManagerProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [name, setName] = useState("");
-  const [color, setColor] = useState(tagColors[0]);
+  const [color, setColor] = useState<string>(DEFAULT_TAG_COLOR);
 
   const resetForm = () => {
     setName("");
-    setColor(tagColors[0]);
+    setColor(DEFAULT_TAG_COLOR);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -145,7 +129,7 @@ export function TagManager({ accountId, tags, onRefresh }: TagManagerProps) {
             <div className="space-y-2">
               <Label>Color</Label>
               <div className="flex flex-wrap gap-2">
-                {tagColors.map((colorValue) => (
+                {TAG_COLORS.map((colorValue) => (
                   <button
                     key={colorValue}
                     type="button"

@@ -16,13 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { IconBadge } from "@/components/ui/icon-picker";
-import type { Tables } from "@/types/database.types";
-
-type Account = Tables<"accounts">;
-
-interface AccountWithRole extends Account {
-  role: "owner" | "member";
-}
+import type { AccountWithRole } from "@/types/database";
 
 interface AccountCardProps {
   account: AccountWithRole;
