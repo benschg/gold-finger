@@ -11,7 +11,7 @@ export function MarketingHeader() {
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/gold-finger.svg" alt="Gold-Finger" width={24} height={24} />
-          <span className="text-xl font-bold">Gold-Finger</span>
+          <span className="hidden whitespace-nowrap text-xl font-bold sm:inline">Gold-Finger</span>
         </Link>
 
         <nav className="flex items-center gap-4">
