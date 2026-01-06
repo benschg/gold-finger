@@ -183,7 +183,7 @@ export function ExchangeRateHistory({
                 <Line
                   type="monotone"
                   dataKey="rate"
-                  stroke="hsl(var(--primary))"
+                  stroke="var(--chart-1)"
                   strokeWidth={2}
                   dot={false}
                 />
