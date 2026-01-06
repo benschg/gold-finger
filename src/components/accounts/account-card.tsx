@@ -15,6 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { DynamicIcon } from "@/components/ui/icon-picker";
 import type { Tables } from "@/types/database.types";
 
 type Account = Tables<"accounts">;
@@ -35,10 +36,10 @@ export function AccountCard({ account, onDelete, onManage }: AccountCardProps) {
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="flex items-center gap-2 text-lg font-medium">
           <span
-            className="flex h-8 w-8 items-center justify-center rounded-full text-white text-sm"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-white"
             style={{ backgroundColor: account.color ?? "#6366f1" }}
           >
-            {account.name.charAt(0).toUpperCase()}
+            <DynamicIcon name={account.icon ?? "wallet"} className="h-4 w-4" />
           </span>
           {account.name}
         </CardTitle>

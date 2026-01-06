@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { IconPicker, ColorPicker } from "@/components/ui/icon-picker";
 import {
   Dialog,
   DialogContent,
@@ -19,21 +20,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/constants";
+import {
+  CURRENCIES,
+  DEFAULT_CURRENCY,
+  ACCOUNT_COLORS,
+  DEFAULT_ACCOUNT_COLOR,
+} from "@/lib/constants";
 import type { Currency } from "@/types/database";
-
-const accountColors = [
-  "#6366f1",
-  "#8b5cf6",
-  "#ec4899",
-  "#ef4444",
-  "#f97316",
-  "#eab308",
-  "#22c55e",
-  "#14b8a6",
-  "#06b6d4",
-  "#3b82f6",
-];
 
 interface CreateAccountDialogProps {
   open: boolean;
@@ -48,7 +41,8 @@ export function CreateAccountDialog({
 }: CreateAccountDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState("");
-  const [color, setColor] = useState(accountColors[0]);
+  const [icon, setIcon] = useState("wallet");
+  const [color, setColor] = useState(DEFAULT_ACCOUNT_COLOR);
   const [currency, setCurrency] = useState<Currency>(DEFAULT_CURRENCY);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,14 +57,15 @@ export function CreateAccountDialog({
         body: JSON.stringify({
           name: name.trim(),
           color,
-          icon: "wallet",
+          icon,
           currency,
         }),
       });
 
       if (response.ok) {
         setName("");
-        setColor(accountColors[0]);
+        setIcon("wallet");
+        setColor(DEFAULT_ACCOUNT_COLOR);
         setCurrency(DEFAULT_CURRENCY);
         onOpenChange(false);
         onSuccess?.();
@@ -117,20 +112,23 @@ export function CreateAccountDialog({
           </div>
 
           <div className="space-y-2">
+            <Label>Icon</Label>
+            <IconPicker
+              value={icon}
+              onChange={setIcon}
+              placeholder="Select an icon..."
+            />
+          </div>
+
+          <div className="space-y-2">
             <Label>Color</Label>
-            <div className="flex flex-wrap gap-2">
-              {accountColors.map((colorValue) => (
-                <button
-                  key={colorValue}
-                  type="button"
-                  onClick={() => setColor(colorValue)}
-                  className={`h-8 w-8 rounded-full ${
-                    color === colorValue ? "ring-2 ring-primary ring-offset-2" : ""
-                  }`}
-                  style={{ backgroundColor: colorValue }}
-                />
-              ))}
-            </div>
+            <ColorPicker
+              value={color}
+              onChange={setColor}
+              colors={ACCOUNT_COLORS}
+              icon={icon}
+              columns={5}
+            />
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
