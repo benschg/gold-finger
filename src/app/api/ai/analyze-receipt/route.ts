@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@/lib/supabase/server";
-import {
-  checkRateLimit,
-  getClientIdentifier,
-  RATE_LIMITS,
-} from "@/lib/rate-limit";
+import { RATE_LIMITS } from "@/lib/rate-limit";
+import { applyRateLimit } from "@/lib/api-helpers";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || "");
 const IMAGE_FETCH_TIMEOUT_MS = 15000; // 15 seconds
@@ -32,22 +29,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Rate limiting - strict limit for expensive AI operations
-    const identifier = getClientIdentifier(request, user.id);
-    const rateLimitResult = checkRateLimit(identifier, RATE_LIMITS.strict);
-
-    if (!rateLimitResult.allowed) {
-      return NextResponse.json(
-        { error: "Too many requests. Please try again later." },
-        {
-          status: 429,
-          headers: {
-            "Retry-After": String(
-              Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)
-            ),
-          },
-        }
-      );
-    }
+    const rateLimitError = applyRateLimit(request, user.id, RATE_LIMITS.strict);
+    if (rateLimitError) return rateLimitError;
 
     // Check if API key is configured
     if (!process.env.GOOGLE_AI_API_KEY) {

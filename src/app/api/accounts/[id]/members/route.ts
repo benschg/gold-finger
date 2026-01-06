@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { sanitizeDbError } from "@/lib/api-errors";
+import { checkAccountMembership } from "@/lib/api-helpers";
 
 export async function GET(
   request: Request,
@@ -18,14 +20,8 @@ export async function GET(
   }
 
   // Check membership
-  const { data: membership } = await supabase
-    .from("account_members")
-    .select("role")
-    .eq("account_id", accountId)
-    .eq("user_id", user.id)
-    .single();
-
-  if (!membership) {
+  const { isMember } = await checkAccountMembership(supabase, accountId, user.id);
+  if (!isMember) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
@@ -44,7 +40,10 @@ export async function GET(
     .order("joined_at", { ascending: true });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: sanitizeDbError(error, "GET /api/accounts/[id]/members") },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json(members || []);
@@ -76,21 +75,15 @@ export async function DELETE(
     );
   }
 
-  // Check if current user is owner
-  const { data: currentMembership } = await supabase
-    .from("account_members")
-    .select("role")
-    .eq("account_id", accountId)
-    .eq("user_id", user.id)
-    .single();
-
-  if (!currentMembership) {
+  // Check if current user is a member
+  const { isMember, role } = await checkAccountMembership(supabase, accountId, user.id);
+  if (!isMember) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
   // User can remove themselves (leave) or owners can remove others
   const isSelf = memberId === user.id;
-  const isOwner = currentMembership.role === "owner";
+  const isOwner = role === "owner";
 
   if (!isSelf && !isOwner) {
     return NextResponse.json(
@@ -123,7 +116,10 @@ export async function DELETE(
     .eq("user_id", memberId);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: sanitizeDbError(error, "DELETE /api/accounts/[id]/members") },
+      { status: 500 }
+    );
   }
 
   return new NextResponse(null, { status: 204 });

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { createExpenseSchema } from "@/lib/validations/schemas";
 import { getExchangeRate, convertAmount } from "@/lib/exchange-rates";
 import { sanitizeDbError } from "@/lib/api-errors";
+import { requireAccountMembership } from "@/lib/api-helpers";
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -34,16 +35,8 @@ export async function GET(request: Request) {
   }
 
   // Verify user is a member of this account
-  const { data: membership } = await supabase
-    .from("account_members")
-    .select("role")
-    .eq("account_id", accountId)
-    .eq("user_id", user.id)
-    .single();
-
-  if (!membership) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const membershipError = await requireAccountMembership(supabase, accountId, user.id);
+  if (membershipError) return membershipError;
 
   // Build query
   let query = supabase
@@ -136,16 +129,8 @@ export async function POST(request: Request) {
   const body = parsed.data;
 
   // Verify user is a member of this account
-  const { data: membership } = await supabase
-    .from("account_members")
-    .select("role")
-    .eq("account_id", body.account_id)
-    .eq("user_id", user.id)
-    .single();
-
-  if (!membership) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const membershipError = await requireAccountMembership(supabase, body.account_id, user.id);
+  if (membershipError) return membershipError;
 
   // Fetch account's default currency
   const { data: account } = await supabase

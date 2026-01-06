@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { createTagSchema } from "@/lib/validations/schemas";
 import { sanitizeDbError } from "@/lib/api-errors";
+import { requireAccountMembership } from "@/lib/api-helpers";
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -28,16 +29,8 @@ export async function GET(request: Request) {
   }
 
   // Verify user is a member of this account
-  const { data: membership } = await supabase
-    .from("account_members")
-    .select("role")
-    .eq("account_id", accountId)
-    .eq("user_id", user.id)
-    .single();
-
-  if (!membership) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const membershipError = await requireAccountMembership(supabase, accountId, user.id);
+  if (membershipError) return membershipError;
 
   const { data: tags, error } = await supabase
     .from("tags")
@@ -81,16 +74,8 @@ export async function POST(request: Request) {
   const body = parsed.data;
 
   // Verify user is a member of this account
-  const { data: membership } = await supabase
-    .from("account_members")
-    .select("role")
-    .eq("account_id", body.account_id)
-    .eq("user_id", user.id)
-    .single();
-
-  if (!membership) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const membershipError = await requireAccountMembership(supabase, body.account_id, user.id);
+  if (membershipError) return membershipError;
 
   const { data: tag, error } = await supabase
     .from("tags")
@@ -144,16 +129,8 @@ export async function DELETE(request: Request) {
   }
 
   // Verify user is a member of this account
-  const { data: membership } = await supabase
-    .from("account_members")
-    .select("role")
-    .eq("account_id", tag.account_id)
-    .eq("user_id", user.id)
-    .single();
-
-  if (!membership) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const membershipError = await requireAccountMembership(supabase, tag.account_id, user.id);
+  if (membershipError) return membershipError;
 
   const { error } = await supabase.from("tags").delete().eq("id", tagId);
 
