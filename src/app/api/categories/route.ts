@@ -26,6 +26,18 @@ export async function GET(request: Request) {
     );
   }
 
+  // Verify user is a member of this account
+  const { data: membership } = await supabase
+    .from("account_members")
+    .select("role")
+    .eq("account_id", accountId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!membership) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const { data: categories, error } = await supabase
     .from("categories")
     .select("*")
@@ -63,6 +75,18 @@ export async function POST(request: Request) {
   }
 
   const body = parsed.data;
+
+  // Verify user is a member of this account
+  const { data: membership } = await supabase
+    .from("account_members")
+    .select("role")
+    .eq("account_id", body.account_id)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!membership) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const { data: category, error } = await supabase
     .from("categories")
