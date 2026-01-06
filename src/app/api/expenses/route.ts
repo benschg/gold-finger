@@ -22,14 +22,26 @@ export async function GET(request: Request) {
   const categoryId = searchParams.get("category_id");
   const startDate = searchParams.get("start_date");
   const endDate = searchParams.get("end_date");
-  const limit = parseInt(searchParams.get("limit") || "50");
-  const offset = parseInt(searchParams.get("offset") || "0");
+  const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
+  const offset = Math.max(parseInt(searchParams.get("offset") || "0"), 0);
 
   if (!accountId) {
     return NextResponse.json(
       { error: "account_id is required" },
       { status: 400 }
     );
+  }
+
+  // Verify user is a member of this account
+  const { data: membership } = await supabase
+    .from("account_members")
+    .select("role")
+    .eq("account_id", accountId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!membership) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   // Build query
@@ -118,6 +130,18 @@ export async function POST(request: Request) {
   }
 
   const body = parsed.data;
+
+  // Verify user is a member of this account
+  const { data: membership } = await supabase
+    .from("account_members")
+    .select("role")
+    .eq("account_id", body.account_id)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!membership) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   // Fetch account's default currency
   const { data: account } = await supabase
