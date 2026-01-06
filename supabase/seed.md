@@ -98,12 +98,14 @@ All users have the password: `password123`
 
 | Account | Total Expenses | By User | Date Range |
 |---------|----------------|---------|------------|
-| Alice Personal | 20 | Alice: 20 | Nov-Dec 2024 |
-| Bob Personal | 16 | Bob: 16 | Nov-Dec 2024 |
-| Charlie Personal | 14 | Charlie: 14 | Nov-Dec 2024 |
-| Household | 20 | Alice: 10, Bob: 10 | Nov-Dec 2024 |
-| Project Alpha | 16 | Alice: 8, Charlie: 8 | Nov-Dec 2024 |
+| Alice Personal | 20 | Alice: 20 | Jan-Dec 2025 |
+| Bob Personal | 16 | Bob: 16 | Jan-Dec 2025 |
+| Charlie Personal | 14 | Charlie: 14 | Jan-Dec 2025 |
+| Household | 20 | Alice: 10, Bob: 10 | Jan-Dec 2025 |
+| Project Alpha | 16 | Alice: 8, Charlie: 8 | Jan-Dec 2025 |
 | **Total** | **86** | | |
+
+Expenses are distributed across all months of 2025 to provide realistic year-long data for testing charts, filters, and date-based features.
 
 ## Multi-Currency Expenses
 
@@ -142,6 +144,11 @@ Project Alpha:     acac1313-0000-0000-0000-000000000001
 1. Alice's account (EUR) with USD purchases shows conversion
 2. Charlie's account (GBP) with EUR expenses shows conversion
 3. Project Alpha (EUR) with USD and GBP expenses
+
+### Date Range Testing
+- Expenses span all 12 months of 2025
+- Filter by month, quarter, or custom date ranges
+- Test year-to-date summaries and monthly comparisons
 
 ### Role Testing
 - Alice is owner of all her shared accounts (can edit settings, invite)
