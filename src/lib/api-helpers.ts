@@ -32,7 +32,7 @@ export async function checkAccountMembership(
 
   return {
     isMember: !!membership,
-    role: membership?.role as AccountRole | null,
+    role: membership ? (membership.role as AccountRole) : null,
   };
 }
 
