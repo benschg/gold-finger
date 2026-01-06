@@ -11,7 +11,7 @@ export function HeroFingerAnimation() {
     <div className="mb-8 flex justify-center">
       <div
         className="group relative rounded-full bg-linear-to-br from-yellow-400 to-yellow-600 p-4 shadow-xl shadow-yellow-500/40 duration-700 animate-in fade-in zoom-in sm:p-6"
-        style={{ clipPath: "inset(-50% 0 0 0 round 999px)" }}
+        style={{ clipPath: "inset(-100% 0 0 0 round 999px)" }}
       >
         {/* Animated finger */}
         <div className="relative h-32 w-32 sm:h-40 sm:w-40" key={animKey}>
