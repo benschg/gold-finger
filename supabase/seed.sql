@@ -84,6 +84,51 @@ INSERT INTO auth.users (
 );
 
 -- ============================================
+-- IDENTITIES (required for Supabase auth to work)
+-- ============================================
+
+INSERT INTO auth.identities (
+  id,
+  user_id,
+  identity_data,
+  provider,
+  provider_id,
+  last_sign_in_at,
+  created_at,
+  updated_at
+) VALUES
+  (
+    '11111111-1111-1111-1111-111111111111',
+    '11111111-1111-1111-1111-111111111111',
+    '{"sub": "11111111-1111-1111-1111-111111111111", "email": "alice@example.com"}'::jsonb,
+    'email',
+    'alice@example.com',
+    NOW(),
+    NOW(),
+    NOW()
+  ),
+  (
+    '22222222-2222-2222-2222-222222222222',
+    '22222222-2222-2222-2222-222222222222',
+    '{"sub": "22222222-2222-2222-2222-222222222222", "email": "bob@example.com"}'::jsonb,
+    'email',
+    'bob@example.com',
+    NOW(),
+    NOW(),
+    NOW()
+  ),
+  (
+    '33333333-3333-3333-3333-333333333333',
+    '33333333-3333-3333-3333-333333333333',
+    '{"sub": "33333333-3333-3333-3333-333333333333", "email": "charlie@example.com"}'::jsonb,
+    'email',
+    'charlie@example.com',
+    NOW(),
+    NOW(),
+    NOW()
+  );
+
+-- ============================================
 -- PROFILES (may be auto-created by trigger, so use upsert)
 -- ============================================
 
