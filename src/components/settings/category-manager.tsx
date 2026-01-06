@@ -46,7 +46,7 @@ export function CategoryManager({
 
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("shopping-cart");
-  const [color, setColor] = useState(DEFAULT_CATEGORY_COLOR);
+  const [color, setColor] = useState<string>(DEFAULT_CATEGORY_COLOR);
 
   const resetForm = () => {
     setName("");

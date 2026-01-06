@@ -70,7 +70,7 @@ export function ManageAccountDialog({
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("wallet");
-  const [color, setColor] = useState(DEFAULT_ACCOUNT_COLOR);
+  const [color, setColor] = useState<string>(DEFAULT_ACCOUNT_COLOR);
   const [currency, setCurrency] = useState<Currency>(DEFAULT_CURRENCY);
   const [members, setMembers] = useState<Member[]>([]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);

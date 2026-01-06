@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -71,7 +71,7 @@ export function ExpenseForm({
   const selectedAccount = accounts.find((a) => a.id === selectedAccountId);
   const effectiveAccountCurrency = (selectedAccount?.currency as Currency) || accountCurrency;
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [addAnotherPending, setAddAnotherPending] = useState(false);
+  const addAnotherRef = useRef(false);
   const [selectedTags, setSelectedTags] = useState<string[]>(
     expense?.tags?.map((t) => t.id) || []
   );
@@ -128,7 +128,7 @@ export function ExpenseForm({
         throw new Error(error.error || "Failed to save expense");
       }
 
-      if (addAnotherPending) {
+      if (addAnotherRef.current) {
         // Reset form for another entry
         setValue("amount", undefined as unknown as number);
         setValue("description", "");
@@ -136,21 +136,21 @@ export function ExpenseForm({
         setSelectedTags([]);
         setReceiptUrl(null);
         setAiAutoFilled(false);
-        setAddAnotherPending(false);
+        addAnotherRef.current = false;
         onAddAnother?.();
       } else {
         onSuccess?.();
       }
     } catch (error) {
       console.error("Error saving expense:", error);
-      setAddAnotherPending(false);
+      addAnotherRef.current = false;
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleAddAnother = () => {
-    setAddAnotherPending(true);
+    addAnotherRef.current = true;
   };
 
   const toggleTag = (tagId: string) => {
@@ -390,14 +390,14 @@ export function ExpenseForm({
             disabled={isSubmitting}
             onClick={handleAddAnother}
           >
-            {isSubmitting && addAnotherPending && (
+            {isSubmitting && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
             Add & New
           </Button>
         )}
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting && !addAnotherPending && (
+          {isSubmitting && (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           )}
           {expense ? "Update" : "Add"} Expense

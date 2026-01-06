@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Plus, Loader2 } from "lucide-react";
+import { IconBadge } from "@/components/ui/icon-picker";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -52,10 +53,14 @@ export default function ExpensesPage() {
     useState<ExpenseWithDetails | null>(null);
   const [expenseToDelete, setExpenseToDelete] =
     useState<ExpenseWithDetails | null>(null);
+  // Track which account is selected in the form (may differ from page filter)
+  const [formAccountId, setFormAccountId] = useState<string | null>(null);
 
   const { accounts, isLoading: isLoadingAccounts } = useAccounts();
-  const { categories } = useCategories(selectedAccountId);
-  const { tags } = useTags(selectedAccountId);
+  // Use formAccountId when dialog is open, otherwise use selectedAccountId
+  const categoriesAccountId = isDialogOpen ? formAccountId : selectedAccountId;
+  const { categories } = useCategories(categoriesAccountId);
+  const { tags } = useTags(categoriesAccountId);
 
   // Get selected account for its currency
   const selectedAccount = accounts.find((a) => a.id === selectedAccountId);
@@ -93,11 +98,23 @@ export default function ExpensesPage() {
 
   const handleAddExpense = () => {
     setEditingExpense(null);
+    setFormAccountId(selectedAccountId);
     setIsDialogOpen(true);
+  };
+
+  const handleFormAccountChange = (accountId: string) => {
+    setFormAccountId(accountId);
+  };
+
+  const handleAddAnother = () => {
+    setEditingExpense(null);
+    // Keep the same form account for consecutive adds
+    fetchExpenses();
   };
 
   const handleEditExpense = (expense: ExpenseWithDetails) => {
     setEditingExpense(expense);
+    setFormAccountId(expense.account_id);
     setIsDialogOpen(true);
   };
 
@@ -171,7 +188,14 @@ export default function ExpensesPage() {
             <SelectContent>
               {accounts.map((account) => (
                 <SelectItem key={account.id} value={account.id}>
-                  {account.name}
+                  <div className="flex items-center gap-2">
+                    <IconBadge
+                      icon={account.icon ?? "wallet"}
+                      color={account.color ?? "#6366f1"}
+                      size="xs"
+                    />
+                    {account.name}
+                  </div>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -206,15 +230,18 @@ export default function ExpensesPage() {
               {editingExpense ? "Edit Expense" : "Add Expense"}
             </DialogTitle>
           </DialogHeader>
-          {selectedAccountId && (
+          {formAccountId && (
             <ExpenseForm
-              accountId={selectedAccountId}
+              accountId={formAccountId}
+              accounts={accounts}
               accountCurrency={selectedAccount?.currency as Currency | undefined}
               categories={categories}
               tags={tags}
               expense={editingExpense || undefined}
               onSuccess={handleFormSuccess}
               onCancel={() => setIsDialogOpen(false)}
+              onAccountChange={handleFormAccountChange}
+              onAddAnother={editingExpense ? undefined : handleAddAnother}
             />
           )}
         </DialogContent>

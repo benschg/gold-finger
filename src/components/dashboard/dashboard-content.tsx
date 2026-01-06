@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DynamicIcon } from "@/components/ui/icon-picker";
+import { IconBadge } from "@/components/ui/icon-picker";
 import { StatCard } from "./stat-card";
 import { ExpensePieChart } from "./expense-pie-chart";
 import { ExpenseBarChart } from "./expense-bar-chart";
@@ -168,12 +168,11 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
               {accounts.map((account) => (
                 <SelectItem key={account.id} value={account.id}>
                   <div className="flex items-center gap-2">
-                    <span
-                      className="flex h-4 w-4 items-center justify-center rounded-full text-white shrink-0"
-                      style={{ backgroundColor: account.color ?? "#6366f1" }}
-                    >
-                      <DynamicIcon name={account.icon ?? "wallet"} className="h-2.5 w-2.5" />
-                    </span>
+                    <IconBadge
+                      icon={account.icon ?? "wallet"}
+                      color={account.color ?? "#6366f1"}
+                      size="xs"
+                    />
                     {account.name}
                   </div>
                 </SelectItem>
@@ -248,12 +247,11 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
                     >
                       <div className="flex items-start sm:items-center gap-2 sm:gap-3 min-w-0">
                         {expense.category && (
-                          <div
-                            className="flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-full text-white shrink-0"
-                            style={{ backgroundColor: expense.category.color }}
-                          >
-                            <DynamicIcon name={expense.category.icon} className="h-3 w-3 sm:h-4 sm:w-4" />
-                          </div>
+                          <IconBadge
+                            icon={expense.category.icon}
+                            color={expense.category.color}
+                            size="md"
+                          />
                         )}
                         <div className="min-w-0">
                           <p className="font-medium text-sm sm:text-base truncate">
