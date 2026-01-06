@@ -197,7 +197,10 @@ export default function ExpensesPage() {
       )}
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-lg">
+        <DialogContent
+          className="max-w-[calc(100vw-2rem)] sm:max-w-lg"
+          onInteractOutside={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>
               {editingExpense ? "Edit Expense" : "Add Expense"}
