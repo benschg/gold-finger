@@ -10,13 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { AccountSelector } from "@/components/accounts";
 import { CategoryManager } from "./category-manager";
 import { TagManager } from "./tag-manager";
 import { useAccounts } from "@/lib/hooks/use-accounts";
@@ -77,21 +71,12 @@ export function SettingsCategoriesTags() {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="max-w-xs">
-          <Select
-            value={selectedAccountId || ""}
+          <AccountSelector
+            accounts={accounts}
+            value={selectedAccountId}
             onValueChange={setSelectedAccountId}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select account" />
-            </SelectTrigger>
-            <SelectContent>
-              {accounts.map((account) => (
-                <SelectItem key={account.id} value={account.id}>
-                  {account.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            showIcon={false}
+          />
         </div>
 
         {selectedAccountId && (

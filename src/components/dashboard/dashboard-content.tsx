@@ -10,15 +10,9 @@ import {
   Loader2,
 } from "lucide-react";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IconBadge } from "@/components/ui/icon-picker";
+import { AccountSelector } from "@/components/accounts";
 import { StatCard } from "./stat-card";
 import { ExpensePieChart } from "./expense-pie-chart";
 import { StackedBarChart } from "./stacked-bar-chart";
@@ -222,28 +216,12 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
           </div>
 
           {accounts.length > 0 && (
-            <Select
-              value={selectedAccountId || ""}
+            <AccountSelector
+              accounts={accounts}
+              value={selectedAccountId}
               onValueChange={setSelectedAccountId}
-            >
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Select account" />
-              </SelectTrigger>
-              <SelectContent>
-                {accounts.map((account) => (
-                  <SelectItem key={account.id} value={account.id}>
-                    <div className="flex items-center gap-2">
-                      <IconBadge
-                        icon={account.icon ?? "wallet"}
-                        color={account.color ?? "#6366f1"}
-                        size="xs"
-                      />
-                      {account.name}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              className="w-full sm:w-48"
+            />
           )}
         </div>
 

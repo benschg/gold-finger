@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Plus, Loader2 } from "lucide-react";
-import { IconBadge } from "@/components/ui/icon-picker";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,13 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { AccountSelector } from "@/components/accounts";
 import { ExpenseForm, ExpenseTable } from "@/components/expenses";
 import { useAccounts } from "@/lib/hooks/use-accounts";
 import { useCategories } from "@/lib/hooks/use-categories";
@@ -170,28 +163,12 @@ export default function ExpensesPage() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
-          <Select
-            value={selectedAccountId || ""}
+          <AccountSelector
+            accounts={accounts}
+            value={selectedAccountId}
             onValueChange={setSelectedAccountId}
-          >
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="Select account" />
-            </SelectTrigger>
-            <SelectContent>
-              {accounts.map((account) => (
-                <SelectItem key={account.id} value={account.id}>
-                  <div className="flex items-center gap-2">
-                    <IconBadge
-                      icon={account.icon ?? "wallet"}
-                      color={account.color ?? "#6366f1"}
-                      size="xs"
-                    />
-                    {account.name}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            className="w-full sm:w-48"
+          />
 
           <Button onClick={handleAddExpense} className="w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" />
