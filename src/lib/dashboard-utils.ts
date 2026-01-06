@@ -1,12 +1,6 @@
 import { format, parseISO, subMonths, isWithinInterval } from "date-fns";
-import type { Tables } from "@/types/database.types";
-
-type Category = Tables<"categories">;
-type Tag = Tables<"tags">;
-type ExpenseWithDetails = Tables<"expenses"> & {
-  category?: Category | null;
-  tags?: Tag[];
-};
+import { UNCATEGORIZED_LABEL, UNCATEGORIZED_COLOR } from "@/lib/constants";
+import type { Category, Tag, ExpenseWithDetails } from "@/types/database";
 
 export interface StackedMonthData {
   month: string;
@@ -92,7 +86,7 @@ export function transformToStackedBarData(
   categories.forEach((cat) => {
     categoryColorMap.set(cat.name, cat.color);
   });
-  categoryColorMap.set("Uncategorized", "#94a3b8");
+  categoryColorMap.set(UNCATEGORIZED_LABEL, UNCATEGORIZED_COLOR);
 
   // Initialize months
   for (let i = monthCount - 1; i >= 0; i--) {
@@ -104,7 +98,7 @@ export function transformToStackedBarData(
   // Aggregate expenses by month and category
   expenses.forEach((expense) => {
     const monthKey = format(new Date(expense.date), "yyyy-MM");
-    const categoryName = expense.category?.name || "Uncategorized";
+    const categoryName = expense.category?.name || UNCATEGORIZED_LABEL;
 
     if (monthMap.has(monthKey)) {
       const categoryMap = monthMap.get(monthKey)!;
@@ -142,9 +136,9 @@ export function transformToStackedBarData(
   return {
     data,
     categoryKeys: Array.from(categoryKeys).sort((a, b) => {
-      // Put "Uncategorized" last
-      if (a === "Uncategorized") return 1;
-      if (b === "Uncategorized") return -1;
+      // Put uncategorized last
+      if (a === UNCATEGORIZED_LABEL) return 1;
+      if (b === UNCATEGORIZED_LABEL) return -1;
       return a.localeCompare(b);
     }),
   };
@@ -164,8 +158,8 @@ export function calculateCategoryBreakdown(
 
   expenses.forEach((expense) => {
     const categoryId = expense.category_id;
-    const categoryName = expense.category?.name || "Uncategorized";
-    const categoryColor = expense.category?.color || "#94a3b8";
+    const categoryName = expense.category?.name || UNCATEGORIZED_LABEL;
+    const categoryColor = expense.category?.color || UNCATEGORIZED_COLOR;
 
     const existing = categoryMap.get(categoryName);
     if (existing) {
@@ -235,7 +229,7 @@ export function buildCategoryColorMap(
     map.set(cat.id, cat.color);
     map.set(cat.name, cat.color);
   });
-  map.set("Uncategorized", "#94a3b8");
+  map.set(UNCATEGORIZED_LABEL, UNCATEGORIZED_COLOR);
   return map;
 }
 

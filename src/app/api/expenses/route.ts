@@ -3,20 +3,14 @@ import { NextResponse } from "next/server";
 import { createExpenseSchema } from "@/lib/validations/schemas";
 import { getExchangeRate, convertAmount } from "@/lib/exchange-rates";
 import { sanitizeDbError } from "@/lib/api-errors";
-import { requireAccountMembership } from "@/lib/api-helpers";
+import { requireAuth, requireAccountMembership, validateRequest } from "@/lib/api-helpers";
 
 export async function GET(request: Request) {
   const supabase = await createClient();
 
-  // Get current user
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await requireAuth(supabase);
+  if (auth.error) return auth.error;
+  const { user } = auth;
 
   // Get query params
   const { searchParams } = new URL(request.url);
@@ -106,27 +100,14 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const supabase = await createClient();
 
-  // Get current user
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await requireAuth(supabase);
+  if (auth.error) return auth.error;
+  const { user } = auth;
 
   const json = await request.json();
-  const parsed = createExpenseSchema.safeParse(json);
-
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.issues[0].message },
-      { status: 400 }
-    );
-  }
-
-  const body = parsed.data;
+  const validation = validateRequest(createExpenseSchema, json);
+  if (validation.error) return validation.error;
+  const body = validation.data;
 
   // Verify user is a member of this account
   const membershipError = await requireAccountMembership(supabase, body.account_id, user.id);

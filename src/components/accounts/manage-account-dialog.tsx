@@ -29,18 +29,12 @@ import {
   ACCOUNT_COLORS,
   DEFAULT_ACCOUNT_COLOR,
 } from "@/lib/constants";
+import type { AccountWithRole, AccountRole, Currency } from "@/types/database";
 import type { Tables } from "@/types/database.types";
-import type { Currency } from "@/types/database";
-
-type Account = Tables<"accounts">;
-
-interface AccountWithRole extends Account {
-  role: "owner" | "member";
-}
 
 interface Member {
   user_id: string;
-  role: "owner" | "member";
+  role: AccountRole;
   joined_at: string;
   email?: string;
   profile?: {

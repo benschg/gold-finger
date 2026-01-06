@@ -1,13 +1,13 @@
-import { SupabaseClient } from "@supabase/supabase-js";
+import { SupabaseClient, User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import type { Database } from "@/types/database.types";
+import type { AccountRole } from "@/types/database";
 import {
   checkRateLimit,
   getClientIdentifier,
   RateLimitConfig,
 } from "./rate-limit";
-
-type AccountRole = "owner" | "member";
 
 interface MembershipResult {
   isMember: boolean;
@@ -104,4 +104,69 @@ export function applyRateLimit(
   }
 
   return null;
+}
+
+interface AuthResult {
+  user: User;
+  error: null;
+}
+
+interface AuthError {
+  user: null;
+  error: NextResponse;
+}
+
+/**
+ * Require authentication for an API route.
+ * Returns the authenticated user or an error response.
+ */
+export async function requireAuth(
+  supabase: SupabaseClient<Database>
+): Promise<AuthResult | AuthError> {
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return {
+      user: null,
+      error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+    };
+  }
+
+  return { user, error: null };
+}
+
+interface ValidationResult<T> {
+  data: T;
+  error: null;
+}
+
+interface ValidationError {
+  data: null;
+  error: NextResponse;
+}
+
+/**
+ * Validate request body against a Zod schema.
+ * Returns the validated data or an error response.
+ */
+export function validateRequest<T>(
+  schema: z.ZodSchema<T>,
+  data: unknown
+): ValidationResult<T> | ValidationError {
+  const parsed = schema.safeParse(data);
+
+  if (!parsed.success) {
+    return {
+      data: null,
+      error: NextResponse.json(
+        { error: parsed.error.issues[0].message },
+        { status: 400 }
+      ),
+    };
+  }
+
+  return { data: parsed.data, error: null };
 }

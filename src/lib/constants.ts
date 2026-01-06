@@ -49,3 +49,11 @@ export const CATEGORY_COLORS = [
 
 export const DEFAULT_ACCOUNT_COLOR = ACCOUNT_COLORS[0];
 export const DEFAULT_CATEGORY_COLOR = CATEGORY_COLORS[0];
+
+// Tag colors (same as category colors)
+export const TAG_COLORS = CATEGORY_COLORS;
+export const DEFAULT_TAG_COLOR = TAG_COLORS[0];
+
+// Uncategorized defaults
+export const UNCATEGORIZED_LABEL = "Uncategorized";
+export const UNCATEGORIZED_COLOR = "#94a3b8";

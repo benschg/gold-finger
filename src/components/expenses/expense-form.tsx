@@ -21,16 +21,7 @@ import {
 import { ReceiptUpload } from "./receipt-upload";
 import { ExchangeRateDisplay } from "./exchange-rate-display";
 import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/constants";
-import type { Tables } from "@/types/database.types";
-import type { Currency } from "@/types/database";
-
-type Account = Tables<"accounts">;
-type Category = Tables<"categories">;
-type Tag = Tables<"tags">;
-type ExpenseWithDetails = Tables<"expenses"> & {
-  category?: Category | null;
-  tags?: Tag[];
-};
+import type { Account, Category, Tag, ExpenseWithDetails, Currency } from "@/types/database";
 
 const expenseSchema = z.object({
   amount: z.number().positive("Amount must be positive"),

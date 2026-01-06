@@ -2,19 +2,14 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { createAccountSchema } from "@/lib/validations/schemas";
 import { sanitizeDbError } from "@/lib/api-errors";
+import { requireAuth, validateRequest } from "@/lib/api-helpers";
 
 export async function GET() {
   const supabase = await createClient();
 
-  // Get current user
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await requireAuth(supabase);
+  if (auth.error) return auth.error;
+  const { user } = auth;
 
   // Get accounts where user is a member
   const { data: memberships, error: memberError } = await supabase
@@ -46,27 +41,14 @@ export async function POST(request: Request) {
   const supabase = await createClient();
   const adminClient = createAdminClient();
 
-  // Get current user
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await requireAuth(supabase);
+  if (auth.error) return auth.error;
+  const { user } = auth;
 
   const json = await request.json();
-  const parsed = createAccountSchema.safeParse(json);
-
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.issues[0].message },
-      { status: 400 }
-    );
-  }
-
-  const body = parsed.data;
+  const validation = validateRequest(createAccountSchema, json);
+  if (validation.error) return validation.error;
+  const body = validation.data;
 
   // Create account using admin client (bypasses RLS)
   const { data: account, error: accountError } = await adminClient
