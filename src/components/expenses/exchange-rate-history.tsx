@@ -150,13 +150,13 @@ export function ExchangeRateHistory({
                 <XAxis
                   dataKey="date"
                   tickFormatter={formatDate}
-                  tick={{ fontSize: 12 }}
+                  tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
                   domain={["auto", "auto"]}
-                  tick={{ fontSize: 12 }}
+                  tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={(v) => v.toFixed(3)}
@@ -167,7 +167,7 @@ export function ExchangeRateHistory({
                     if (active && payload?.[0]) {
                       const item = payload[0].payload as RateData;
                       return (
-                        <div className="rounded-lg border bg-background p-2 shadow-md">
+                        <div className="rounded-lg border bg-popover text-popover-foreground p-2 shadow-md">
                           <p className="text-xs text-muted-foreground">
                             {new Date(item.date).toLocaleDateString()}
                           </p>
@@ -222,7 +222,9 @@ export function ExchangeRateHistory({
             </span>
             <span
               className={`flex items-center gap-1 font-medium ${
-                data.stats.change >= 0 ? "text-green-600" : "text-red-600"
+                data.stats.change >= 0
+                  ? "text-green-600 dark:text-green-400"
+                  : "text-red-600 dark:text-red-400"
               }`}
             >
               {data.stats.change >= 0 ? (
