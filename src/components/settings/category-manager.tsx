@@ -6,7 +6,7 @@ import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { IconPicker, DynamicIcon } from "@/components/ui/icon-picker";
+import { IconPicker, IconBadge, ColorPicker } from "@/components/ui/icon-picker";
 import {
   Dialog,
   DialogContent,
@@ -23,24 +23,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { CATEGORY_COLORS, DEFAULT_CATEGORY_COLOR } from "@/lib/constants";
 import type { Tables } from "@/types/database.types";
 
 type Category = Tables<"categories">;
-
-const categoryColors = [
-  "#ef4444",
-  "#f97316",
-  "#eab308",
-  "#22c55e",
-  "#14b8a6",
-  "#06b6d4",
-  "#3b82f6",
-  "#6366f1",
-  "#8b5cf6",
-  "#a855f7",
-  "#d946ef",
-  "#ec4899",
-];
 
 interface CategoryManagerProps {
   accountId: string;
@@ -60,12 +46,12 @@ export function CategoryManager({
 
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("shopping-cart");
-  const [color, setColor] = useState(categoryColors[0]);
+  const [color, setColor] = useState(DEFAULT_CATEGORY_COLOR);
 
   const resetForm = () => {
     setName("");
     setIcon("shopping-cart");
-    setColor(categoryColors[0]);
+    setColor(DEFAULT_CATEGORY_COLOR);
     setEditingCategory(null);
   };
 
@@ -159,12 +145,7 @@ export function CategoryManager({
               className="flex items-center justify-between rounded-lg border p-2 sm:p-3"
             >
               <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                <div
-                  className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full text-white shrink-0"
-                  style={{ backgroundColor: category.color }}
-                >
-                  <DynamicIcon name={category.icon} className="h-4 w-4" />
-                </div>
+                <IconBadge icon={category.icon} color={category.color} size="md" />
                 <span className="font-medium text-sm sm:text-base truncate">{category.name}</span>
               </div>
               <div className="flex items-center gap-1 sm:gap-2 shrink-0">
@@ -220,19 +201,13 @@ export function CategoryManager({
 
             <div className="space-y-2">
               <Label>Color</Label>
-              <div className="grid grid-cols-6 gap-2">
-                {categoryColors.map((colorValue) => (
-                  <button
-                    key={colorValue}
-                    type="button"
-                    onClick={() => setColor(colorValue)}
-                    className={`h-8 w-full rounded-full ${
-                      color === colorValue ? "ring-2 ring-primary ring-offset-2" : ""
-                    }`}
-                    style={{ backgroundColor: colorValue }}
-                  />
-                ))}
-              </div>
+              <ColorPicker
+                value={color}
+                onChange={setColor}
+                colors={CATEGORY_COLORS}
+                icon={icon}
+                columns={6}
+              />
             </div>
 
             <div className="flex justify-end gap-2 pt-4">
