@@ -157,6 +157,7 @@ create_systemd_service() {
     read -p "Create systemd service for auto-start on boot? (y/N) " -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        SYSTEMD_CREATED=false
         return
     fi
 
@@ -184,9 +185,40 @@ WantedBy=multi-user.target
 EOF
 
     sudo systemctl daemon-reload
+    SYSTEMD_CREATED=true
     print_success "Systemd service created: gold-finger.service"
-    print_status "Enable with: sudo systemctl enable gold-finger"
-    print_status "Start with: sudo systemctl start gold-finger"
+}
+
+# Start services
+start_services() {
+    if [ "$NEED_RELOGIN" = true ]; then
+        print_warning "Docker group permissions require logout/login. Cannot start services now."
+        return
+    fi
+
+    read -p "Start Docker containers now? (y/N) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        return
+    fi
+
+    print_status "Starting Docker containers..."
+    docker compose -f docker-compose.pi.yml up -d
+
+    print_status "Waiting for services to be ready..."
+    sleep 10
+
+    SERVICES_STARTED=true
+    print_success "Docker services started!"
+
+    read -p "Start the Gold-Finger app now? (y/N) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        print_status "Starting Gold-Finger on port 3000..."
+        print_status "Press Ctrl+C to stop"
+        echo ""
+        bun start
+    fi
 }
 
 # Print final instructions
@@ -197,32 +229,46 @@ print_instructions() {
     echo -e "${GREEN}============================================${NC}"
     echo ""
 
-    if [ "$USE_LIGHTWEIGHT" = true ]; then
+    LOCAL_IP=$(hostname -I | awk '{print $1}')
+
+    if [ "$SERVICES_STARTED" = true ]; then
+        echo -e "${GREEN}Services are running!${NC}"
+        echo "  App: http://${LOCAL_IP}:3000"
+        echo "  Email Testing: http://${LOCAL_IP}:54334"
+        echo ""
+        echo "To stop: docker compose -f docker-compose.pi.yml down"
+    elif [ "$USE_LIGHTWEIGHT" = true ]; then
         echo -e "${YELLOW}Lightweight mode (4GB RAM):${NC}"
         echo "  1. Edit .env.local with hosted Supabase credentials"
         echo "     (Get free account at https://supabase.com)"
-        echo "  2. Build: bun run build"
-        echo "  3. Start: bun start"
+        echo "  2. Start: bun start"
         echo ""
         echo "  Or use local lightweight stack:"
         echo "  1. docker compose -f docker-compose.pi.yml up -d"
-        echo "  2. bun dev"
+        echo "  2. bun start"
     else
         echo -e "${GREEN}Full stack mode (8GB+ RAM):${NC}"
         echo "  1. Start Supabase: docker compose -f docker-compose.pi.yml up -d"
         echo "  2. Run migrations: bun run db:migrate"
-        echo "  3. Development: bun dev"
-        echo "  4. Production: bun run build && bun start"
+        echo "  3. Start app: bun start"
         echo ""
-        echo "  Supabase Studio: http://$(hostname -I | awk '{print $1}'):54333"
+        echo "  Supabase Studio: http://${LOCAL_IP}:54333"
     fi
 
     echo ""
-    echo "App will be available at: http://$(hostname -I | awk '{print $1}'):3000"
+    echo "App will be available at: http://${LOCAL_IP}:3000"
     echo ""
 
     if [ "$NEED_RELOGIN" = true ]; then
         print_warning "Please log out and back in for Docker permissions to take effect"
+        print_warning "Then run: docker compose -f docker-compose.pi.yml up -d && bun start"
+    fi
+
+    if [ "$SYSTEMD_CREATED" = true ]; then
+        echo ""
+        echo "Auto-start on boot:"
+        echo "  sudo systemctl enable gold-finger"
+        echo "  sudo systemctl start gold-finger"
     fi
 }
 
@@ -237,8 +283,12 @@ main() {
     check_architecture
     check_memory
 
-    # Check if Docker group needs relogin
+    # Initialize flags
     NEED_RELOGIN=false
+    SYSTEMD_CREATED=false
+    SERVICES_STARTED=false
+
+    # Check if Docker group needs relogin
     if ! groups | grep -q docker; then
         NEED_RELOGIN=true
     fi
@@ -255,6 +305,7 @@ main() {
     bun run build
 
     create_systemd_service
+    start_services
     print_instructions
 }
 
