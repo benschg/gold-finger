@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import { ArrowRightLeft, CalendarIcon, History, Loader2, Sparkles } from "lucide-react";
+import { CalendarIcon, Loader2, Sparkles } from "lucide-react";
 import { IconBadge } from "@/components/ui/icon-picker";
 
 import { Button } from "@/components/ui/button";
@@ -19,9 +19,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ReceiptUpload } from "./receipt-upload";
-import { ExchangeRateHistory } from "./exchange-rate-history";
+import { ExchangeRateDisplay } from "./exchange-rate-display";
 import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/constants";
-import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import type { Tables } from "@/types/database.types";
 import type { Currency } from "@/types/database";
 
@@ -100,22 +99,6 @@ export function ExpenseForm({
 
   const selectedCurrency = watch("currency");
   const watchedAmount = watch("amount");
-
-  // Use 1 as default for exchange rate display when no amount entered
-  const displayAmount = watchedAmount || 1;
-
-  // Fetch exchange rate when currencies differ
-  const {
-    rate: exchangeRate,
-    convertedAmount,
-    isLoading: isLoadingRate,
-    error: rateError,
-  } = useExchangeRate({
-    fromCurrency: selectedCurrency,
-    toCurrency: effectiveAccountCurrency,
-    amount: displayAmount,
-    enabled: selectedCurrency !== effectiveAccountCurrency,
-  });
 
   const handleAccountChange = (newAccountId: string) => {
     setSelectedAccountId(newAccountId);
@@ -308,70 +291,11 @@ export function ExpenseForm({
       </div>
 
       {/* Exchange rate conversion info */}
-      {selectedCurrency !== effectiveAccountCurrency && (
-        <div className="rounded-lg border bg-muted/50 p-3 space-y-1">
-          {isLoadingRate ? (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Fetching exchange rate...
-            </div>
-          ) : exchangeRate && convertedAmount ? (
-            <>
-              <div className="flex items-center gap-2 text-sm">
-                <ArrowRightLeft className="h-4 w-4 text-muted-foreground" />
-                <span>
-                  {CURRENCIES.find((c) => c.code === selectedCurrency)?.symbol}
-                  {displayAmount.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}{" "}
-                  ={" "}
-                  <strong>
-                    {CURRENCIES.find((c) => c.code === effectiveAccountCurrency)?.symbol}
-                    {convertedAmount.toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </strong>
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>
-                  Rate: 1 {selectedCurrency} = {exchangeRate.toFixed(4)} {effectiveAccountCurrency}
-                </span>
-                <div className="flex items-center gap-2">
-                  <ExchangeRateHistory
-                    fromCurrency={selectedCurrency}
-                    toCurrency={effectiveAccountCurrency}
-                    trigger={
-                      <button
-                        type="button"
-                        className="flex items-center gap-1 hover:underline"
-                      >
-                        <History className="h-3 w-3" />
-                        History
-                      </button>
-                    }
-                  />
-                  <span className="text-muted-foreground/50">|</span>
-                  <a
-                    href="https://frankfurter.dev"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:underline"
-                  >
-                    ECB
-                  </a>
-                </div>
-              </div>
-            </>
-          ) : rateError ? (
-            <div className="text-sm text-destructive">
-              Could not fetch exchange rate. Rate will be calculated on save.
-            </div>
-          ) : null}
-        </div>
-      )}
+      <ExchangeRateDisplay
+        fromCurrency={selectedCurrency}
+        toCurrency={effectiveAccountCurrency}
+        amount={watchedAmount || 0}
+      />
 
       <div className="space-y-2">
         <Label htmlFor="description">Description</Label>
