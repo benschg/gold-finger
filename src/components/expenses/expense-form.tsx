@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import { CalendarIcon, Loader2, Sparkles } from "lucide-react";
+import { ArrowRightLeft, CalendarIcon, Loader2, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,9 @@ import {
 } from "@/components/ui/select";
 import { ReceiptUpload } from "./receipt-upload";
 import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/constants";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import type { Tables } from "@/types/database.types";
+import type { Currency } from "@/types/database";
 
 type Category = Tables<"categories">;
 type Tag = Tables<"tags">;
@@ -40,6 +42,7 @@ type ExpenseFormData = z.infer<typeof expenseSchema>;
 
 interface ExpenseFormProps {
   accountId: string;
+  accountCurrency?: Currency;
   categories: Category[];
   tags: Tag[];
   expense?: ExpenseWithDetails;
@@ -49,6 +52,7 @@ interface ExpenseFormProps {
 
 export function ExpenseForm({
   accountId,
+  accountCurrency = DEFAULT_CURRENCY,
   categories,
   tags,
   expense,
@@ -74,7 +78,7 @@ export function ExpenseForm({
     resolver: zodResolver(expenseSchema),
     defaultValues: {
       amount: expense?.amount || undefined,
-      currency: expense?.currency || DEFAULT_CURRENCY,
+      currency: expense?.currency || accountCurrency,
       description: expense?.description || "",
       date: expense?.date || format(new Date(), "yyyy-MM-dd"),
       category_id: expense?.category_id || undefined,
@@ -82,6 +86,20 @@ export function ExpenseForm({
   });
 
   const selectedCurrency = watch("currency");
+  const watchedAmount = watch("amount");
+
+  // Fetch exchange rate when currencies differ
+  const {
+    rate: exchangeRate,
+    convertedAmount,
+    isLoading: isLoadingRate,
+    error: rateError,
+  } = useExchangeRate({
+    fromCurrency: selectedCurrency,
+    toCurrency: accountCurrency,
+    amount: watchedAmount || 0,
+    enabled: selectedCurrency !== accountCurrency,
+  });
 
   const onSubmit = async (data: ExpenseFormData) => {
     setIsSubmitting(true);
@@ -202,7 +220,7 @@ export function ExpenseForm({
         <div className="space-y-2">
           <Label htmlFor="currency">Currency</Label>
           <Select
-            defaultValue={expense?.currency || DEFAULT_CURRENCY}
+            defaultValue={expense?.currency || accountCurrency}
             onValueChange={(value) => setValue("currency", value)}
           >
             <SelectTrigger>
@@ -221,6 +239,56 @@ export function ExpenseForm({
           )}
         </div>
       </div>
+
+      {/* Exchange rate conversion info */}
+      {selectedCurrency !== accountCurrency && (
+        <div className="rounded-lg border bg-muted/50 p-3 space-y-1">
+          {isLoadingRate ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Fetching exchange rate...
+            </div>
+          ) : exchangeRate && convertedAmount ? (
+            <>
+              <div className="flex items-center gap-2 text-sm">
+                <ArrowRightLeft className="h-4 w-4 text-muted-foreground" />
+                <span>
+                  {CURRENCIES.find((c) => c.code === selectedCurrency)?.symbol}
+                  {watchedAmount?.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }) || "0.00"}{" "}
+                  ={" "}
+                  <strong>
+                    {CURRENCIES.find((c) => c.code === accountCurrency)?.symbol}
+                    {convertedAmount.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </strong>
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>
+                  Rate: 1 {selectedCurrency} = {exchangeRate.toFixed(4)} {accountCurrency}
+                </span>
+                <a
+                  href="https://frankfurter.dev"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline"
+                >
+                  ECB via Frankfurter
+                </a>
+              </div>
+            </>
+          ) : rateError ? (
+            <div className="text-sm text-destructive">
+              Could not fetch exchange rate. Rate will be calculated on save.
+            </div>
+          ) : null}
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="description">Description</Label>

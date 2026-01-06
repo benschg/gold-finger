@@ -32,6 +32,7 @@ import { useAccounts } from "@/lib/hooks/use-accounts";
 import { useCategories } from "@/lib/hooks/use-categories";
 import { useTags } from "@/lib/hooks/use-tags";
 import type { Tables } from "@/types/database.types";
+import type { Currency } from "@/types/database";
 
 type Category = Tables<"categories">;
 type Tag = Tables<"tags">;
@@ -55,6 +56,9 @@ export default function ExpensesPage() {
   const { accounts, isLoading: isLoadingAccounts } = useAccounts();
   const { categories } = useCategories(selectedAccountId);
   const { tags } = useTags(selectedAccountId);
+
+  // Get selected account for its currency
+  const selectedAccount = accounts.find((a) => a.id === selectedAccountId);
 
   // Set default account when accounts load
   useEffect(() => {
@@ -202,6 +206,7 @@ export default function ExpensesPage() {
           {selectedAccountId && (
             <ExpenseForm
               accountId={selectedAccountId}
+              accountCurrency={selectedAccount?.currency as Currency | undefined}
               categories={categories}
               tags={tags}
               expense={editingExpense || undefined}

@@ -7,6 +7,31 @@ export type Json =
   | Json[]
 
 export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       account_invitations: {
@@ -217,48 +242,67 @@ export type Database = {
       }
       expenses: {
         Row: {
+          account_currency: string | null
           account_id: string
           amount: number
           category_id: string | null
+          converted_amount: number | null
           created_at: string | null
           currency: string
           date: string
           description: string | null
+          exchange_rate: number | null
           id: string
+          rate_date: string | null
           receipt_analysis: Json | null
           receipt_url: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          account_currency?: string | null
           account_id: string
           amount: number
           category_id?: string | null
+          converted_amount?: number | null
           created_at?: string | null
           currency?: string
           date?: string
           description?: string | null
+          exchange_rate?: number | null
           id?: string
+          rate_date?: string | null
           receipt_analysis?: Json | null
           receipt_url?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          account_currency?: string | null
           account_id?: string
           amount?: number
           category_id?: string | null
+          converted_amount?: number | null
           created_at?: string | null
           currency?: string
           date?: string
           description?: string | null
+          exchange_rate?: number | null
           id?: string
+          rate_date?: string | null
           receipt_analysis?: Json | null
           receipt_url?: string | null
           updated_at?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "expenses_account_currency_fkey"
+            columns: ["account_currency"]
+            isOneToOne: false
+            referencedRelation: "currencies"
+            referencedColumns: ["code"]
+          },
           {
             foreignKeyName: "expenses_account_id_fkey"
             columns: ["account_id"]
@@ -509,6 +553,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

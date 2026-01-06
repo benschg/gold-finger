@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { createExpenseSchema } from "@/lib/validations/schemas";
+import { getExchangeRate, convertAmount } from "@/lib/exchange-rates";
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -118,6 +119,29 @@ export async function POST(request: Request) {
 
   const body = parsed.data;
 
+  // Fetch account's default currency
+  const { data: account } = await supabase
+    .from("accounts")
+    .select("currency")
+    .eq("id", body.account_id)
+    .single();
+
+  const accountCurrency = account?.currency || "EUR";
+
+  // Calculate exchange rate if currencies differ
+  let convertedAmount: number | null = null;
+  let exchangeRate: number | null = null;
+  let rateDate: string | null = null;
+
+  if (body.currency !== accountCurrency) {
+    const rateResult = await getExchangeRate(body.currency, accountCurrency);
+    if (rateResult) {
+      exchangeRate = rateResult.rate;
+      convertedAmount = convertAmount(body.amount, rateResult.rate);
+      rateDate = rateResult.date;
+    }
+  }
+
   // Insert expense
   const { data: expense, error } = await supabase
     .from("expenses")
@@ -130,6 +154,10 @@ export async function POST(request: Request) {
       date: body.date,
       category_id: body.category_id || null,
       receipt_url: body.receipt_url || null,
+      converted_amount: convertedAmount,
+      exchange_rate: exchangeRate,
+      account_currency: body.currency !== accountCurrency ? accountCurrency : null,
+      rate_date: rateDate,
     })
     .select()
     .single();
