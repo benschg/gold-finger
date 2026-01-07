@@ -249,7 +249,11 @@ export function ExpenseForm({
               type="number"
               step="0.01"
               placeholder="0.00"
-              className="pl-8"
+              className={
+                (CURRENCIES.find((c) => c.code === selectedCurrency)?.symbol?.length ?? 1) > 2
+                  ? "pl-14"
+                  : "pl-8"
+              }
               {...register("amount", { valueAsNumber: true })}
             />
           </div>

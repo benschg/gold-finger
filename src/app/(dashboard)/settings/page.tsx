@@ -1,12 +1,8 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  SettingsCategoriesTags,
-  PendingInvitations,
-} from "@/components/settings";
+import { SettingsContent } from "@/components/settings";
 
 export const metadata = {
   title: "Settings | Gold-Finger",
-  description: "Manage categories, tags, and invitations",
+  description: "Manage your account settings",
 };
 
 export default function SettingsPage() {
@@ -15,27 +11,11 @@ export default function SettingsPage() {
       <div>
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">Settings</h1>
         <p className="text-sm sm:text-base text-muted-foreground">
-          Manage categories, tags, and invitations
+          Manage your account settings
         </p>
       </div>
 
-      <div className="grid gap-4 sm:gap-6">
-        {/* Pending Invitations */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Account Invitations</CardTitle>
-            <CardDescription>
-              Invitations to join shared expense accounts
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <PendingInvitations />
-          </CardContent>
-        </Card>
-
-        {/* Categories & Tags */}
-        <SettingsCategoriesTags />
-      </div>
+      <SettingsContent />
     </div>
   );
 }

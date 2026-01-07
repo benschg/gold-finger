@@ -12,28 +12,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Settings, LogOut, UserCog, Settings2 } from "lucide-react";
+import { Settings, LogOut, UserCog } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { DevTools } from "./dev-tools";
 import { MobileSidebar } from "./sidebar";
-import { AccountSelector, ManageAccountDialog } from "@/components/accounts";
+import { AccountSelector } from "@/components/accounts";
 import { useAccounts } from "@/lib/hooks/use-accounts";
 import { useAccountUrlSync } from "@/hooks/use-account-url-sync";
 import { useAccountStore } from "@/store/account-store";
 
 export function Header() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
-  const [isManageDialogOpen, setIsManageDialogOpen] = useState(false);
   const router = useRouter();
-  const { accounts, refetch: refetchAccounts } = useAccounts();
+  const { accounts } = useAccounts();
   const { selectedAccountId, setSelectedAccountId } = useAccountStore();
 
   // Sync account selection with URL
   useAccountUrlSync(accounts);
-
-  // Get selected account for the manage dialog
-  const selectedAccount = accounts.find((a) => a.id === selectedAccountId) || null;
 
   useEffect(() => {
     const supabase = createClient();
@@ -58,24 +54,12 @@ export function Header() {
       <div className="flex items-center gap-2 sm:gap-4">
         <MobileSidebar />
         {accounts.length > 0 && (
-          <>
-            <AccountSelector
-              accounts={accounts}
-              value={selectedAccountId}
-              onValueChange={setSelectedAccountId}
-              className="w-40 sm:w-48"
-            />
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsManageDialogOpen(true)}
-              disabled={!selectedAccount}
-              className="h-9 w-9"
-            >
-              <Settings2 className="h-4 w-4" />
-              <span className="sr-only">Account settings</span>
-            </Button>
-          </>
+          <AccountSelector
+            accounts={accounts}
+            value={selectedAccountId}
+            onValueChange={setSelectedAccountId}
+            className="w-40 sm:w-48"
+          />
         )}
       </div>
 
@@ -118,14 +102,6 @@ export function Header() {
         </DropdownMenuContent>
       </DropdownMenu>
       </div>
-
-      <ManageAccountDialog
-        account={selectedAccount}
-        open={isManageDialogOpen}
-        onOpenChange={setIsManageDialogOpen}
-        onSuccess={refetchAccounts}
-        currentUserId={user?.id || ""}
-      />
     </header>
   );
 }

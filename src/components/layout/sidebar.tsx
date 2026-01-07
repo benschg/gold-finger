@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   Menu,
+  Share2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -44,6 +45,11 @@ const navItems = [
     title: "Settings",
     href: "/settings",
     icon: Settings,
+  },
+  {
+    title: "Sharing",
+    href: "/sharing",
+    icon: Share2,
   },
 ];
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, X, Loader2 } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,10 +19,20 @@ interface TagManagerProps {
   accountId: string;
   tags: Tag[];
   onRefresh: () => void;
+  isDialogOpen?: boolean;
+  onDialogOpenChange?: (open: boolean) => void;
 }
 
-export function TagManager({ accountId, tags, onRefresh }: TagManagerProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+export function TagManager({
+  accountId,
+  tags,
+  onRefresh,
+  isDialogOpen: controlledIsDialogOpen,
+  onDialogOpenChange,
+}: TagManagerProps) {
+  const [internalIsDialogOpen, setInternalIsDialogOpen] = useState(false);
+  const isDialogOpen = controlledIsDialogOpen ?? internalIsDialogOpen;
+  const setIsDialogOpen = onDialogOpenChange ?? setInternalIsDialogOpen;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [name, setName] = useState("");
@@ -77,14 +87,6 @@ export function TagManager({ accountId, tags, onRefresh }: TagManagerProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">Tags</h3>
-        <Button size="sm" onClick={() => setIsDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Tag
-        </Button>
-      </div>
-
       <div className="flex flex-wrap gap-2">
         {tags.length === 0 ? (
           <p className="py-4 text-center text-muted-foreground w-full">

@@ -32,14 +32,20 @@ interface CategoryManagerProps {
   accountId: string;
   categories: Category[];
   onRefresh: () => void;
+  isDialogOpen?: boolean;
+  onDialogOpenChange?: (open: boolean) => void;
 }
 
 export function CategoryManager({
   accountId,
   categories,
   onRefresh,
+  isDialogOpen: controlledIsDialogOpen,
+  onDialogOpenChange,
 }: CategoryManagerProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [internalIsDialogOpen, setInternalIsDialogOpen] = useState(false);
+  const isDialogOpen = controlledIsDialogOpen ?? internalIsDialogOpen;
+  const setIsDialogOpen = onDialogOpenChange ?? setInternalIsDialogOpen;
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
@@ -125,14 +131,6 @@ export function CategoryManager({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">Categories</h3>
-        <Button size="sm" onClick={() => handleOpenDialog()}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Category
-        </Button>
-      </div>
-
       <div className="grid gap-2">
         {categories.length === 0 ? (
           <p className="py-4 text-center text-muted-foreground">
