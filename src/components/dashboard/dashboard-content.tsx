@@ -12,7 +12,6 @@ import {
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IconBadge } from "@/components/ui/icon-picker";
-import { AccountSelector } from "@/components/accounts";
 import { StatCard } from "./stat-card";
 import { ExpensePieChart } from "./expense-pie-chart";
 import { StackedBarChart } from "./stacked-bar-chart";
@@ -48,7 +47,7 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
 
   // Sync account selection with URL
   useAccountUrlSync(accounts);
-  const { selectedAccountId, setSelectedAccountId } = useAccountStore();
+  const { selectedAccountId } = useAccountStore();
 
   // Sync filter state with URL
   useDashboardUrlSync();
@@ -199,26 +198,15 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header with Account Selector and Date Range Picker */}
+      {/* Header and Date Range Picker */}
       <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold">
-              Welcome back, {displayName}!
-            </h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              Here&apos;s an overview of your expenses
-            </p>
-          </div>
-
-          {accounts.length > 0 && (
-            <AccountSelector
-              accounts={accounts}
-              value={selectedAccountId}
-              onValueChange={setSelectedAccountId}
-              className="w-full sm:w-48"
-            />
-          )}
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold">
+            Welcome back, {displayName}!
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Here&apos;s an overview of your expenses
+          </p>
         </div>
 
         {/* Date Range Picker */}
