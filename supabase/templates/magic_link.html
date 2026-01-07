@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Sign in to Gold-Finger</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0a0a0a;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 480px; background-color: #171717; border-radius: 16px; border: 1px solid #262626;">
+
+          <!-- Header with Logo -->
+          <tr>
+            <td align="center" style="padding: 40px 40px 24px;">
+              <img
+                src="https://gold-finger.benjamingrauer.ch/gold-finger.svg"
+                alt="Gold-Finger"
+                width="80"
+                height="80"
+                style="display: block;"
+              />
+            </td>
+          </tr>
+
+          <!-- Title -->
+          <tr>
+            <td align="center" style="padding: 0 40px 8px;">
+              <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #fafafa; letter-spacing: -0.5px;">
+                Sign in to Gold-Finger
+              </h1>
+            </td>
+          </tr>
+
+          <!-- Subtitle -->
+          <tr>
+            <td align="center" style="padding: 0 40px 32px;">
+              <p style="margin: 0; font-size: 14px; color: #a1a1aa; line-height: 1.5;">
+                Use the code below or click the magic link to sign in.
+              </p>
+            </td>
+          </tr>
+
+          <!-- OTP Code Box -->
+          <tr>
+            <td align="center" style="padding: 0 40px 24px;">
+              <table role="presentation" cellspacing="0" cellpadding="0" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); border-radius: 12px;">
+                <tr>
+                  <td style="padding: 20px 32px;">
+                    <span style="font-size: 36px; font-weight: 700; color: #0a0a0a; letter-spacing: 8px; font-family: 'Courier New', monospace;">
+                      {{ .Token }}
+                    </span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Expiry Note -->
+          <tr>
+            <td align="center" style="padding: 0 40px 32px;">
+              <p style="margin: 0; font-size: 12px; color: #71717a;">
+                This code expires in 1 hour
+              </p>
+            </td>
+          </tr>
+
+          <!-- Divider -->
+          <tr>
+            <td style="padding: 0 40px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="border-top: 1px solid #262626;"></td>
+                  <td style="padding: 0 16px; color: #52525b; font-size: 12px; white-space: nowrap;">or</td>
+                  <td style="border-top: 1px solid #262626;"></td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Magic Link Button -->
+          <tr>
+            <td align="center" style="padding: 32px 40px;">
+              <a
+                href="{{ .ConfirmationURL }}"
+                style="display: inline-block; background-color: #fafafa; color: #0a0a0a; text-decoration: none; font-size: 14px; font-weight: 600; padding: 14px 32px; border-radius: 8px;"
+              >
+                Sign in with Magic Link
+              </a>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 24px 40px 40px; border-top: 1px solid #262626;">
+              <p style="margin: 0 0 8px; font-size: 12px; color: #71717a; line-height: 1.5;">
+                If you didn't request this email, you can safely ignore it.
+              </p>
+              <p style="margin: 0; font-size: 12px; color: #52525b;">
+                Gold-Finger - Smart Expense Tracking
+              </p>
+            </td>
+          </tr>
+
+        </table>
+
+        <!-- Bottom Link -->
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 480px;">
+          <tr>
+            <td align="center" style="padding: 24px 20px;">
+              <a href="https://gold-finger.benjamingrauer.ch" style="font-size: 12px; color: #71717a; text-decoration: none;">
+                gold-finger.benjamingrauer.ch
+              </a>
+            </td>
+          </tr>
+        </table>
+
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
