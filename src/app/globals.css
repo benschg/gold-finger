@@ -160,24 +160,7 @@
   }
 }
 
-/* Premium gold shimmer swish effect for cards */
-@keyframes gold-swish {
-  0% {
-    transform: translateX(-100%) rotate(-45deg);
-    opacity: 0;
-  }
-  15% {
-    opacity: 1;
-  }
-  85% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(200%) rotate(-45deg);
-    opacity: 0;
-  }
-}
-
+/* Premium gold shimmer effect for cards */
 .gold-shimmer-card {
   position: relative;
   overflow: hidden;
@@ -186,62 +169,37 @@
 .gold-shimmer-card::before {
   content: "";
   position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: linear-gradient(
-    60deg,
-    transparent 20%,
-    rgba(255, 215, 0, 0.03) 35%,
-    rgba(255, 223, 100, 0.08) 45%,
-    rgba(255, 235, 150, 0.12) 50%,
-    rgba(255, 223, 100, 0.08) 55%,
-    rgba(255, 215, 0, 0.03) 65%,
-    transparent 80%
+    to right,
+    transparent,
+    rgba(255, 215, 0, 0.15) 40%,
+    rgba(255, 235, 150, 0.25) 50%,
+    rgba(255, 215, 0, 0.15) 60%,
+    transparent
   );
-  transform: translateX(-100%) rotate(-45deg);
-  transition: none;
+  transform: translateX(-100%) skewX(-15deg);
+  transition: transform 1s ease;
   pointer-events: none;
   z-index: 1;
-  opacity: 0;
 }
 
 .gold-shimmer-card:hover::before {
-  animation: gold-swish 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform: translateX(100%) skewX(-15deg);
 }
 
-/* Subtle gold border glow on hover */
-.gold-shimmer-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
+/* Dark mode: slightly more subtle */
+.dark .gold-shimmer-card::before {
   background: linear-gradient(
-    135deg,
-    transparent 0%,
-    rgba(255, 215, 0, 0) 40%,
-    rgba(255, 215, 0, 0) 60%,
-    transparent 100%
+    to right,
+    transparent,
+    rgba(255, 215, 0, 0.1) 40%,
+    rgba(255, 235, 150, 0.18) 50%,
+    rgba(255, 215, 0, 0.1) 60%,
+    transparent
   );
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  z-index: 2;
-}
-
-.gold-shimmer-card:hover::after {
-  background: linear-gradient(
-    135deg,
-    transparent 0%,
-    rgba(255, 215, 0, 0.15) 35%,
-    rgba(255, 235, 150, 0.25) 50%,
-    rgba(255, 215, 0, 0.15) 65%,
-    transparent 100%
-  );
-  opacity: 1;
 }
 
