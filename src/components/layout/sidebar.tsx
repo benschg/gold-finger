@@ -37,11 +37,6 @@ const navItems = [
     icon: Receipt,
   },
   {
-    title: "Accounts",
-    href: "/accounts",
-    icon: Users,
-  },
-  {
     title: "Settings",
     href: "/settings",
     icon: Settings,
@@ -50,6 +45,14 @@ const navItems = [
     title: "Sharing",
     href: "/sharing",
     icon: Share2,
+  },
+];
+
+const bottomNavItems = [
+  {
+    title: "Accounts",
+    href: "/accounts",
+    icon: Users,
   },
 ];
 
@@ -106,6 +109,29 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           );
         })}
       </nav>
+
+      {/* Bottom navigation */}
+      <div className="space-y-1 p-4 pt-0">
+        {bottomNavItems.map((item) => {
+          const isActive = pathname.startsWith(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={buildHref(item.href)}
+              onClick={onNavigate}
+              className={cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                isActive
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+              )}
+            >
+              <item.icon className="h-4 w-4" />
+              {item.title}
+            </Link>
+          );
+        })}
+      </div>
 
       {/* Sign out */}
       <div className="border-t p-4">
