@@ -63,7 +63,7 @@ export function FeaturesSection() {
           {features.map((feature) => (
             <div
               key={feature.title}
-              className="rounded-lg border bg-background p-6"
+              className="gold-shimmer-card rounded-lg border bg-background p-6 transition-shadow hover:shadow-lg"
             >
               <feature.icon className="h-8 w-8 text-yellow-500" />
               <h3 className="mt-4 font-semibold">{feature.title}</h3>

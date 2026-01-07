@@ -63,7 +63,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       {/* Logo */}
       <div className="flex h-16 items-center border-b px-6">
         <Link href="/dashboard" className="flex items-center gap-2" onClick={onNavigate}>
-          <Image src="/gold-finger.svg" alt="Gold-Finger" width={24} height={24} />
+          <Image src="/gold-finger-logo.svg" alt="Gold-Finger" width={24} height={24} />
           <span className="text-xl font-bold">Gold-Finger</span>
         </Link>
       </div>
