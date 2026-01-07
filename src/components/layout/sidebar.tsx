@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -41,6 +41,11 @@ const navItems = [
     icon: Users,
   },
   {
+    title: "Account Settings",
+    href: "/account-settings",
+    icon: UserCog,
+  },
+  {
     title: "Settings",
     href: "/settings",
     icon: Settings,
@@ -49,7 +54,17 @@ const navItems = [
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
+
+  // Get account param to preserve across navigation
+  const accountId = searchParams.get("account");
+
+  // Build href with account param preserved (except for /accounts page)
+  const buildHref = (href: string) => {
+    if (!accountId || href === "/accounts") return href;
+    return `${href}?account=${accountId}`;
+  };
 
   const handleSignOut = async () => {
     const supabase = createClient();
@@ -62,7 +77,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     <div className="flex h-full flex-col">
       {/* Logo */}
       <div className="flex h-16 items-center border-b px-6">
-        <Link href="/dashboard" className="flex items-center gap-2" onClick={onNavigate}>
+        <Link href={buildHref("/dashboard")} className="flex items-center gap-2" onClick={onNavigate}>
           <Image src="/gold-finger-logo.svg" alt="Gold-Finger" width={24} height={24} />
           <span className="text-xl font-bold">Gold-Finger</span>
         </Link>
@@ -75,7 +90,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={buildHref(item.href)}
               onClick={onNavigate}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
