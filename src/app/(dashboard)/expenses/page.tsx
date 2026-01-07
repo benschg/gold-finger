@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Plus, Loader2 } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,6 +27,7 @@ import { useAccounts } from "@/lib/hooks/use-accounts";
 import { useCategories } from "@/lib/hooks/use-categories";
 import { useTags } from "@/lib/hooks/use-tags";
 import type { ExpenseWithDetails, Currency } from "@/types/database";
+import { CURRENCIES } from "@/lib/constants";
 
 export default function ExpensesPage() {
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(
@@ -156,7 +158,14 @@ export default function ExpensesPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold">Expenses</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold">Expenses</h1>
+            {selectedAccount && (
+              <Badge variant="secondary" className="text-sm">
+                {CURRENCIES.find((c) => c.code === selectedAccount.currency)?.symbol || selectedAccount.currency}
+              </Badge>
+            )}
+          </div>
           <p className="text-sm sm:text-base text-muted-foreground">
             Track and manage your expenses
           </p>
