@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +10,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,17 +26,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { AccountSelector } from "@/components/accounts";
 import { ExpenseForm, ExpenseTable } from "@/components/expenses";
 import { useAccounts } from "@/lib/hooks/use-accounts";
 import { useCategories } from "@/lib/hooks/use-categories";
 import { useTags } from "@/lib/hooks/use-tags";
+import { useAccountStore } from "@/store/account-store";
 import type { ExpenseWithDetails, Currency } from "@/types/database";
+import { CURRENCIES } from "@/lib/constants";
 
 export default function ExpensesPage() {
-  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(
-    null
-  );
   const [expenses, setExpenses] = useState<ExpenseWithDetails[]>([]);
   const [isLoadingExpenses, setIsLoadingExpenses] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -41,7 +45,9 @@ export default function ExpensesPage() {
   // Track which account is selected in the form (may differ from page filter)
   const [formAccountId, setFormAccountId] = useState<string | null>(null);
 
-  const { accounts, isLoading: isLoadingAccounts } = useAccounts();
+  const { accounts, isLoading: isLoadingAccounts, refetch: refetchAccounts } = useAccounts();
+  const { selectedAccountId } = useAccountStore();
+
   // Use formAccountId when dialog is open, otherwise use selectedAccountId
   const categoriesAccountId = isDialogOpen ? formAccountId : selectedAccountId;
   const { categories } = useCategories(categoriesAccountId);
@@ -49,13 +55,6 @@ export default function ExpensesPage() {
 
   // Get selected account for its currency
   const selectedAccount = accounts.find((a) => a.id === selectedAccountId);
-
-  // Set default account when accounts load
-  useEffect(() => {
-    if (accounts.length > 0 && !selectedAccountId) {
-      setSelectedAccountId(accounts[0].id);
-    }
-  }, [accounts, selectedAccountId]);
 
   // Fetch expenses when account changes
   const fetchExpenses = useCallback(async () => {
@@ -131,6 +130,24 @@ export default function ExpensesPage() {
     fetchExpenses();
   };
 
+  const handleCurrencyChange = async (currency: string) => {
+    if (!selectedAccountId) return;
+
+    try {
+      const response = await fetch(`/api/accounts/${selectedAccountId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currency }),
+      });
+
+      if (response.ok) {
+        refetchAccounts();
+      }
+    } catch (error) {
+      console.error("Error updating currency:", error);
+    }
+  };
+
   if (isLoadingAccounts) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -156,25 +173,39 @@ export default function ExpensesPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold">Expenses</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold">Expenses</h1>
+            {selectedAccount && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="inline-flex items-center gap-1 rounded-md bg-secondary px-2.5 py-0.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80 transition-colors">
+                    {CURRENCIES.find((c) => c.code === selectedAccount.currency)?.symbol || selectedAccount.currency}
+                    <ChevronDown className="h-3 w-3 opacity-50" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  {CURRENCIES.map((currency) => (
+                    <DropdownMenuItem
+                      key={currency.code}
+                      onClick={() => handleCurrencyChange(currency.code)}
+                      className={selectedAccount.currency === currency.code ? "bg-accent" : ""}
+                    >
+                      {currency.symbol} {currency.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
           <p className="text-sm sm:text-base text-muted-foreground">
             Track and manage your expenses
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
-          <AccountSelector
-            accounts={accounts}
-            value={selectedAccountId}
-            onValueChange={setSelectedAccountId}
-            className="w-full sm:w-48"
-          />
-
-          <Button onClick={handleAddExpense} className="w-full sm:w-auto">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Expense
-          </Button>
-        </div>
+        <Button onClick={handleAddExpense} className="w-full sm:w-auto">
+          <Plus className="mr-2 h-4 w-4" />
+          Add Expense
+        </Button>
       </div>
 
       {isLoadingExpenses ? (

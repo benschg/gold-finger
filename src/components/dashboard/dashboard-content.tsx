@@ -12,7 +12,6 @@ import {
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IconBadge } from "@/components/ui/icon-picker";
-import { AccountSelector } from "@/components/accounts";
 import { StatCard } from "./stat-card";
 import { ExpensePieChart } from "./expense-pie-chart";
 import { StackedBarChart } from "./stacked-bar-chart";
@@ -22,6 +21,8 @@ import { ActiveFilters } from "./active-filters";
 import { useAccounts } from "@/lib/hooks/use-accounts";
 import { useDashboardUrlSync } from "@/hooks/use-dashboard-url-sync";
 import { useDashboardFilterStore } from "@/store/dashboard-filter-store";
+import { useAccountUrlSync } from "@/hooks/use-account-url-sync";
+import { useAccountStore } from "@/store/account-store";
 import {
   filterExpenses,
   transformToStackedBarData,
@@ -37,9 +38,6 @@ interface DashboardContentProps {
 }
 
 export function DashboardContent({ displayName }: DashboardContentProps) {
-  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(
-    null
-  );
   const [expenses, setExpenses] = useState<ExpenseWithDetails[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
@@ -47,19 +45,16 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
 
   const { accounts, isLoading: isLoadingAccounts } = useAccounts();
 
+  // Sync account selection with URL
+  useAccountUrlSync(accounts);
+  const { selectedAccountId } = useAccountStore();
+
   // Sync filter state with URL
   useDashboardUrlSync();
 
   // Get filter state from store
   const { dateRange, selectedCategoryId, selectedTagId } =
     useDashboardFilterStore();
-
-  // Set default account when accounts load
-  useEffect(() => {
-    if (accounts.length > 0 && !selectedAccountId) {
-      setSelectedAccountId(accounts[0].id);
-    }
-  }, [accounts, selectedAccountId]);
 
   // Fetch categories for the selected account
   const fetchCategories = useCallback(async () => {
@@ -203,26 +198,15 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header with Account Selector and Date Range Picker */}
+      {/* Header and Date Range Picker */}
       <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold">
-              Welcome back, {displayName}!
-            </h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              Here&apos;s an overview of your expenses
-            </p>
-          </div>
-
-          {accounts.length > 0 && (
-            <AccountSelector
-              accounts={accounts}
-              value={selectedAccountId}
-              onValueChange={setSelectedAccountId}
-              className="w-full sm:w-48"
-            />
-          )}
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold">
+            Welcome back, {displayName}!
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Here&apos;s an overview of your expenses
+          </p>
         </div>
 
         {/* Date Range Picker */}

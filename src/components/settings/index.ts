@@ -1,6 +1,9 @@
+export { AccountDetailsSection } from "./account-details-section";
 export { CategoryManager } from "./category-manager";
 export { TagManager } from "./tag-manager";
-export { SettingsCategoriesTags } from "./settings-categories-tags";
+export { ShareSection } from "./share-section";
+export { SharingContent } from "./sharing-content";
+export { SettingsContent } from "./settings-content";
 export { ProfileForm } from "./profile-form";
 export { PreferencesForm } from "./preferences-form";
 export { PendingInvitations } from "./pending-invitations";

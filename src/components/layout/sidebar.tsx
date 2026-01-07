@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   Menu,
+  Share2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,20 +37,38 @@ const navItems = [
     icon: Receipt,
   },
   {
-    title: "Accounts",
-    href: "/accounts",
-    icon: Users,
-  },
-  {
     title: "Settings",
     href: "/settings",
     icon: Settings,
+  },
+  {
+    title: "Sharing",
+    href: "/sharing",
+    icon: Share2,
+  },
+];
+
+const bottomNavItems = [
+  {
+    title: "Accounts",
+    href: "/accounts",
+    icon: Users,
   },
 ];
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
+
+  // Get account param to preserve across navigation
+  const accountId = searchParams.get("account");
+
+  // Build href with account param preserved (except for /accounts page)
+  const buildHref = (href: string) => {
+    if (!accountId || href === "/accounts") return href;
+    return `${href}?account=${accountId}`;
+  };
 
   const handleSignOut = async () => {
     const supabase = createClient();
@@ -62,7 +81,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     <div className="flex h-full flex-col">
       {/* Logo */}
       <div className="flex h-16 items-center border-b px-6">
-        <Link href="/dashboard" className="flex items-center gap-2" onClick={onNavigate}>
+        <Link href={buildHref("/dashboard")} className="flex items-center gap-2" onClick={onNavigate}>
           <Image src="/gold-finger-logo.svg" alt="Gold-Finger" width={24} height={24} />
           <span className="text-xl font-bold">Gold-Finger</span>
         </Link>
@@ -75,7 +94,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={buildHref(item.href)}
               onClick={onNavigate}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
@@ -90,6 +109,29 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           );
         })}
       </nav>
+
+      {/* Bottom navigation */}
+      <div className="space-y-1 p-4 pt-0">
+        {bottomNavItems.map((item) => {
+          const isActive = pathname.startsWith(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={buildHref(item.href)}
+              onClick={onNavigate}
+              className={cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                isActive
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+              )}
+            >
+              <item.icon className="h-4 w-4" />
+              {item.title}
+            </Link>
+          );
+        })}
+      </div>
 
       {/* Sign out */}
       <div className="border-t p-4">

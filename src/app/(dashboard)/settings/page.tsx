@@ -1,95 +1,21 @@
-import { createClient } from "@/lib/supabase/server";
-import type { Currency } from "@/types/database";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  SettingsCategoriesTags,
-  ProfileForm,
-  PreferencesForm,
-  PendingInvitations,
-} from "@/components/settings";
+import { SettingsContent } from "@/components/settings";
 
 export const metadata = {
   title: "Settings | Gold-Finger",
   description: "Manage your account settings",
 };
 
-export default async function SettingsPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // Get profile
-  const { data: profileData } = await supabase
-    .from("profiles")
-    .select("preferred_currency, theme")
-    .eq("id", user?.id || "")
-    .single();
-
-  if (!user) {
-    return null;
-  }
-
-  // Transform profile data: convert null to undefined for cleaner types
-  const profile = profileData ? {
-    preferred_currency: (profileData.preferred_currency as Currency) ?? undefined,
-    theme: (profileData.theme as "light" | "dark" | "system") ?? undefined,
-  } : undefined;
-
+export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">Settings</h1>
         <p className="text-sm sm:text-base text-muted-foreground">
-          Manage your account and preferences
+          Manage your account settings
         </p>
       </div>
 
-      <div className="grid gap-4 sm:gap-6">
-        {/* Profile Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Profile</CardTitle>
-            <CardDescription>Your profile information</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ProfileForm
-              user={{
-                id: user.id,
-                email: user.email || "",
-                user_metadata: user.user_metadata,
-              }}
-            />
-          </CardContent>
-        </Card>
-
-        {/* Preferences Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Preferences</CardTitle>
-            <CardDescription>Customize your experience</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <PreferencesForm profile={profile || undefined} />
-          </CardContent>
-        </Card>
-
-        {/* Pending Invitations */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Account Invitations</CardTitle>
-            <CardDescription>
-              Invitations to join shared expense accounts
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <PendingInvitations />
-          </CardContent>
-        </Card>
-
-        {/* Categories & Tags */}
-        <SettingsCategoriesTags />
-      </div>
+      <SettingsContent />
     </div>
   );
 }
