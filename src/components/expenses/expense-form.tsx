@@ -237,6 +237,15 @@ export function ExpenseForm({
         )}
       </div>
 
+      <div className="space-y-2">
+        <Label htmlFor="description">Description</Label>
+        <Input
+          id="description"
+          placeholder="What was this expense for?"
+          {...register("description")}
+        />
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="amount">Amount</Label>
@@ -291,15 +300,6 @@ export function ExpenseForm({
         toCurrency={effectiveAccountCurrency}
         amount={watchedAmount || 0}
       />
-
-      <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
-        <Input
-          id="description"
-          placeholder="What was this expense for?"
-          {...register("description")}
-        />
-      </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">

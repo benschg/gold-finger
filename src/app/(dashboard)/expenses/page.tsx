@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, ChevronDown } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,6 +10,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,7 +45,7 @@ export default function ExpensesPage() {
   // Track which account is selected in the form (may differ from page filter)
   const [formAccountId, setFormAccountId] = useState<string | null>(null);
 
-  const { accounts, isLoading: isLoadingAccounts } = useAccounts();
+  const { accounts, isLoading: isLoadingAccounts, refetch: refetchAccounts } = useAccounts();
   const { selectedAccountId } = useAccountStore();
 
   // Use formAccountId when dialog is open, otherwise use selectedAccountId
@@ -125,6 +130,24 @@ export default function ExpensesPage() {
     fetchExpenses();
   };
 
+  const handleCurrencyChange = async (currency: string) => {
+    if (!selectedAccountId) return;
+
+    try {
+      const response = await fetch(`/api/accounts/${selectedAccountId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currency }),
+      });
+
+      if (response.ok) {
+        refetchAccounts();
+      }
+    } catch (error) {
+      console.error("Error updating currency:", error);
+    }
+  };
+
   if (isLoadingAccounts) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -153,9 +176,25 @@ export default function ExpensesPage() {
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-bold">Expenses</h1>
             {selectedAccount && (
-              <Badge variant="secondary" className="text-sm">
-                {CURRENCIES.find((c) => c.code === selectedAccount.currency)?.symbol || selectedAccount.currency}
-              </Badge>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="inline-flex items-center gap-1 rounded-md bg-secondary px-2.5 py-0.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80 transition-colors">
+                    {CURRENCIES.find((c) => c.code === selectedAccount.currency)?.symbol || selectedAccount.currency}
+                    <ChevronDown className="h-3 w-3 opacity-50" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  {CURRENCIES.map((currency) => (
+                    <DropdownMenuItem
+                      key={currency.code}
+                      onClick={() => handleCurrencyChange(currency.code)}
+                      className={selectedAccount.currency === currency.code ? "bg-accent" : ""}
+                    >
+                      {currency.symbol} {currency.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           </div>
           <p className="text-sm sm:text-base text-muted-foreground">
