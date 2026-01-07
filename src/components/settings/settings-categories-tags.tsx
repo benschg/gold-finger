@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
 import {
@@ -16,13 +15,16 @@ import { TagManager } from "./tag-manager";
 import { useAccounts } from "@/lib/hooks/use-accounts";
 import { useCategories } from "@/lib/hooks/use-categories";
 import { useTags } from "@/lib/hooks/use-tags";
+import { useAccountUrlSync } from "@/hooks/use-account-url-sync";
+import { useAccountStore } from "@/store/account-store";
 
 export function SettingsCategoriesTags() {
-  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(
-    null
-  );
-
   const { accounts, isLoading: isLoadingAccounts } = useAccounts();
+
+  // Sync account selection with URL
+  useAccountUrlSync(accounts);
+  const { selectedAccountId, setSelectedAccountId } = useAccountStore();
+
   const {
     categories,
     isLoading: isLoadingCategories,
@@ -33,13 +35,6 @@ export function SettingsCategoriesTags() {
     isLoading: isLoadingTags,
     refetch: refetchTags,
   } = useTags(selectedAccountId);
-
-  // Set default account when accounts load
-  useEffect(() => {
-    if (accounts.length > 0 && !selectedAccountId) {
-      setSelectedAccountId(accounts[0].id);
-    }
-  }, [accounts, selectedAccountId]);
 
   if (isLoadingAccounts) {
     return (

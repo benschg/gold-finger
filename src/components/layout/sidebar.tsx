@@ -41,11 +41,6 @@ const navItems = [
     icon: Users,
   },
   {
-    title: "Account Settings",
-    href: "/account-settings",
-    icon: UserCog,
-  },
-  {
     title: "Settings",
     href: "/settings",
     icon: Settings,

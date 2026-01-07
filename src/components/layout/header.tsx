@@ -12,15 +12,28 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, Settings, LogOut } from "lucide-react";
+import { Settings, LogOut, UserCog, Settings2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { DevTools } from "./dev-tools";
 import { MobileSidebar } from "./sidebar";
+import { AccountSelector, ManageAccountDialog } from "@/components/accounts";
+import { useAccounts } from "@/lib/hooks/use-accounts";
+import { useAccountUrlSync } from "@/hooks/use-account-url-sync";
+import { useAccountStore } from "@/store/account-store";
 
 export function Header() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [isManageDialogOpen, setIsManageDialogOpen] = useState(false);
   const router = useRouter();
+  const { accounts, refetch: refetchAccounts } = useAccounts();
+  const { selectedAccountId, setSelectedAccountId } = useAccountStore();
+
+  // Sync account selection with URL
+  useAccountUrlSync(accounts);
+
+  // Get selected account for the manage dialog
+  const selectedAccount = accounts.find((a) => a.id === selectedAccountId) || null;
 
   useEffect(() => {
     const supabase = createClient();
@@ -42,9 +55,28 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background px-4 md:px-6">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 sm:gap-4">
         <MobileSidebar />
-        {/* Breadcrumb or page title can go here */}
+        {accounts.length > 0 && (
+          <>
+            <AccountSelector
+              accounts={accounts}
+              value={selectedAccountId}
+              onValueChange={setSelectedAccountId}
+              className="w-40 sm:w-48"
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsManageDialogOpen(true)}
+              disabled={!selectedAccount}
+              className="h-9 w-9"
+            >
+              <Settings2 className="h-4 w-4" />
+              <span className="sr-only">Account settings</span>
+            </Button>
+          </>
+        )}
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
@@ -70,9 +102,9 @@ export function Header() {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => router.push("/settings")}>
-            <User className="mr-2 h-4 w-4" />
-            Profile
+          <DropdownMenuItem onClick={() => router.push("/account-settings")}>
+            <UserCog className="mr-2 h-4 w-4" />
+            Account Settings
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => router.push("/settings")}>
             <Settings className="mr-2 h-4 w-4" />
@@ -86,6 +118,14 @@ export function Header() {
         </DropdownMenuContent>
       </DropdownMenu>
       </div>
+
+      <ManageAccountDialog
+        account={selectedAccount}
+        open={isManageDialogOpen}
+        onOpenChange={setIsManageDialogOpen}
+        onSuccess={refetchAccounts}
+        currentUserId={user?.id || ""}
+      />
     </header>
   );
 }

@@ -22,6 +22,8 @@ import { ActiveFilters } from "./active-filters";
 import { useAccounts } from "@/lib/hooks/use-accounts";
 import { useDashboardUrlSync } from "@/hooks/use-dashboard-url-sync";
 import { useDashboardFilterStore } from "@/store/dashboard-filter-store";
+import { useAccountUrlSync } from "@/hooks/use-account-url-sync";
+import { useAccountStore } from "@/store/account-store";
 import {
   filterExpenses,
   transformToStackedBarData,
@@ -37,9 +39,6 @@ interface DashboardContentProps {
 }
 
 export function DashboardContent({ displayName }: DashboardContentProps) {
-  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(
-    null
-  );
   const [expenses, setExpenses] = useState<ExpenseWithDetails[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
@@ -47,19 +46,16 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
 
   const { accounts, isLoading: isLoadingAccounts } = useAccounts();
 
+  // Sync account selection with URL
+  useAccountUrlSync(accounts);
+  const { selectedAccountId, setSelectedAccountId } = useAccountStore();
+
   // Sync filter state with URL
   useDashboardUrlSync();
 
   // Get filter state from store
   const { dateRange, selectedCategoryId, selectedTagId } =
     useDashboardFilterStore();
-
-  // Set default account when accounts load
-  useEffect(() => {
-    if (accounts.length > 0 && !selectedAccountId) {
-      setSelectedAccountId(accounts[0].id);
-    }
-  }, [accounts, selectedAccountId]);
 
   // Fetch categories for the selected account
   const fetchCategories = useCallback(async () => {

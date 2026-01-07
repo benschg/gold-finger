@@ -21,18 +21,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { AccountSelector } from "@/components/accounts";
 import { ExpenseForm, ExpenseTable } from "@/components/expenses";
 import { useAccounts } from "@/lib/hooks/use-accounts";
 import { useCategories } from "@/lib/hooks/use-categories";
 import { useTags } from "@/lib/hooks/use-tags";
+import { useAccountStore } from "@/store/account-store";
 import type { ExpenseWithDetails, Currency } from "@/types/database";
 import { CURRENCIES } from "@/lib/constants";
 
 export default function ExpensesPage() {
-  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(
-    null
-  );
   const [expenses, setExpenses] = useState<ExpenseWithDetails[]>([]);
   const [isLoadingExpenses, setIsLoadingExpenses] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -44,6 +41,8 @@ export default function ExpensesPage() {
   const [formAccountId, setFormAccountId] = useState<string | null>(null);
 
   const { accounts, isLoading: isLoadingAccounts } = useAccounts();
+  const { selectedAccountId } = useAccountStore();
+
   // Use formAccountId when dialog is open, otherwise use selectedAccountId
   const categoriesAccountId = isDialogOpen ? formAccountId : selectedAccountId;
   const { categories } = useCategories(categoriesAccountId);
@@ -51,13 +50,6 @@ export default function ExpensesPage() {
 
   // Get selected account for its currency
   const selectedAccount = accounts.find((a) => a.id === selectedAccountId);
-
-  // Set default account when accounts load
-  useEffect(() => {
-    if (accounts.length > 0 && !selectedAccountId) {
-      setSelectedAccountId(accounts[0].id);
-    }
-  }, [accounts, selectedAccountId]);
 
   // Fetch expenses when account changes
   const fetchExpenses = useCallback(async () => {
@@ -171,19 +163,10 @@ export default function ExpensesPage() {
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
-          <AccountSelector
-            accounts={accounts}
-            value={selectedAccountId}
-            onValueChange={setSelectedAccountId}
-            className="w-full sm:w-48"
-          />
-
-          <Button onClick={handleAddExpense} className="w-full sm:w-auto">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Expense
-          </Button>
-        </div>
+        <Button onClick={handleAddExpense} className="w-full sm:w-auto">
+          <Plus className="mr-2 h-4 w-4" />
+          Add Expense
+        </Button>
       </div>
 
       {isLoadingExpenses ? (
