@@ -18,14 +18,12 @@ type Invitation = Tables<"account_invitations"> & {
 interface InvitationListProps {
   invitations: Invitation[];
   mode: "sent" | "received";
-  accountId?: string;
   onAction?: () => void;
 }
 
 export function InvitationList({
   invitations,
   mode,
-  accountId,
   onAction,
 }: InvitationListProps) {
   const router = useRouter();
@@ -136,9 +134,10 @@ export function InvitationList({
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Clock className="h-3 w-3" />
                   Expires{" "}
-                  {invitation.expires_at && formatDistanceToNow(new Date(invitation.expires_at), {
-                    addSuffix: true,
-                  })}
+                  {invitation.expires_at &&
+                    formatDistanceToNow(new Date(invitation.expires_at), {
+                      addSuffix: true,
+                    })}
                 </div>
               </div>
             </div>

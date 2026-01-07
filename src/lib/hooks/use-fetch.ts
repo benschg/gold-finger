@@ -21,7 +21,7 @@ interface UseFetchResult<T> {
  */
 export function useFetch<T>(
   url: string | null,
-  options: UseFetchOptions = {}
+  options: UseFetchOptions = {},
 ): UseFetchResult<T> {
   const { enabled = true } = options;
 

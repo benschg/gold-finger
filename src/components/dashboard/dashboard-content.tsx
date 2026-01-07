@@ -62,7 +62,7 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
 
     try {
       const response = await fetch(
-        `/api/categories?account_id=${selectedAccountId}`
+        `/api/categories?account_id=${selectedAccountId}`,
       );
       if (response.ok) {
         const data = await response.json();
@@ -97,7 +97,7 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
       // Fetch last 24 months of expenses to have data for all presets
       const startDate = format(subMonths(new Date(), 24), "yyyy-MM-dd");
       const response = await fetch(
-        `/api/expenses?account_id=${selectedAccountId}&start_date=${startDate}&limit=2000`
+        `/api/expenses?account_id=${selectedAccountId}&start_date=${startDate}&limit=2000`,
       );
       if (response.ok) {
         const data = await response.json();
@@ -127,11 +127,17 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
   }, [expenses, dateRange, selectedCategoryId, selectedTagId]);
 
   // Calculate stats from filtered expenses
-  const now = new Date();
-  const thisMonthStart = startOfMonth(now);
-  const thisMonthEnd = endOfMonth(now);
-  const lastMonthStart = startOfMonth(subMonths(now, 1));
-  const lastMonthEnd = endOfMonth(subMonths(now, 1));
+  // Memoize date boundaries to prevent unnecessary recalculations
+  const { thisMonthStart, thisMonthEnd, lastMonthStart, lastMonthEnd } =
+    useMemo(() => {
+      const now = new Date();
+      return {
+        thisMonthStart: startOfMonth(now),
+        thisMonthEnd: endOfMonth(now),
+        lastMonthStart: startOfMonth(subMonths(now, 1)),
+        lastMonthEnd: endOfMonth(subMonths(now, 1)),
+      };
+    }, []);
 
   const thisMonthExpenses = useMemo(() => {
     return filteredExpenses.filter((e) => {
@@ -147,18 +153,24 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
     });
   }, [filteredExpenses, lastMonthStart, lastMonthEnd]);
 
-  const thisMonthTotal = thisMonthExpenses.reduce((sum, e) => sum + e.amount, 0);
-  const lastMonthTotal = lastMonthExpenses.reduce((sum, e) => sum + e.amount, 0);
+  const thisMonthTotal = thisMonthExpenses.reduce(
+    (sum, e) => sum + e.amount,
+    0,
+  );
+  const lastMonthTotal = lastMonthExpenses.reduce(
+    (sum, e) => sum + e.amount,
+    0,
+  );
   const totalExpenses = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
 
   // Build category maps for charts
   const categoryColorMap = useMemo(
     () => buildCategoryColorMap(categories),
-    [categories]
+    [categories],
   );
   const categoryIdMap = useMemo(
     () => buildCategoryIdMap(categories),
-    [categories]
+    [categories],
   );
 
   // Calculate stacked bar chart data

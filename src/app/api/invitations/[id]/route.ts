@@ -6,7 +6,7 @@ import { checkAccountMembership } from "@/lib/api-helpers";
 // Accept invitation
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { id: invitationId } = await params;
@@ -28,14 +28,17 @@ export async function POST(
     .single();
 
   if (inviteError || !invitation) {
-    return NextResponse.json({ error: "Invitation not found" }, { status: 404 });
+    return NextResponse.json(
+      { error: "Invitation not found" },
+      { status: 404 },
+    );
   }
 
   // Verify the invitation is for this user
   if (invitation.invitee_email.toLowerCase() !== user.email?.toLowerCase()) {
     return NextResponse.json(
       { error: "This invitation is not for you" },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
@@ -43,7 +46,7 @@ export async function POST(
   if (invitation.expires_at && new Date(invitation.expires_at) < new Date()) {
     return NextResponse.json(
       { error: "Invitation has expired" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -57,38 +60,30 @@ export async function POST(
 
   if (existingMember) {
     // Delete the invitation since they're already a member
-    await supabase
-      .from("account_invitations")
-      .delete()
-      .eq("id", invitationId);
+    await supabase.from("account_invitations").delete().eq("id", invitationId);
 
     return NextResponse.json(
       { error: "You are already a member of this account" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   // Add user as member
-  const { error: memberError } = await supabase
-    .from("account_members")
-    .insert({
-      account_id: invitation.account_id,
-      user_id: user.id,
-      role: "member",
-    });
+  const { error: memberError } = await supabase.from("account_members").insert({
+    account_id: invitation.account_id,
+    user_id: user.id,
+    role: "member",
+  });
 
   if (memberError) {
     return NextResponse.json(
       { error: sanitizeDbError(memberError, "POST /api/invitations/[id]") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
   // Delete the invitation
-  await supabase
-    .from("account_invitations")
-    .delete()
-    .eq("id", invitationId);
+  await supabase.from("account_invitations").delete().eq("id", invitationId);
 
   // Get the account details
   const { data: account } = await supabase
@@ -106,7 +101,7 @@ export async function POST(
 // Decline invitation
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { id: invitationId } = await params;
@@ -128,22 +123,30 @@ export async function DELETE(
     .single();
 
   if (inviteError || !invitation) {
-    return NextResponse.json({ error: "Invitation not found" }, { status: 404 });
+    return NextResponse.json(
+      { error: "Invitation not found" },
+      { status: 404 },
+    );
   }
 
   // Verify the invitation is for this user OR user is account owner
-  const isRecipient = invitation.invitee_email.toLowerCase() === user.email?.toLowerCase();
+  const isRecipient =
+    invitation.invitee_email.toLowerCase() === user.email?.toLowerCase();
 
   let isOwner = false;
   if (!isRecipient) {
-    const { role } = await checkAccountMembership(supabase, invitation.account_id, user.id);
+    const { role } = await checkAccountMembership(
+      supabase,
+      invitation.account_id,
+      user.id,
+    );
     isOwner = role === "owner";
   }
 
   if (!isRecipient && !isOwner) {
     return NextResponse.json(
       { error: "Not authorized to decline this invitation" },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
@@ -156,7 +159,7 @@ export async function DELETE(
   if (error) {
     return NextResponse.json(
       { error: sanitizeDbError(error, "DELETE /api/invitations/[id]") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

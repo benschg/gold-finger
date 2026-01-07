@@ -37,7 +37,7 @@ export interface RateLimitResult {
  */
 export function checkRateLimit(
   identifier: string,
-  config: RateLimitConfig
+  config: RateLimitConfig,
 ): RateLimitResult {
   const now = Date.now();
   const entry = rateLimitStore.get(identifier);

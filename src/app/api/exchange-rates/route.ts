@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   if (!from || !to) {
     return NextResponse.json(
       { error: "Both 'from' and 'to' currency codes are required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   if (!currencyRegex.test(from) || !currencyRegex.test(to)) {
     return NextResponse.json(
       { error: "Currency codes must be 3 uppercase letters (e.g., USD, EUR)" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
   if (!result) {
     return NextResponse.json(
       { error: "Failed to fetch exchange rate" },
-      { status: 503 }
+      { status: 503 },
     );
   }
 

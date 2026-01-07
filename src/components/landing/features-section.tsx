@@ -1,11 +1,4 @@
-import {
-  Wallet,
-  Tag,
-  Globe,
-  Moon,
-  Shield,
-  Smartphone,
-} from "lucide-react";
+import { Wallet, Tag, Globe, Moon, Shield, Smartphone } from "lucide-react";
 
 const features = [
   {

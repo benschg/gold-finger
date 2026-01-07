@@ -5,7 +5,7 @@ import { checkAccountMembership, requireAccountOwner } from "@/lib/api-helpers";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { id } = await params;
@@ -20,7 +20,11 @@ export async function GET(
   }
 
   // Check membership
-  const { isMember, role } = await checkAccountMembership(supabase, id, user.id);
+  const { isMember, role } = await checkAccountMembership(
+    supabase,
+    id,
+    user.id,
+  );
   if (!isMember) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
@@ -35,7 +39,7 @@ export async function GET(
   if (error) {
     return NextResponse.json(
       { error: sanitizeDbError(error, "GET /api/accounts/[id]") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -47,7 +51,7 @@ export async function GET(
       user_id,
       role,
       joined_at
-    `
+    `,
     )
     .eq("account_id", id);
 
@@ -77,7 +81,7 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { id } = await params;
@@ -92,7 +96,12 @@ export async function PUT(
   }
 
   // Check if user is owner
-  const ownerError = await requireAccountOwner(supabase, id, user.id, "Only owners can update accounts");
+  const ownerError = await requireAccountOwner(
+    supabase,
+    id,
+    user.id,
+    "Only owners can update accounts",
+  );
   if (ownerError) return ownerError;
 
   const body = await request.json();
@@ -114,7 +123,7 @@ export async function PUT(
   if (error) {
     return NextResponse.json(
       { error: sanitizeDbError(error, "PUT /api/accounts/[id]") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -123,7 +132,7 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { id } = await params;
@@ -138,7 +147,12 @@ export async function DELETE(
   }
 
   // Check if user is owner
-  const ownerError = await requireAccountOwner(supabase, id, user.id, "Only owners can delete accounts");
+  const ownerError = await requireAccountOwner(
+    supabase,
+    id,
+    user.id,
+    "Only owners can delete accounts",
+  );
   if (ownerError) return ownerError;
 
   // Delete account (cascade will handle members, expenses, etc.)
@@ -147,7 +161,7 @@ export async function DELETE(
   if (error) {
     return NextResponse.json(
       { error: sanitizeDbError(error, "DELETE /api/accounts/[id]") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

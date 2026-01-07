@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowRightLeft, Loader2, TrendingUp, TrendingDown } from "lucide-react";
+import {
+  ArrowRightLeft,
+  Loader2,
+  TrendingUp,
+  TrendingDown,
+} from "lucide-react";
 import {
   LineChart,
   Line,
@@ -19,7 +24,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { CURRENCIES } from "@/lib/constants";
 
 interface ExchangeRateHistoryProps {
   fromCurrency: string;
@@ -78,7 +82,7 @@ export function ExchangeRateHistory({
 
       try {
         const response = await fetch(
-          `/api/exchange-rates/history?from=${displayFrom}&to=${displayTo}&period=${period}`
+          `/api/exchange-rates/history?from=${displayFrom}&to=${displayTo}&period=${period}`,
         );
 
         if (!response.ok) {
@@ -100,9 +104,15 @@ export function ExchangeRateHistory({
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     if (period === "1W" || period === "1M") {
-      return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+      return date.toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+      });
     }
-    return date.toLocaleDateString(undefined, { month: "short", year: "2-digit" });
+    return date.toLocaleDateString(undefined, {
+      month: "short",
+      year: "2-digit",
+    });
   };
 
   return (
@@ -228,9 +238,7 @@ export function ExchangeRateHistory({
         {/* Change indicator */}
         {data && (
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">
-              Period change
-            </span>
+            <span className="text-muted-foreground">Period change</span>
             <span
               className={`flex items-center gap-1 font-medium ${
                 data.stats.change >= 0

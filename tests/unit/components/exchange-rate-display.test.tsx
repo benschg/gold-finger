@@ -18,11 +18,7 @@ describe("ExchangeRateDisplay", () => {
 
   it("renders nothing when currencies are the same", () => {
     const { container } = render(
-      <ExchangeRateDisplay
-        fromCurrency="EUR"
-        toCurrency="EUR"
-        amount={100}
-      />
+      <ExchangeRateDisplay fromCurrency="EUR" toCurrency="EUR" amount={100} />,
     );
 
     expect(container.firstChild).toBeNull();
@@ -31,15 +27,11 @@ describe("ExchangeRateDisplay", () => {
   it("shows loading state while fetching", async () => {
     // Mock a slow response
     global.fetch = vi.fn().mockImplementation(
-      () => new Promise(() => {}) // Never resolves
+      () => new Promise(() => {}), // Never resolves
     );
 
     render(
-      <ExchangeRateDisplay
-        fromCurrency="USD"
-        toCurrency="EUR"
-        amount={100}
-      />
+      <ExchangeRateDisplay fromCurrency="USD" toCurrency="EUR" amount={100} />,
     );
 
     expect(screen.getByText("Fetching exchange rate...")).toBeInTheDocument();
@@ -57,11 +49,7 @@ describe("ExchangeRateDisplay", () => {
     });
 
     render(
-      <ExchangeRateDisplay
-        fromCurrency="USD"
-        toCurrency="EUR"
-        amount={100}
-      />
+      <ExchangeRateDisplay fromCurrency="USD" toCurrency="EUR" amount={100} />,
     );
 
     await waitFor(() => {
@@ -84,11 +72,7 @@ describe("ExchangeRateDisplay", () => {
     });
 
     render(
-      <ExchangeRateDisplay
-        fromCurrency="USD"
-        toCurrency="EUR"
-        amount={0}
-      />
+      <ExchangeRateDisplay fromCurrency="USD" toCurrency="EUR" amount={0} />,
     );
 
     await waitFor(() => {
@@ -103,16 +87,12 @@ describe("ExchangeRateDisplay", () => {
     });
 
     render(
-      <ExchangeRateDisplay
-        fromCurrency="USD"
-        toCurrency="EUR"
-        amount={100}
-      />
+      <ExchangeRateDisplay fromCurrency="USD" toCurrency="EUR" amount={100} />,
     );
 
     await waitFor(() => {
       expect(
-        screen.getByText(/Could not fetch exchange rate/)
+        screen.getByText(/Could not fetch exchange rate/),
       ).toBeInTheDocument();
     });
   });
@@ -129,11 +109,7 @@ describe("ExchangeRateDisplay", () => {
     });
 
     render(
-      <ExchangeRateDisplay
-        fromCurrency="USD"
-        toCurrency="EUR"
-        amount={100}
-      />
+      <ExchangeRateDisplay fromCurrency="USD" toCurrency="EUR" amount={100} />,
     );
 
     await waitFor(() => {
@@ -153,11 +129,7 @@ describe("ExchangeRateDisplay", () => {
     });
 
     render(
-      <ExchangeRateDisplay
-        fromCurrency="USD"
-        toCurrency="EUR"
-        amount={100}
-      />
+      <ExchangeRateDisplay fromCurrency="USD" toCurrency="EUR" amount={100} />,
     );
 
     await waitFor(() => {
@@ -179,11 +151,7 @@ describe("ExchangeRateDisplay", () => {
     });
 
     render(
-      <ExchangeRateDisplay
-        fromCurrency="EUR"
-        toCurrency="GBP"
-        amount={100}
-      />
+      <ExchangeRateDisplay fromCurrency="EUR" toCurrency="GBP" amount={100} />,
     );
 
     await waitFor(() => {

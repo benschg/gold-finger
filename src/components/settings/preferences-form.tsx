@@ -29,10 +29,10 @@ export function PreferencesForm({ profile }: PreferencesFormProps) {
   const router = useRouter();
   const { theme: currentTheme, setTheme } = useTheme();
   const [currency, setCurrency] = useState<Currency>(
-    profile?.preferred_currency || DEFAULT_CURRENCY
+    profile?.preferred_currency || DEFAULT_CURRENCY,
   );
   const [selectedTheme, setSelectedTheme] = useState(
-    profile?.theme || currentTheme || "system"
+    profile?.theme || currentTheme || "system",
   );
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{
@@ -81,7 +81,10 @@ export function PreferencesForm({ profile }: PreferencesFormProps) {
     <div className="grid gap-4 max-w-full sm:max-w-md">
       <div className="space-y-2">
         <Label htmlFor="currency">Default Currency</Label>
-        <Select value={currency} onValueChange={(v) => setCurrency(v as Currency)}>
+        <Select
+          value={currency}
+          onValueChange={(v) => setCurrency(v as Currency)}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select currency" />
           </SelectTrigger>

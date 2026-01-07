@@ -31,7 +31,6 @@ export function ReceiptUpload({
   const [preview, setPreview] = useState<string | null>(existingUrl || null);
   const [isUploading, setIsUploading] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [uploadedUrl, setUploadedUrl] = useState<string | null>(existingUrl || null);
   const [error, setError] = useState<string | null>(null);
 
   const onDrop = useCallback(
@@ -65,7 +64,6 @@ export function ReceiptUpload({
         }
 
         const { url } = await uploadResponse.json();
-        setUploadedUrl(url);
         onUploadComplete?.(url);
 
         // Analyze receipt with AI
@@ -88,7 +86,7 @@ export function ReceiptUpload({
         setIsAnalyzing(false);
       }
     },
-    [onUploadComplete, onAnalysisComplete]
+    [onUploadComplete, onAnalysisComplete],
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -107,7 +105,6 @@ export function ReceiptUpload({
 
   const clearReceipt = () => {
     setPreview(null);
-    setUploadedUrl(null);
     setError(null);
   };
 
@@ -120,7 +117,9 @@ export function ReceiptUpload({
               <div className="flex h-full items-center justify-center">
                 <div className="text-center">
                   <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground" />
-                  <p className="mt-2 text-sm text-muted-foreground">PDF Receipt</p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    PDF Receipt
+                  </p>
                 </div>
               </div>
             ) : (
@@ -172,7 +171,7 @@ export function ReceiptUpload({
           isDragActive
             ? "border-primary bg-primary/5"
             : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50",
-          (isUploading || isAnalyzing) && "pointer-events-none opacity-50"
+          (isUploading || isAnalyzing) && "pointer-events-none opacity-50",
         )}
       >
         <input {...getInputProps()} />

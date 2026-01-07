@@ -15,7 +15,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { AccountCard, CreateAccountDialog, ManageAccountDialog } from "@/components/accounts";
+import {
+  AccountCard,
+  CreateAccountDialog,
+  ManageAccountDialog,
+} from "@/components/accounts";
 import { useAccounts } from "@/lib/hooks/use-accounts";
 import { createClient } from "@/lib/supabase/client";
 import type { AccountWithRole } from "@/types/database";
@@ -28,8 +32,10 @@ interface DeleteAccountDetails {
 
 export default function AccountsPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [accountToDelete, setAccountToDelete] = useState<AccountWithRole | null>(null);
-  const [accountToManage, setAccountToManage] = useState<AccountWithRole | null>(null);
+  const [accountToDelete, setAccountToDelete] =
+    useState<AccountWithRole | null>(null);
+  const [accountToManage, setAccountToManage] =
+    useState<AccountWithRole | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string>("");
   const [deleteDetails, setDeleteDetails] = useState<DeleteAccountDetails>({
     memberCount: 0,
@@ -118,7 +124,10 @@ export default function AccountsPage() {
             Manage your expense accounts and sharing
           </p>
         </div>
-        <Button onClick={() => setIsCreateOpen(true)} className="w-full sm:w-auto">
+        <Button
+          onClick={() => setIsCreateOpen(true)}
+          className="w-full sm:w-auto"
+        >
           <Plus className="mr-2 h-4 w-4" />
           New Account
         </Button>
@@ -172,8 +181,8 @@ export default function AccountsPage() {
             <AlertDialogDescription asChild>
               <div className="space-y-3">
                 <p>
-                  Are you sure you want to delete &quot;{accountToDelete?.name}&quot;?
-                  This action cannot be undone.
+                  Are you sure you want to delete &quot;{accountToDelete?.name}
+                  &quot;? This action cannot be undone.
                 </p>
 
                 {deleteDetails.isLoading ? (
@@ -190,14 +199,18 @@ export default function AccountsPage() {
                       <Users className="h-4 w-4" />
                       <span>
                         {deleteDetails.memberCount}{" "}
-                        {deleteDetails.memberCount === 1 ? "member" : "members"} will lose access
+                        {deleteDetails.memberCount === 1 ? "member" : "members"}{" "}
+                        will lose access
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Receipt className="h-4 w-4" />
                       <span>
                         {deleteDetails.expenseCount}{" "}
-                        {deleteDetails.expenseCount === 1 ? "expense" : "expenses"} will be deleted
+                        {deleteDetails.expenseCount === 1
+                          ? "expense"
+                          : "expenses"}{" "}
+                        will be deleted
                       </span>
                     </div>
                   </div>

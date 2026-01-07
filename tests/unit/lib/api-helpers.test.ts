@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/database.types";
 import {
   checkAccountMembership,
   requireAccountMembership,
@@ -21,14 +23,18 @@ function createMockSupabase(membershipData: { role: string } | null) {
         }),
       }),
     }),
-  } as any;
+  } as unknown as SupabaseClient<Database>;
 }
 
 describe("checkAccountMembership", () => {
   it("returns isMember true and role when user is a member", async () => {
     const supabase = createMockSupabase({ role: "member" });
 
-    const result = await checkAccountMembership(supabase, "account-1", "user-1");
+    const result = await checkAccountMembership(
+      supabase,
+      "account-1",
+      "user-1",
+    );
 
     expect(result.isMember).toBe(true);
     expect(result.role).toBe("member");
@@ -37,7 +43,11 @@ describe("checkAccountMembership", () => {
   it("returns isMember true and owner role for owners", async () => {
     const supabase = createMockSupabase({ role: "owner" });
 
-    const result = await checkAccountMembership(supabase, "account-1", "user-1");
+    const result = await checkAccountMembership(
+      supabase,
+      "account-1",
+      "user-1",
+    );
 
     expect(result.isMember).toBe(true);
     expect(result.role).toBe("owner");
@@ -46,7 +56,11 @@ describe("checkAccountMembership", () => {
   it("returns isMember false when user is not a member", async () => {
     const supabase = createMockSupabase(null);
 
-    const result = await checkAccountMembership(supabase, "account-1", "user-1");
+    const result = await checkAccountMembership(
+      supabase,
+      "account-1",
+      "user-1",
+    );
 
     expect(result.isMember).toBe(false);
     expect(result.role).toBeNull();
@@ -65,7 +79,11 @@ describe("requireAccountMembership", () => {
   it("returns null when user is a member", async () => {
     const supabase = createMockSupabase({ role: "member" });
 
-    const result = await requireAccountMembership(supabase, "account-1", "user-1");
+    const result = await requireAccountMembership(
+      supabase,
+      "account-1",
+      "user-1",
+    );
 
     expect(result).toBeNull();
   });
@@ -73,7 +91,11 @@ describe("requireAccountMembership", () => {
   it("returns null when user is an owner", async () => {
     const supabase = createMockSupabase({ role: "owner" });
 
-    const result = await requireAccountMembership(supabase, "account-1", "user-1");
+    const result = await requireAccountMembership(
+      supabase,
+      "account-1",
+      "user-1",
+    );
 
     expect(result).toBeNull();
   });
@@ -81,7 +103,11 @@ describe("requireAccountMembership", () => {
   it("returns 403 response when user is not a member", async () => {
     const supabase = createMockSupabase(null);
 
-    const result = await requireAccountMembership(supabase, "account-1", "user-1");
+    const result = await requireAccountMembership(
+      supabase,
+      "account-1",
+      "user-1",
+    );
 
     expect(result).not.toBeNull();
     expect(result?.status).toBe(403);
@@ -126,7 +152,7 @@ describe("requireAccountOwner", () => {
       supabase,
       "account-1",
       "user-1",
-      "Custom error message"
+      "Custom error message",
     );
 
     const body = await result?.json();

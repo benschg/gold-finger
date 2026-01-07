@@ -39,7 +39,11 @@ interface ExpenseTableProps {
   onDelete?: (expense: ExpenseWithDetails) => void;
 }
 
-export function ExpenseTable({ expenses, onEdit, onDelete }: ExpenseTableProps) {
+export function ExpenseTable({
+  expenses,
+  onEdit,
+  onDelete,
+}: ExpenseTableProps) {
   const [sorting, setSorting] = useState<SortingState>([
     { id: "date", desc: true },
   ]);
@@ -231,7 +235,7 @@ export function ExpenseTable({ expenses, onEdit, onDelete }: ExpenseTableProps) 
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                   </th>
                 ))}
@@ -246,7 +250,7 @@ export function ExpenseTable({ expenses, onEdit, onDelete }: ExpenseTableProps) 
                     <td key={cell.id} className="px-4 py-3 text-sm">
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </td>
                   ))}
@@ -272,7 +276,7 @@ export function ExpenseTable({ expenses, onEdit, onDelete }: ExpenseTableProps) 
           Showing {table.getState().pagination.pageIndex * 10 + 1} to{" "}
           {Math.min(
             (table.getState().pagination.pageIndex + 1) * 10,
-            expenses.length
+            expenses.length,
           )}{" "}
           of {expenses.length} expenses
         </p>

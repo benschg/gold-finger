@@ -14,7 +14,11 @@ import { useTags } from "@/lib/hooks/use-tags";
 import { useAccountStore } from "@/store/account-store";
 
 export function SettingsContent() {
-  const { accounts, isLoading: isLoadingAccounts, refetch: refetchAccounts } = useAccounts();
+  const {
+    accounts,
+    isLoading: isLoadingAccounts,
+    refetch: refetchAccounts,
+  } = useAccounts();
   const { selectedAccountId } = useAccountStore();
 
   const selectedAccount = accounts.find((a) => a.id === selectedAccountId);

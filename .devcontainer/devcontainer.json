@@ -1,6 +1,9 @@
 {
   "name": "Gold-Finger Development",
-  "dockerComposeFile": ["../docker-compose.dev.yml", "docker-compose.devcontainer.yml"],
+  "dockerComposeFile": [
+    "../docker-compose.dev.yml",
+    "docker-compose.devcontainer.yml"
+  ],
   "service": "app",
   "workspaceFolder": "/workspace",
   "features": {

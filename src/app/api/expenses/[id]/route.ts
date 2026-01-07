@@ -5,7 +5,7 @@ import { getExchangeRate, convertAmount } from "@/lib/exchange-rates";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { id } = await params;
@@ -27,7 +27,7 @@ export async function GET(
       `
       *,
       category:categories(id, name, icon, color)
-    `
+    `,
     )
     .eq("id", id)
     .single();
@@ -42,7 +42,7 @@ export async function GET(
     .select(
       `
       tag:tags(id, name, color)
-    `
+    `,
     )
     .eq("expense_id", id);
 
@@ -54,7 +54,7 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { id } = await params;
@@ -75,7 +75,7 @@ export async function PUT(
   if (!parsed.success) {
     return NextResponse.json(
       { error: parsed.error.issues[0].message },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -166,7 +166,7 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { id } = await params;

@@ -137,7 +137,9 @@ export function TagManager({
                     type="button"
                     onClick={() => setColor(colorValue)}
                     className={`h-8 w-8 rounded-full ${
-                      color === colorValue ? "ring-2 ring-primary ring-offset-2" : ""
+                      color === colorValue
+                        ? "ring-2 ring-primary ring-offset-2"
+                        : ""
                     }`}
                     style={{ backgroundColor: colorValue }}
                   />

@@ -2,11 +2,15 @@ import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { updateCategorySchema } from "@/lib/validations/schemas";
 import { sanitizeDbError } from "@/lib/api-errors";
-import { requireAuth, requireAccountMembership, validateRequest } from "@/lib/api-helpers";
+import {
+  requireAuth,
+  requireAccountMembership,
+  validateRequest,
+} from "@/lib/api-helpers";
 
 export async function PUT(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { id } = await params;
@@ -32,7 +36,11 @@ export async function PUT(
   }
 
   // Verify user is a member of this account
-  const membershipError = await requireAccountMembership(supabase, category.account_id, user.id);
+  const membershipError = await requireAccountMembership(
+    supabase,
+    category.account_id,
+    user.id,
+  );
   if (membershipError) return membershipError;
 
   // Build update object
@@ -51,7 +59,7 @@ export async function PUT(
   if (error) {
     return NextResponse.json(
       { error: sanitizeDbError(error, "PUT /api/categories/[id]") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -60,7 +68,7 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { id } = await params;
@@ -81,19 +89,20 @@ export async function DELETE(
   }
 
   // Verify user is a member of this account
-  const membershipError = await requireAccountMembership(supabase, category.account_id, user.id);
+  const membershipError = await requireAccountMembership(
+    supabase,
+    category.account_id,
+    user.id,
+  );
   if (membershipError) return membershipError;
 
   // Delete the category (expenses will have category_id set to null due to ON DELETE SET NULL)
-  const { error } = await supabase
-    .from("categories")
-    .delete()
-    .eq("id", id);
+  const { error } = await supabase.from("categories").delete().eq("id", id);
 
   if (error) {
     return NextResponse.json(
       { error: sanitizeDbError(error, "DELETE /api/categories/[id]") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

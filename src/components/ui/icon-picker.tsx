@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { icons, type LucideIcon } from "lucide-react";
-import { Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -38,7 +37,7 @@ function toPascalCase(str: string): string {
 
 // Get all icon names (excluding internal ones)
 const allIconNames = Object.keys(icons).filter(
-  (name) => !name.endsWith("Icon") && name !== "createLucideIcon"
+  (name) => !name.endsWith("Icon") && name !== "createLucideIcon",
 );
 
 // Maximum icons to show initially (for performance)
@@ -73,7 +72,7 @@ export function IconPicker({
     }
     const searchLower = search.toLowerCase();
     return allIconNames.filter((name) =>
-      name.toLowerCase().includes(searchLower)
+      name.toLowerCase().includes(searchLower),
     );
   }, [search]);
 
@@ -115,7 +114,9 @@ export function IconPicker({
             <CommandGroup>
               <div className="grid grid-cols-6 gap-1 p-2">
                 {filteredIcons.map((iconName) => {
-                  const Icon = icons[iconName as keyof typeof icons] as LucideIcon;
+                  const Icon = icons[
+                    iconName as keyof typeof icons
+                  ] as LucideIcon;
                   const kebabName = toKebabCase(iconName);
                   const isSelected = value === kebabName;
 
@@ -126,7 +127,7 @@ export function IconPicker({
                       onSelect={() => handleSelect(iconName)}
                       className={cn(
                         "flex h-9 w-9 items-center justify-center rounded-md p-0 cursor-pointer",
-                        isSelected && "bg-primary text-primary-foreground"
+                        isSelected && "bg-primary text-primary-foreground",
                       )}
                     >
                       <Icon className="h-4 w-4" />
@@ -155,7 +156,9 @@ interface DynamicIconProps {
 
 export function DynamicIcon({ name, className }: DynamicIconProps) {
   const pascalName = toPascalCase(name);
-  const Icon = icons[pascalName as keyof typeof icons] as LucideIcon | undefined;
+  const Icon = icons[pascalName as keyof typeof icons] as
+    | LucideIcon
+    | undefined;
 
   if (!Icon) {
     return <span className={cn("inline-block", className)}>?</span>;
@@ -192,7 +195,7 @@ export function IconBadge({
       className={cn(
         "flex items-center justify-center rounded-full text-white shrink-0",
         sizeClasses.badge,
-        className
+        className,
       )}
       style={{ backgroundColor: color }}
     >
@@ -243,7 +246,7 @@ export function ColorPicker({
               "flex h-8 w-8 items-center justify-center rounded-full transition-all",
               value === colorValue
                 ? "ring-2 ring-primary ring-offset-2"
-                : "hover:scale-110"
+                : "hover:scale-110",
             )}
             style={{ backgroundColor: colorValue }}
           >
@@ -257,7 +260,7 @@ export function ColorPicker({
             "flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-dashed transition-all",
             isCustom
               ? "ring-2 ring-primary ring-offset-2 border-solid"
-              : "border-muted-foreground/30 hover:border-muted-foreground"
+              : "border-muted-foreground/30 hover:border-muted-foreground",
           )}
           style={{ backgroundColor: isCustom ? value : "transparent" }}
         >

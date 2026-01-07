@@ -21,7 +21,7 @@ interface MembershipResult {
 export async function checkAccountMembership(
   supabase: SupabaseClient<Database>,
   accountId: string,
-  userId: string
+  userId: string,
 ): Promise<MembershipResult> {
   const { data: membership } = await supabase
     .from("account_members")
@@ -43,9 +43,13 @@ export async function checkAccountMembership(
 export async function requireAccountMembership(
   supabase: SupabaseClient<Database>,
   accountId: string,
-  userId: string
+  userId: string,
 ): Promise<NextResponse | null> {
-  const { isMember } = await checkAccountMembership(supabase, accountId, userId);
+  const { isMember } = await checkAccountMembership(
+    supabase,
+    accountId,
+    userId,
+  );
 
   if (!isMember) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -62,12 +66,12 @@ export async function requireAccountOwner(
   supabase: SupabaseClient<Database>,
   accountId: string,
   userId: string,
-  errorMessage = "Only owners can perform this action"
+  errorMessage = "Only owners can perform this action",
 ): Promise<NextResponse | null> {
   const { isMember, role } = await checkAccountMembership(
     supabase,
     accountId,
-    userId
+    userId,
   );
 
   if (!isMember || role !== "owner") {
@@ -84,7 +88,7 @@ export async function requireAccountOwner(
 export function applyRateLimit(
   request: Request,
   userId: string,
-  config: RateLimitConfig
+  config: RateLimitConfig,
 ): NextResponse | null {
   const identifier = getClientIdentifier(request, userId);
   const result = checkRateLimit(identifier, config);
@@ -96,10 +100,10 @@ export function applyRateLimit(
         status: 429,
         headers: {
           "Retry-After": String(
-            Math.ceil((result.resetTime - Date.now()) / 1000)
+            Math.ceil((result.resetTime - Date.now()) / 1000),
           ),
         },
-      }
+      },
     );
   }
 
@@ -121,7 +125,7 @@ interface AuthError {
  * Returns the authenticated user or an error response.
  */
 export async function requireAuth(
-  supabase: SupabaseClient<Database>
+  supabase: SupabaseClient<Database>,
 ): Promise<AuthResult | AuthError> {
   const {
     data: { user },
@@ -154,7 +158,7 @@ interface ValidationError {
  */
 export function validateRequest<T>(
   schema: z.ZodSchema<T>,
-  data: unknown
+  data: unknown,
 ): ValidationResult<T> | ValidationError {
   const parsed = schema.safeParse(data);
 
@@ -163,7 +167,7 @@ export function validateRequest<T>(
       data: null,
       error: NextResponse.json(
         { error: parsed.error.issues[0].message },
-        { status: 400 }
+        { status: 400 },
       ),
     };
   }

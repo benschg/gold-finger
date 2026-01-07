@@ -52,10 +52,7 @@ export function ExpenseBarChart({
             <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis dataKey="month" {...axisStyles} />
-              <YAxis
-                {...axisStyles}
-                tickFormatter={(value) => `€${value}`}
-              />
+              <YAxis {...axisStyles} tickFormatter={(value) => `€${value}`} />
               <Tooltip formatter={formatCurrency} {...tooltipStyles} />
               <Bar
                 dataKey="amount"

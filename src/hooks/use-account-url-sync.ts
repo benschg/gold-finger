@@ -52,7 +52,7 @@ export function useAccountUrlSync(accounts: AccountWithRole[]) {
       params.set("account", accountId);
       return `${pathname}?${params.toString()}`;
     },
-    [pathname, searchParams]
+    [pathname, searchParams],
   );
 
   // Subscribe to store changes and update URL

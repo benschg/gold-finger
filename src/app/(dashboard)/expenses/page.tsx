@@ -45,7 +45,11 @@ export default function ExpensesPage() {
   // Track which account is selected in the form (may differ from page filter)
   const [formAccountId, setFormAccountId] = useState<string | null>(null);
 
-  const { accounts, isLoading: isLoadingAccounts, refetch: refetchAccounts } = useAccounts();
+  const {
+    accounts,
+    isLoading: isLoadingAccounts,
+    refetch: refetchAccounts,
+  } = useAccounts();
   const { selectedAccountId } = useAccountStore();
 
   // Use formAccountId when dialog is open, otherwise use selectedAccountId
@@ -63,7 +67,7 @@ export default function ExpensesPage() {
     setIsLoadingExpenses(true);
     try {
       const response = await fetch(
-        `/api/expenses?account_id=${selectedAccountId}`
+        `/api/expenses?account_id=${selectedAccountId}`,
       );
       if (response.ok) {
         const data = await response.json();
@@ -179,7 +183,8 @@ export default function ExpensesPage() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="inline-flex items-center gap-1 rounded-md bg-secondary px-2.5 py-0.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80 transition-colors">
-                    {CURRENCIES.find((c) => c.code === selectedAccount.currency)?.symbol || selectedAccount.currency}
+                    {CURRENCIES.find((c) => c.code === selectedAccount.currency)
+                      ?.symbol || selectedAccount.currency}
                     <ChevronDown className="h-3 w-3 opacity-50" />
                   </button>
                 </DropdownMenuTrigger>
@@ -188,7 +193,11 @@ export default function ExpensesPage() {
                     <DropdownMenuItem
                       key={currency.code}
                       onClick={() => handleCurrencyChange(currency.code)}
-                      className={selectedAccount.currency === currency.code ? "bg-accent" : ""}
+                      className={
+                        selectedAccount.currency === currency.code
+                          ? "bg-accent"
+                          : ""
+                      }
                     >
                       {currency.symbol} {currency.label}
                     </DropdownMenuItem>
@@ -234,7 +243,9 @@ export default function ExpensesPage() {
             <ExpenseForm
               accountId={formAccountId}
               accounts={accounts}
-              accountCurrency={selectedAccount?.currency as Currency | undefined}
+              accountCurrency={
+                selectedAccount?.currency as Currency | undefined
+              }
               categories={categories}
               tags={tags}
               expense={editingExpense || undefined}
@@ -255,8 +266,8 @@ export default function ExpensesPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete expense?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this expense? This action cannot be
-              undone.
+              Are you sure you want to delete this expense? This action cannot
+              be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

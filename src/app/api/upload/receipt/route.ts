@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
         { error: "Invalid file type. Allowed: JPG, PNG, WebP, HEIC, PDF" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     if (file.size > 5 * 1024 * 1024) {
       return NextResponse.json(
         { error: "File too large. Maximum size is 5MB" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       console.error("Upload error:", uploadError);
       return NextResponse.json(
         { error: "Failed to upload file" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     console.error("Upload error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

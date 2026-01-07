@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Pencil, Trash2, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { IconPicker, IconBadge, ColorPicker } from "@/components/ui/icon-picker";
+import {
+  IconPicker,
+  IconBadge,
+  ColorPicker,
+} from "@/components/ui/icon-picker";
 import {
   Dialog,
   DialogContent,
@@ -48,7 +52,9 @@ export function CategoryManager({
   const setIsDialogOpen = onDialogOpenChange ?? setInternalIsDialogOpen;
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
+    null,
+  );
 
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("shopping-cart");
@@ -143,8 +149,14 @@ export function CategoryManager({
               className="flex items-center justify-between rounded-lg border p-2 sm:p-3"
             >
               <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                <IconBadge icon={category.icon} color={category.color} size="md" />
-                <span className="font-medium text-sm sm:text-base truncate">{category.name}</span>
+                <IconBadge
+                  icon={category.icon}
+                  color={category.color}
+                  size="md"
+                />
+                <span className="font-medium text-sm sm:text-base truncate">
+                  {category.name}
+                </span>
               </div>
               <div className="flex items-center gap-1 sm:gap-2 shrink-0">
                 <Button
@@ -235,8 +247,9 @@ export function CategoryManager({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete category?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete &quot;{categoryToDelete?.name}&quot;? Expenses
-              using this category will no longer have a category assigned.
+              Are you sure you want to delete &quot;{categoryToDelete?.name}
+              &quot;? Expenses using this category will no longer have a
+              category assigned.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

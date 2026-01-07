@@ -6,16 +6,10 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Public routes that don't require auth
-  const publicRoutes = ["/", "/login", "/verify", "/auth/callback"];
-  const isPublicRoute = publicRoutes.some(
-    (route) => pathname === route || pathname.startsWith("/api/auth")
-  );
-
   // Protected routes that require auth
   const protectedRoutes = ["/dashboard", "/expenses", "/accounts", "/settings"];
   const isProtectedRoute = protectedRoutes.some((route) =>
-    pathname.startsWith(route)
+    pathname.startsWith(route),
   );
 
   // Redirect unauthenticated users from protected routes

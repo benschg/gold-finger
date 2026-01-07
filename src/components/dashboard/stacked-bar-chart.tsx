@@ -45,7 +45,7 @@ function CustomTooltip({
 
   const total = payload.reduce(
     (sum: number, entry: TooltipEntry) => sum + (entry.value || 0),
-    0
+    0,
   );
 
   return (
@@ -59,7 +59,7 @@ function CustomTooltip({
           .filter((entry: TooltipEntry) => (entry.value || 0) > 0)
           .sort(
             (a: TooltipEntry, b: TooltipEntry) =>
-              (b.value || 0) - (a.value || 0)
+              (b.value || 0) - (a.value || 0),
           )
           .map((entry: TooltipEntry) => (
             <div

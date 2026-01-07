@@ -5,7 +5,7 @@ import type { Category } from "@/types/database";
 
 export function useCategories(accountId: string | null) {
   const { data, isLoading, error, refetch } = useFetch<Category[]>(
-    accountId ? `/api/categories?account_id=${accountId}` : null
+    accountId ? `/api/categories?account_id=${accountId}` : null,
   );
 
   return {

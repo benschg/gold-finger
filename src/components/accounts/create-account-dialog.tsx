@@ -97,7 +97,10 @@ export function CreateAccountDialog({
 
           <div className="space-y-2">
             <Label htmlFor="account-currency">Default Currency</Label>
-            <Select value={currency} onValueChange={(v) => setCurrency(v as Currency)}>
+            <Select
+              value={currency}
+              onValueChange={(v) => setCurrency(v as Currency)}
+            >
               <SelectTrigger id="account-currency">
                 <SelectValue />
               </SelectTrigger>

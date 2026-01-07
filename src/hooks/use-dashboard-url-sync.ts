@@ -62,6 +62,7 @@ export function useDashboardUrlSync() {
 
     // Store initial URL to prevent immediate re-update
     lastUrlRef.current = window.location.search;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty deps - only run once on mount
 
   // Build URL from current state

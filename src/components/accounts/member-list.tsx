@@ -60,13 +60,15 @@ export function MemberList({
     try {
       const response = await fetch(
         `/api/accounts/${accountId}/members?user_id=${userId}`,
-        { method: "DELETE" }
+        { method: "DELETE" },
       );
 
       if (response.ok) {
         onMemberRemoved?.();
         router.refresh();
-        toast.success(isLeavingAccount ? "You have left the account" : "Member removed");
+        toast.success(
+          isLeavingAccount ? "You have left the account" : "Member removed",
+        );
       } else {
         const error = await response.json();
         toast.error(error.error || "Failed to remove member");

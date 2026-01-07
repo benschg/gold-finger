@@ -116,5 +116,5 @@ export const useDashboardFilterStore = create<DashboardFilterState>(
         state.dateRange.preset !== "ALL"
       );
     },
-  })
+  }),
 );

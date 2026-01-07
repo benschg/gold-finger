@@ -72,7 +72,7 @@ describe("GET /api/exchange-rates/history", () => {
       start_date: "2024-01-01",
       end_date: "2024-01-15",
       rates: {
-        "2024-01-01": { EUR: 0.90 },
+        "2024-01-01": { EUR: 0.9 },
         "2024-01-08": { EUR: 0.92 },
         "2024-01-15": { EUR: 0.94 },
       },
@@ -87,7 +87,7 @@ describe("GET /api/exchange-rates/history", () => {
     const response = await GET(request);
     const data = await response.json();
 
-    expect(data.stats.min).toBe(0.90);
+    expect(data.stats.min).toBe(0.9);
     expect(data.stats.max).toBe(0.94);
     expect(data.stats.current).toBe(0.94);
     // Change: (0.94 - 0.90) / 0.90 * 100 = 4.44%

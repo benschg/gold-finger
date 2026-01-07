@@ -21,7 +21,13 @@ import {
 import { ReceiptUpload } from "./receipt-upload";
 import { ExchangeRateDisplay } from "./exchange-rate-display";
 import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/constants";
-import type { Account, Category, Tag, ExpenseWithDetails, Currency } from "@/types/database";
+import type {
+  Account,
+  Category,
+  Tag,
+  ExpenseWithDetails,
+  Currency,
+} from "@/types/database";
 
 const expenseSchema = z.object({
   amount: z.number().positive("Amount must be positive"),
@@ -60,14 +66,15 @@ export function ExpenseForm({
 }: ExpenseFormProps) {
   const [selectedAccountId, setSelectedAccountId] = useState(accountId);
   const selectedAccount = accounts.find((a) => a.id === selectedAccountId);
-  const effectiveAccountCurrency = (selectedAccount?.currency as Currency) || accountCurrency;
+  const effectiveAccountCurrency =
+    (selectedAccount?.currency as Currency) || accountCurrency;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const addAnotherRef = useRef(false);
   const [selectedTags, setSelectedTags] = useState<string[]>(
-    expense?.tags?.map((t) => t.id) || []
+    expense?.tags?.map((t) => t.id) || [],
   );
   const [receiptUrl, setReceiptUrl] = useState<string | null>(
-    expense?.receipt_url || null
+    expense?.receipt_url || null,
   );
   const [aiAutoFilled, setAiAutoFilled] = useState(false);
 
@@ -148,7 +155,7 @@ export function ExpenseForm({
     setSelectedTags((prev) =>
       prev.includes(tagId)
         ? prev.filter((id) => id !== tagId)
-        : [...prev, tagId]
+        : [...prev, tagId],
     );
   };
 
@@ -181,7 +188,7 @@ export function ExpenseForm({
     // Try to match category by name
     if (data.category) {
       const matchedCategory = categories.find(
-        (c) => c.name.toLowerCase() === data.category?.toLowerCase()
+        (c) => c.name.toLowerCase() === data.category?.toLowerCase(),
       );
       if (matchedCategory) {
         setValue("category_id", matchedCategory.id);
@@ -196,10 +203,7 @@ export function ExpenseForm({
       {accounts.length > 1 && (
         <div className="space-y-2">
           <Label htmlFor="account">Account</Label>
-          <Select
-            value={selectedAccountId}
-            onValueChange={handleAccountChange}
-          >
+          <Select value={selectedAccountId} onValueChange={handleAccountChange}>
             <SelectTrigger id="account">
               <SelectValue placeholder="Select account" />
             </SelectTrigger>
@@ -259,7 +263,8 @@ export function ExpenseForm({
               step="0.01"
               placeholder="0.00"
               className={
-                (CURRENCIES.find((c) => c.code === selectedCurrency)?.symbol?.length ?? 1) > 2
+                (CURRENCIES.find((c) => c.code === selectedCurrency)?.symbol
+                  ?.length ?? 1) > 2
                   ? "pl-14"
                   : "pl-8"
               }
@@ -289,7 +294,9 @@ export function ExpenseForm({
             </SelectContent>
           </Select>
           {errors.currency && (
-            <p className="text-sm text-destructive">{errors.currency.message}</p>
+            <p className="text-sm text-destructive">
+              {errors.currency.message}
+            </p>
           )}
         </div>
       </div>
@@ -322,7 +329,9 @@ export function ExpenseForm({
           <Label htmlFor="category">Category</Label>
           <Select
             defaultValue={expense?.category_id || "none"}
-            onValueChange={(value) => setValue("category_id", value === "none" ? undefined : value)}
+            onValueChange={(value) =>
+              setValue("category_id", value === "none" ? undefined : value)
+            }
           >
             <SelectTrigger>
               <SelectValue placeholder="Select category" />
@@ -385,16 +394,12 @@ export function ExpenseForm({
             disabled={isSubmitting}
             onClick={handleAddAnother}
           >
-            {isSubmitting && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Add & New
           </Button>
         )}
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting && (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          )}
+          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {expense ? "Update" : "Add"} Expense
         </Button>
       </div>

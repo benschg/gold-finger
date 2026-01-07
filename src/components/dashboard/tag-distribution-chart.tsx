@@ -47,7 +47,9 @@ function CustomTooltip({
       <div className="space-y-1 text-sm">
         <div className="flex justify-between gap-4">
           <span className="text-muted-foreground">Amount</span>
-          <span className="font-medium">{formatCurrency(item.totalAmount)}</span>
+          <span className="font-medium">
+            {formatCurrency(item.totalAmount)}
+          </span>
         </div>
         <div className="flex justify-between gap-4">
           <span className="text-muted-foreground">Transactions</span>
@@ -66,12 +68,8 @@ export function TagDistributionChart({
   data,
   title = "Expenses by Tag",
 }: TagDistributionChartProps) {
-  const {
-    hoveredTagId,
-    selectedTagId,
-    setHoveredTagId,
-    setSelectedTagId,
-  } = useDashboardFilterStore();
+  const { hoveredTagId, selectedTagId, setHoveredTagId, setSelectedTagId } =
+    useDashboardFilterStore();
 
   const handleBarClick = (tagId: string) => {
     // Toggle behavior
@@ -145,11 +143,7 @@ export function TagDistributionChart({
                 tick={{ fontSize: 11, fill: "var(--foreground)" }}
               />
               <Tooltip content={<CustomTooltip />} />
-              <Bar
-                dataKey="totalAmount"
-                radius={[0, 4, 4, 0]}
-                cursor="pointer"
-              >
+              <Bar dataKey="totalAmount" radius={[0, 4, 4, 0]} cursor="pointer">
                 {displayData.map((entry) => (
                   <Cell
                     key={entry.tagId}

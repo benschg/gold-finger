@@ -26,7 +26,13 @@ interface ExpensePieChartProps {
   title?: string;
 }
 
-function CustomTooltip({ active, payload }: { active?: boolean; payload?: Array<{ payload: CategoryData }> }) {
+function CustomTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload: CategoryData }>;
+}) {
   if (!active || !payload || payload.length === 0) {
     return null;
   }
@@ -47,7 +53,9 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: Array<
       </div>
       <div className="text-sm space-y-0.5">
         <div>{formatCurrency(item.value)}</div>
-        <div className="text-muted-foreground">{item.percentage.toFixed(1)}%</div>
+        <div className="text-muted-foreground">
+          {item.percentage.toFixed(1)}%
+        </div>
       </div>
     </div>
   );
@@ -143,7 +151,9 @@ export function ExpensePieChart({
                         ? "var(--foreground)"
                         : "transparent"
                     }
-                    strokeWidth={selectedCategoryId === entry.categoryId ? 2 : 0}
+                    strokeWidth={
+                      selectedCategoryId === entry.categoryId ? 2 : 0
+                    }
                   />
                 ))}
               </Pie>

@@ -2,21 +2,26 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ExpenseForm } from "@/components/expenses/expense-form";
+import type {
+  Account,
+  ExpenseWithDetails,
+  Category,
+  Tag,
+} from "@/types/database";
 
 // Mock fetch globally
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
-const mockAccounts = [
+const mockAccounts: Account[] = [
   {
     id: "account-1",
     name: "Personal",
     currency: "EUR",
     icon: "wallet",
     color: "#6366f1",
-    description: null,
     created_at: "2024-01-01",
-    updated_at: null,
+    updated_at: "2024-01-01",
   },
   {
     id: "account-2",
@@ -24,13 +29,12 @@ const mockAccounts = [
     currency: "USD",
     icon: "briefcase",
     color: "#22c55e",
-    description: null,
     created_at: "2024-01-01",
-    updated_at: null,
+    updated_at: "2024-01-01",
   },
 ];
 
-const mockCategories = [
+const mockCategories: Category[] = [
   {
     id: "cat-1",
     account_id: "account-1",
@@ -41,7 +45,7 @@ const mockCategories = [
   },
 ];
 
-const mockTags = [
+const mockTags: Tag[] = [
   {
     id: "tag-1",
     account_id: "account-1",
@@ -51,7 +55,9 @@ const mockTags = [
   },
 ];
 
-const createMockExpense = (overrides = {}) => ({
+const createMockExpense = (
+  overrides: Partial<ExpenseWithDetails> = {},
+): ExpenseWithDetails => ({
   id: "expense-1",
   account_id: "account-1",
   user_id: "user-1",
@@ -61,13 +67,10 @@ const createMockExpense = (overrides = {}) => ({
   date: "2024-01-15",
   category_id: "cat-1",
   created_at: "2024-01-15",
-  updated_at: null,
-  account_currency: "EUR",
-  converted_amount: null,
-  exchange_rate: null,
-  rate_date: null,
+  updated_at: "2024-01-15",
   receipt_url: null,
-  receipt_analysis: null,
+  category: mockCategories[0],
+  tags: [],
   ...overrides,
 });
 
@@ -88,7 +91,7 @@ describe("ExpenseForm", () => {
           accounts={mockAccounts}
           categories={mockCategories}
           tags={mockTags}
-        />
+        />,
       );
 
       // Form should exist
@@ -108,7 +111,7 @@ describe("ExpenseForm", () => {
           accounts={mockAccounts}
           categories={mockCategories}
           tags={mockTags}
-        />
+        />,
       );
 
       expect(screen.getByLabelText(/account/i)).toBeInTheDocument();
@@ -121,7 +124,7 @@ describe("ExpenseForm", () => {
           accounts={[mockAccounts[0]]}
           categories={mockCategories}
           tags={mockTags}
-        />
+        />,
       );
 
       expect(screen.queryByLabelText(/account/i)).not.toBeInTheDocument();
@@ -135,10 +138,12 @@ describe("ExpenseForm", () => {
           categories={mockCategories}
           tags={mockTags}
           onAddAnother={vi.fn()}
-        />
+        />,
       );
 
-      expect(screen.getByRole("button", { name: /add & new/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /add & new/i }),
+      ).toBeInTheDocument();
     });
 
     it("should not show Add & New button when onAddAnother is not provided", () => {
@@ -148,10 +153,12 @@ describe("ExpenseForm", () => {
           accounts={mockAccounts}
           categories={mockCategories}
           tags={mockTags}
-        />
+        />,
       );
 
-      expect(screen.queryByRole("button", { name: /add & new/i })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: /add & new/i }),
+      ).not.toBeInTheDocument();
     });
 
     it("should not show Add & New button when editing an expense", () => {
@@ -163,10 +170,12 @@ describe("ExpenseForm", () => {
           tags={mockTags}
           expense={createMockExpense()}
           onAddAnother={vi.fn()}
-        />
+        />,
       );
 
-      expect(screen.queryByRole("button", { name: /add & new/i })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: /add & new/i }),
+      ).not.toBeInTheDocument();
     });
 
     it("should show Cancel button when onCancel is provided", () => {
@@ -177,10 +186,12 @@ describe("ExpenseForm", () => {
           categories={mockCategories}
           tags={mockTags}
           onCancel={vi.fn()}
-        />
+        />,
       );
 
-      expect(screen.getByRole("button", { name: /cancel/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /cancel/i }),
+      ).toBeInTheDocument();
     });
 
     it("should show Update button when editing", () => {
@@ -191,10 +202,12 @@ describe("ExpenseForm", () => {
           categories={mockCategories}
           tags={mockTags}
           expense={createMockExpense()}
-        />
+        />,
       );
 
-      expect(screen.getByRole("button", { name: /update expense/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /update expense/i }),
+      ).toBeInTheDocument();
     });
 
     it("should render tags when available", () => {
@@ -204,7 +217,7 @@ describe("ExpenseForm", () => {
           accounts={mockAccounts}
           categories={mockCategories}
           tags={mockTags}
-        />
+        />,
       );
 
       expect(screen.getByText("Groceries")).toBeInTheDocument();
@@ -223,7 +236,7 @@ describe("ExpenseForm", () => {
           categories={mockCategories}
           tags={mockTags}
           onSuccess={mockOnSuccess}
-        />
+        />,
       );
 
       // Fill in required fields
@@ -247,7 +260,7 @@ describe("ExpenseForm", () => {
           categories={mockCategories}
           tags={mockTags}
           onSuccess={vi.fn()}
-        />
+        />,
       );
 
       // Fill in required fields
@@ -262,7 +275,7 @@ describe("ExpenseForm", () => {
           expect.objectContaining({
             method: "POST",
             body: expect.stringContaining('"account_id":"account-1"'),
-          })
+          }),
         );
       });
     });
@@ -278,7 +291,7 @@ describe("ExpenseForm", () => {
           tags={mockTags}
           expense={createMockExpense()}
           onSuccess={vi.fn()}
-        />
+        />,
       );
 
       // Submit the form
@@ -289,7 +302,7 @@ describe("ExpenseForm", () => {
           "/api/expenses/expense-1",
           expect.objectContaining({
             method: "PUT",
-          })
+          }),
         );
       });
     });
@@ -307,7 +320,7 @@ describe("ExpenseForm", () => {
           categories={mockCategories}
           tags={mockTags}
           onCancel={mockOnCancel}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("button", { name: /cancel/i }));
@@ -328,7 +341,7 @@ describe("ExpenseForm", () => {
           tags={mockTags}
           onSuccess={mockOnSuccess}
           onAddAnother={mockOnAddAnother}
-        />
+        />,
       );
 
       // Fill in fields
@@ -355,7 +368,7 @@ describe("ExpenseForm", () => {
           categories={mockCategories}
           tags={mockTags}
           onSuccess={vi.fn()}
-        />
+        />,
       );
 
       // Find and click the tag
@@ -369,7 +382,9 @@ describe("ExpenseForm", () => {
       await user.click(tagButton);
 
       // Tag should be deselected (no inline background color)
-      expect(tagButton).not.toHaveStyle({ backgroundColor: "rgb(59, 130, 246)" });
+      expect(tagButton).not.toHaveStyle({
+        backgroundColor: "rgb(59, 130, 246)",
+      });
     });
   });
 });
