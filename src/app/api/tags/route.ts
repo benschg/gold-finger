@@ -2,7 +2,11 @@ import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { createTagSchema } from "@/lib/validations/schemas";
 import { sanitizeDbError } from "@/lib/api-errors";
-import { requireAuth, requireAccountMembership, validateRequest } from "@/lib/api-helpers";
+import {
+  requireAuth,
+  requireAccountMembership,
+  validateRequest,
+} from "@/lib/api-helpers";
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -18,12 +22,16 @@ export async function GET(request: Request) {
   if (!accountId) {
     return NextResponse.json(
       { error: "account_id is required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   // Verify user is a member of this account
-  const membershipError = await requireAccountMembership(supabase, accountId, user.id);
+  const membershipError = await requireAccountMembership(
+    supabase,
+    accountId,
+    user.id,
+  );
   if (membershipError) return membershipError;
 
   const { data: tags, error } = await supabase
@@ -35,7 +43,7 @@ export async function GET(request: Request) {
   if (error) {
     return NextResponse.json(
       { error: sanitizeDbError(error, "GET /api/tags") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -55,7 +63,11 @@ export async function POST(request: Request) {
   const body = validation.data;
 
   // Verify user is a member of this account
-  const membershipError = await requireAccountMembership(supabase, body.account_id, user.id);
+  const membershipError = await requireAccountMembership(
+    supabase,
+    body.account_id,
+    user.id,
+  );
   if (membershipError) return membershipError;
 
   const { data: tag, error } = await supabase
@@ -71,7 +83,7 @@ export async function POST(request: Request) {
   if (error) {
     return NextResponse.json(
       { error: sanitizeDbError(error, "POST /api/tags") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -104,7 +116,11 @@ export async function DELETE(request: Request) {
   }
 
   // Verify user is a member of this account
-  const membershipError = await requireAccountMembership(supabase, tag.account_id, user.id);
+  const membershipError = await requireAccountMembership(
+    supabase,
+    tag.account_id,
+    user.id,
+  );
   if (membershipError) return membershipError;
 
   const { error } = await supabase.from("tags").delete().eq("id", tagId);
@@ -112,7 +128,7 @@ export async function DELETE(request: Request) {
   if (error) {
     return NextResponse.json(
       { error: sanitizeDbError(error, "DELETE /api/tags") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

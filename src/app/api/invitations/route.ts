@@ -22,7 +22,7 @@ export async function GET() {
       `
       *,
       account:accounts(id, name, icon, color)
-    `
+    `,
     )
     .eq("invitee_email", user.email?.toLowerCase())
     .eq("status", "pending")
@@ -32,7 +32,7 @@ export async function GET() {
   if (error) {
     return NextResponse.json(
       { error: sanitizeDbError(error, "GET /api/invitations") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

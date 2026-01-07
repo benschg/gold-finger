@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   if (!from || !to) {
     return NextResponse.json(
       { error: "Both 'from' and 'to' currency codes are required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -40,25 +40,25 @@ export async function GET(request: Request) {
 
   try {
     const response = await fetch(
-      `${FRANKFURTER_API}/${formatDate(startDate)}..${formatDate(endDate)}?from=${from}&to=${to}`
+      `${FRANKFURTER_API}/${formatDate(startDate)}..${formatDate(endDate)}?from=${from}&to=${to}`,
     );
 
     if (!response.ok) {
       return NextResponse.json(
         { error: "Failed to fetch historical rates" },
-        { status: 503 }
+        { status: 503 },
       );
     }
 
     const data = await response.json();
 
     // Transform to array format for charting
-    const rates = Object.entries(data.rates as Record<string, Record<string, number>>).map(
-      ([date, rateObj]) => ({
-        date,
-        rate: rateObj[to],
-      })
-    );
+    const rates = Object.entries(
+      data.rates as Record<string, Record<string, number>>,
+    ).map(([date, rateObj]) => ({
+      date,
+      rate: rateObj[to],
+    }));
 
     // Calculate statistics
     const rateValues = rates.map((r) => r.rate);
@@ -86,7 +86,7 @@ export async function GET(request: Request) {
     console.error("Error fetching historical rates:", error);
     return NextResponse.json(
       { error: "Failed to fetch historical rates" },
-      { status: 503 }
+      { status: 503 },
     );
   }
 }

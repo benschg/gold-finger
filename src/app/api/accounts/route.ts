@@ -18,14 +18,14 @@ export async function GET() {
       `
       role,
       account:accounts(*)
-    `
+    `,
     )
     .eq("user_id", user.id);
 
   if (memberError) {
     return NextResponse.json(
       { error: sanitizeDbError(memberError, "GET /api/accounts") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
   if (accountError) {
     return NextResponse.json(
       { error: sanitizeDbError(accountError, "POST /api/accounts") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
     await adminClient.from("accounts").delete().eq("id", account.id);
     return NextResponse.json(
       { error: sanitizeDbError(memberError, "POST /api/accounts (member)") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

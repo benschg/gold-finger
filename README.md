@@ -5,6 +5,7 @@ A modern, self-hostable expense tracking application built with Next.js, Supabas
 ## Features
 
 ### Core Features
+
 - **Expense Management**: Track spending with categories, tags, and receipt uploads
 - **Multi-Currency Support**: Store expenses in any currency with real-time exchange rate conversion (powered by ECB data via Frankfurter API)
 - **Shared Accounts**: Create private or shared accounts with partners, family, or roommates
@@ -12,11 +13,13 @@ A modern, self-hostable expense tracking application built with Next.js, Supabas
 - **Interactive Dashboard**: Visualize spending with charts, filters, and cross-account analytics
 
 ### Security
+
 - **Passwordless Authentication**: Secure OTP/Magic Link login via Supabase Auth
 - **Row-Level Security**: All data protected with PostgreSQL RLS policies
 - **No PII in Public Tables**: Email and personal data stored only in auth.users
 
 ### User Experience
+
 - **Dark/Light Mode**: Full theme support with system preference detection
 - **Responsive Design**: Works on desktop, tablet, and mobile
 - **Offline-Ready**: Service worker support for PWA capabilities
@@ -24,21 +27,21 @@ A modern, self-hostable expense tracking application built with Next.js, Supabas
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| **Frontend** | Next.js 16, TypeScript, Tailwind CSS 4 |
-| **UI Components** | shadcn/ui, Radix UI, Lucide Icons |
-| **Charts** | Recharts |
-| **State** | Zustand, React Hook Form |
-| **Validation** | Zod |
-| **Backend** | Next.js API Routes |
-| **Database** | PostgreSQL (Supabase) |
-| **Auth** | Supabase Auth (OTP/Magic Link) |
-| **Storage** | Supabase Storage |
-| **AI** | Google Gemini API |
-| **Exchange Rates** | Frankfurter API (ECB data) |
-| **Runtime** | Bun |
-| **Testing** | Vitest, React Testing Library, Playwright |
+| Layer              | Technology                                |
+| ------------------ | ----------------------------------------- |
+| **Frontend**       | Next.js 16, TypeScript, Tailwind CSS 4    |
+| **UI Components**  | shadcn/ui, Radix UI, Lucide Icons         |
+| **Charts**         | Recharts                                  |
+| **State**          | Zustand, React Hook Form                  |
+| **Validation**     | Zod                                       |
+| **Backend**        | Next.js API Routes                        |
+| **Database**       | PostgreSQL (Supabase)                     |
+| **Auth**           | Supabase Auth (OTP/Magic Link)            |
+| **Storage**        | Supabase Storage                          |
+| **AI**             | Google Gemini API                         |
+| **Exchange Rates** | Frankfurter API (ECB data)                |
+| **Runtime**        | Bun                                       |
+| **Testing**        | Vitest, React Testing Library, Playwright |
 
 ## Getting Started
 
@@ -51,27 +54,32 @@ A modern, self-hostable expense tracking application built with Next.js, Supabas
 ### Quick Start (Local Development)
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/yourusername/gold-finger.git
    cd gold-finger
    ```
 
 2. **Install dependencies**
+
    ```bash
    bun install
    ```
 
 3. **Start Supabase locally**
+
    ```bash
    docker-compose -f docker-compose.dev.yml up -d
    ```
 
 4. **Set up environment variables**
+
    ```bash
    cp .env.example .env.local
    ```
 
    For local development, use these values:
+
    ```env
    NEXT_PUBLIC_SUPABASE_URL=http://localhost:54331
    NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
@@ -81,11 +89,13 @@ A modern, self-hostable expense tracking application built with Next.js, Supabas
    ```
 
 5. **Run database migrations**
+
    ```bash
    bun run db:migrate
    ```
 
 6. **Start the development server**
+
    ```bash
    bun dev
    ```
@@ -149,19 +159,20 @@ gold-finger/
 
 ### Core Tables
 
-| Table | Description |
-|-------|-------------|
-| `accounts` | Expense containers (private/shared) |
-| `account_members` | User-account relationships with roles |
-| `expenses` | Individual expense records |
-| `categories` | Per-account expense categories |
-| `tags` | Per-account user-defined tags |
-| `expense_tags` | Many-to-many expense-tag relations |
-| `currencies` | Supported currency codes |
-| `profiles` | User preferences (no PII) |
-| `account_invitations` | Pending account invites |
+| Table                 | Description                           |
+| --------------------- | ------------------------------------- |
+| `accounts`            | Expense containers (private/shared)   |
+| `account_members`     | User-account relationships with roles |
+| `expenses`            | Individual expense records            |
+| `categories`          | Per-account expense categories        |
+| `tags`                | Per-account user-defined tags         |
+| `expense_tags`        | Many-to-many expense-tag relations    |
+| `currencies`          | Supported currency codes              |
+| `profiles`            | User preferences (no PII)             |
+| `account_invitations` | Pending account invites               |
 
 ### Key Features
+
 - **Row-Level Security**: All tables protected with RLS policies
 - **Soft Deletes**: Expenses use `deleted_at` for recovery
 - **Audit Fields**: `created_at`, `updated_at` on all tables
@@ -169,18 +180,18 @@ gold-finger/
 
 ## API Routes
 
-| Endpoint | Methods | Description |
-|----------|---------|-------------|
-| `/api/expenses` | GET, POST | List and create expenses |
-| `/api/expenses/[id]` | GET, PUT, DELETE | Manage single expense |
-| `/api/accounts` | GET, POST | List and create accounts |
-| `/api/accounts/[id]` | GET, PUT, DELETE | Manage single account |
-| `/api/accounts/[id]/members` | GET, POST, DELETE | Manage account members |
-| `/api/exchange-rates` | GET | Get current exchange rate |
-| `/api/exchange-rates/history` | GET | Get historical rates |
-| `/api/ai/analyze-receipt` | POST | AI receipt analysis |
-| `/api/categories` | GET, POST | Manage categories |
-| `/api/tags` | GET, POST | Manage tags |
+| Endpoint                      | Methods           | Description               |
+| ----------------------------- | ----------------- | ------------------------- |
+| `/api/expenses`               | GET, POST         | List and create expenses  |
+| `/api/expenses/[id]`          | GET, PUT, DELETE  | Manage single expense     |
+| `/api/accounts`               | GET, POST         | List and create accounts  |
+| `/api/accounts/[id]`          | GET, PUT, DELETE  | Manage single account     |
+| `/api/accounts/[id]/members`  | GET, POST, DELETE | Manage account members    |
+| `/api/exchange-rates`         | GET               | Get current exchange rate |
+| `/api/exchange-rates/history` | GET               | Get historical rates      |
+| `/api/ai/analyze-receipt`     | POST              | AI receipt analysis       |
+| `/api/categories`             | GET, POST         | Manage categories         |
+| `/api/tags`                   | GET, POST         | Manage tags               |
 
 ## Testing
 
@@ -210,14 +221,14 @@ bun run lint:fix
 
 ### Test Coverage
 
-| Area | Tests |
-|------|-------|
-| Exchange Rates Utility | 14 tests |
-| useExchangeRate Hook | 9 tests |
-| ExchangeRateDisplay Component | 8 tests |
-| Exchange Rate API | 9 tests |
-| Exchange Rate History API | 7 tests |
-| Other Components | 57+ tests |
+| Area                          | Tests     |
+| ----------------------------- | --------- |
+| Exchange Rates Utility        | 14 tests  |
+| useExchangeRate Hook          | 9 tests   |
+| ExchangeRateDisplay Component | 8 tests   |
+| Exchange Rate API             | 9 tests   |
+| Exchange Rate History API     | 7 tests   |
+| Other Components              | 57+ tests |
 
 ## Deployment
 
@@ -243,6 +254,7 @@ docker run -p 3000:3000 --env-file .env.local gold-finger
 Gold-Finger can run on a Raspberry Pi 4/5 for self-hosted home use.
 
 #### Requirements
+
 - Raspberry Pi 4 or 5
 - 4GB RAM minimum (8GB recommended)
 - 64-bit Raspberry Pi OS
@@ -261,6 +273,7 @@ chmod +x scripts/setup-pi.sh
 ```
 
 The script will:
+
 - Check system requirements
 - Install Bun, Docker, and dependencies
 - Configure swap for better performance
@@ -270,11 +283,13 @@ The script will:
 #### Manual Setup
 
 1. **Install Bun**
+
    ```bash
    curl -fsSL https://bun.sh/install | bash
    ```
 
 2. **Install Docker**
+
    ```bash
    curl -fsSL https://get.docker.com | sh
    sudo usermod -aG docker $USER
@@ -282,6 +297,7 @@ The script will:
    ```
 
 3. **Clone and install**
+
    ```bash
    git clone https://github.com/yourusername/gold-finger.git
    cd gold-finger
@@ -289,11 +305,13 @@ The script will:
    ```
 
 4. **Start the lightweight Supabase stack**
+
    ```bash
    docker compose -f docker-compose.pi.yml up -d
    ```
 
 5. **Configure environment**
+
    ```bash
    cp .env.example .env.local
    # Edit with local Supabase values (same as Quick Start)
@@ -307,10 +325,10 @@ The script will:
 
 #### Pi Memory Configurations
 
-| RAM | Configuration |
-|-----|---------------|
+| RAM | Configuration                                        |
+| --- | ---------------------------------------------------- |
 | 4GB | Use `docker-compose.pi.yml` (no Studio, no imgproxy) |
-| 8GB | Can use full `docker-compose.dev.yml` |
+| 8GB | Can use full `docker-compose.dev.yml`                |
 
 #### Using Hosted Supabase on Pi
 
@@ -340,14 +358,14 @@ journalctl -u gold-finger -f
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anonymous key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Supabase service role key (server only) |
-| `GOOGLE_AI_API_KEY` | Yes | Google Gemini API key |
-| `NEXT_PUBLIC_APP_URL` | Yes | Application URL |
-| `NEXT_PUBLIC_APP_NAME` | No | App name (default: Gold-Finger) |
+| Variable                        | Required | Description                             |
+| ------------------------------- | -------- | --------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Yes      | Supabase project URL                    |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes      | Supabase anonymous key                  |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Yes      | Supabase service role key (server only) |
+| `GOOGLE_AI_API_KEY`             | Yes      | Google Gemini API key                   |
+| `NEXT_PUBLIC_APP_URL`           | Yes      | Application URL                         |
+| `NEXT_PUBLIC_APP_NAME`          | No       | App name (default: Gold-Finger)         |
 
 ## Contributing
 

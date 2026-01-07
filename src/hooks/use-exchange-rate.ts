@@ -49,7 +49,7 @@ export function useExchangeRate({
 
     try {
       const response = await fetch(
-        `/api/exchange-rates?from=${fromCurrency}&to=${toCurrency}`
+        `/api/exchange-rates?from=${fromCurrency}&to=${toCurrency}`,
       );
 
       if (!response.ok) {

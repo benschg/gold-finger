@@ -97,10 +97,7 @@ export function ShareSection({
         <>
           <hr className="border-border" />
           <div className="space-y-4">
-            <InviteForm
-              accountId={account.id}
-              onInviteSent={handleRefresh}
-            />
+            <InviteForm accountId={account.id} onInviteSent={handleRefresh} />
 
             {invitations.length > 0 && (
               <div className="space-y-2">
@@ -110,7 +107,6 @@ export function ShareSection({
                 <InvitationList
                   invitations={invitations}
                   mode="sent"
-                  accountId={account.id}
                   onAction={handleRefresh}
                 />
               </div>

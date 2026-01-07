@@ -5,7 +5,7 @@ import type { Tag } from "@/types/database";
 
 export function useTags(accountId: string | null) {
   const { data, isLoading, error, refetch } = useFetch<Tag[]>(
-    accountId ? `/api/tags?account_id=${accountId}` : null
+    accountId ? `/api/tags?account_id=${accountId}` : null,
   );
 
   return {

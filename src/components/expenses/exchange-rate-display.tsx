@@ -37,8 +37,10 @@ export function ExchangeRateDisplay({
     return null;
   }
 
-  const fromSymbol = CURRENCIES.find((c) => c.code === fromCurrency)?.symbol || fromCurrency;
-  const toSymbol = CURRENCIES.find((c) => c.code === toCurrency)?.symbol || toCurrency;
+  const fromSymbol =
+    CURRENCIES.find((c) => c.code === fromCurrency)?.symbol || fromCurrency;
+  const toSymbol =
+    CURRENCIES.find((c) => c.code === toCurrency)?.symbol || toCurrency;
 
   return (
     <div className="rounded-lg border bg-muted/50 p-3 space-y-1">

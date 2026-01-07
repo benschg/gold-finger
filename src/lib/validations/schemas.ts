@@ -52,7 +52,7 @@ export const receiptAnalysisSchema = z.object({
         name: z.string(),
         quantity: z.number().optional(),
         price: z.number().optional(),
-      })
+      }),
     )
     .optional(),
   category_suggestion: z.string().optional(),

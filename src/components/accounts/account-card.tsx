@@ -3,12 +3,7 @@
 import { MoreHorizontal, Users, Trash2, Settings } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +24,11 @@ export function AccountCard({ account, onDelete, onManage }: AccountCardProps) {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="flex items-center gap-2 text-lg font-medium">
-          <IconBadge icon={account.icon ?? "wallet"} color={account.color ?? "#6366f1"} size="lg" />
+          <IconBadge
+            icon={account.icon ?? "wallet"}
+            color={account.color ?? "#6366f1"}
+            size="lg"
+          />
           {account.name}
         </CardTitle>
         <DropdownMenu>
@@ -58,9 +57,7 @@ export function AccountCard({ account, onDelete, onManage }: AccountCardProps) {
       <CardContent>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Users className="h-4 w-4" />
-          <span>
-            {account.role === "owner" ? "Owner" : "Member"}
-          </span>
+          <span>{account.role === "owner" ? "Owner" : "Member"}</span>
         </div>
       </CardContent>
     </Card>

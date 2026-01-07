@@ -26,7 +26,7 @@ export interface ExchangeRateResult {
  */
 export async function getExchangeRate(
   fromCurrency: string,
-  toCurrency: string
+  toCurrency: string,
 ): Promise<ExchangeRateResult | null> {
   // Same currency - no conversion needed
   if (fromCurrency === toCurrency) {
@@ -57,14 +57,14 @@ export async function getExchangeRate(
 
     const response = await fetch(
       `${FRANKFURTER_API}/latest?from=${fromCurrency}&to=${toCurrency}`,
-      { signal: controller.signal }
+      { signal: controller.signal },
     );
 
     clearTimeout(timeoutId);
 
     if (!response.ok) {
       console.error(
-        `Frankfurter API error: ${response.status} ${response.statusText}`
+        `Frankfurter API error: ${response.status} ${response.statusText}`,
       );
       // Return cached value if available, even if expired
       if (cached) {

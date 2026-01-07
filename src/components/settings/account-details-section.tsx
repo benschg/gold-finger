@@ -19,7 +19,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { IconPicker, IconBadge, ColorPicker } from "@/components/ui/icon-picker";
+import {
+  IconPicker,
+  IconBadge,
+  ColorPicker,
+} from "@/components/ui/icon-picker";
 import {
   CURRENCIES,
   DEFAULT_CURRENCY,
@@ -39,7 +43,7 @@ export function AccountDetailsSection({
 }: AccountDetailsSectionProps) {
   const [name, setName] = useState(account.name);
   const [currency, setCurrency] = useState<Currency>(
-    (account.currency as Currency) || DEFAULT_CURRENCY
+    (account.currency as Currency) || DEFAULT_CURRENCY,
   );
   const [icon, setIcon] = useState(account.icon || "wallet");
   const [color, setColor] = useState(account.color || DEFAULT_ACCOUNT_COLOR);
@@ -120,7 +124,10 @@ export function AccountDetailsSection({
 
       <div className="space-y-2">
         <Label htmlFor="account-currency">Currency</Label>
-        <Select value={currency} onValueChange={(v) => setCurrency(v as Currency)}>
+        <Select
+          value={currency}
+          onValueChange={(v) => setCurrency(v as Currency)}
+        >
           <SelectTrigger id="account-currency">
             <SelectValue />
           </SelectTrigger>
@@ -157,7 +164,10 @@ export function AccountDetailsSection({
         Save Changes
       </Button>
 
-      <Dialog open={isIconColorDialogOpen} onOpenChange={setIsIconColorDialogOpen}>
+      <Dialog
+        open={isIconColorDialogOpen}
+        onOpenChange={setIsIconColorDialogOpen}
+      >
         <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Icon & Color</DialogTitle>
@@ -191,9 +201,7 @@ export function AccountDetailsSection({
               >
                 Cancel
               </Button>
-              <Button onClick={handleIconColorSave}>
-                Apply
-              </Button>
+              <Button onClick={handleIconColorSave}>Apply</Button>
             </div>
           </div>
         </DialogContent>

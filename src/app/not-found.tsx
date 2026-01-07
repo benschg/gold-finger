@@ -8,12 +8,15 @@ export default function NotFound() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4">
       <div className="text-center space-y-6">
         <div className="space-y-2">
-          <h1 className="text-7xl font-bold text-slate-200 dark:text-slate-800">404</h1>
+          <h1 className="text-7xl font-bold text-slate-200 dark:text-slate-800">
+            404
+          </h1>
           <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
             Page not found
           </h2>
           <p className="text-slate-600 dark:text-slate-400 max-w-md">
-            The page you&apos;re looking for doesn&apos;t exist or has been moved.
+            The page you&apos;re looking for doesn&apos;t exist or has been
+            moved.
           </p>
         </div>
         <div className="flex items-center justify-center gap-4">

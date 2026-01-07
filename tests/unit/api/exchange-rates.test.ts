@@ -45,7 +45,7 @@ describe("GET /api/exchange-rates", () => {
 
     expect(response.status).toBe(400);
     expect(data.error).toBe(
-      "Currency codes must be 3 uppercase letters (e.g., USD, EUR)"
+      "Currency codes must be 3 uppercase letters (e.g., USD, EUR)",
     );
   });
 
@@ -56,7 +56,7 @@ describe("GET /api/exchange-rates", () => {
 
     expect(response.status).toBe(400);
     expect(data.error).toBe(
-      "Currency codes must be 3 uppercase letters (e.g., USD, EUR)"
+      "Currency codes must be 3 uppercase letters (e.g., USD, EUR)",
     );
   });
 
@@ -126,7 +126,11 @@ describe("GET /api/exchange-rates", () => {
       json: () => Promise.resolve(mockResponse),
     });
 
-    const request = createRequest({ from: "USD", to: "EUR", amount: "invalid" });
+    const request = createRequest({
+      from: "USD",
+      to: "EUR",
+      amount: "invalid",
+    });
     const response = await GET(request);
     const data = await response.json();
 

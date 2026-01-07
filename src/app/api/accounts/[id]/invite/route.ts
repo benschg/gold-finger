@@ -11,7 +11,7 @@ import {
 
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { id: accountId } = await params;
@@ -30,7 +30,12 @@ export async function POST(
   if (rateLimitError) return rateLimitError;
 
   // Check if user is owner
-  const ownerError = await requireAccountOwner(supabase, accountId, user.id, "Only owners can invite members");
+  const ownerError = await requireAccountOwner(
+    supabase,
+    accountId,
+    user.id,
+    "Only owners can invite members",
+  );
   if (ownerError) return ownerError;
 
   const json = await request.json();
@@ -39,7 +44,7 @@ export async function POST(
   if (!parsed.success) {
     return NextResponse.json(
       { error: parsed.error.issues[0].message },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -58,7 +63,7 @@ export async function POST(
   if (existingInvite) {
     return NextResponse.json(
       { error: "Invitation already sent" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -80,7 +85,7 @@ export async function POST(
   if (error) {
     return NextResponse.json(
       { error: sanitizeDbError(error, "POST /api/accounts/[id]/invite") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -91,7 +96,7 @@ export async function POST(
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { id: accountId } = await params;
@@ -106,7 +111,11 @@ export async function GET(
   }
 
   // Check membership
-  const membershipError = await requireAccountMembership(supabase, accountId, user.id);
+  const membershipError = await requireAccountMembership(
+    supabase,
+    accountId,
+    user.id,
+  );
   if (membershipError) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
@@ -122,7 +131,7 @@ export async function GET(
   if (error) {
     return NextResponse.json(
       { error: sanitizeDbError(error, "GET /api/accounts/[id]/invite") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

@@ -89,7 +89,11 @@ export function OTPForm() {
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={isLoading || success}>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isLoading || success}
+          >
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

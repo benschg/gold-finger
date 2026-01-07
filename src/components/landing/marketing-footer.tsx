@@ -7,7 +7,12 @@ export function MarketingFooter() {
       <div className="container">
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/gold-finger.svg" alt="Gold-Finger" width={20} height={20} />
+            <Image
+              src="/gold-finger.svg"
+              alt="Gold-Finger"
+              width={20}
+              height={20}
+            />
             <span className="font-semibold">Gold-Finger</span>
           </Link>
 

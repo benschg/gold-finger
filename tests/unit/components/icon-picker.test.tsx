@@ -1,7 +1,11 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { DynamicIcon, IconBadge, ColorPicker } from "@/components/ui/icon-picker";
+import {
+  DynamicIcon,
+  IconBadge,
+  ColorPicker,
+} from "@/components/ui/icon-picker";
 
 describe("DynamicIcon", () => {
   it("should render an icon by name", () => {
@@ -12,7 +16,9 @@ describe("DynamicIcon", () => {
   });
 
   it("should apply custom className", () => {
-    const { container } = render(<DynamicIcon name="wallet" className="h-8 w-8" />);
+    const { container } = render(
+      <DynamicIcon name="wallet" className="h-8 w-8" />,
+    );
     const svg = container.querySelector("svg");
     expect(svg).toBeInTheDocument();
     expect(svg).toHaveClass("h-8", "w-8");
@@ -42,19 +48,25 @@ describe("IconBadge", () => {
   });
 
   it("should apply correct size classes for xs", () => {
-    const { container } = render(<IconBadge icon="wallet" color="#6366f1" size="xs" />);
+    const { container } = render(
+      <IconBadge icon="wallet" color="#6366f1" size="xs" />,
+    );
     const badge = container.querySelector("span");
     expect(badge).toHaveClass("h-4", "w-4");
   });
 
   it("should apply correct size classes for sm", () => {
-    const { container } = render(<IconBadge icon="wallet" color="#6366f1" size="sm" />);
+    const { container } = render(
+      <IconBadge icon="wallet" color="#6366f1" size="sm" />,
+    );
     const badge = container.querySelector("span");
     expect(badge).toHaveClass("h-5", "w-5");
   });
 
   it("should apply correct size classes for lg", () => {
-    const { container } = render(<IconBadge icon="wallet" color="#6366f1" size="lg" />);
+    const { container } = render(
+      <IconBadge icon="wallet" color="#6366f1" size="lg" />,
+    );
     const badge = container.querySelector("span");
     expect(badge).toHaveClass("h-8", "w-8");
   });
@@ -74,7 +86,7 @@ describe("IconBadge", () => {
 
   it("should apply additional className", () => {
     const { container } = render(
-      <IconBadge icon="wallet" color="#6366f1" className="custom-class" />
+      <IconBadge icon="wallet" color="#6366f1" className="custom-class" />,
     );
     const badge = container.querySelector("span");
     expect(badge).toHaveClass("custom-class");
@@ -107,7 +119,7 @@ describe("ColorPicker", () => {
         value="#ef4444"
         onChange={mockOnChange}
         colors={mockColors}
-      />
+      />,
     );
 
     // Each color should be rendered as a button
@@ -122,7 +134,7 @@ describe("ColorPicker", () => {
         value="#ef4444"
         onChange={mockOnChange}
         colors={mockColors}
-      />
+      />,
     );
 
     // Click the second color (green)
@@ -139,7 +151,7 @@ describe("ColorPicker", () => {
         onChange={mockOnChange}
         colors={mockColors}
         icon="shopping-cart"
-      />
+      />,
     );
 
     // Each color button should contain an icon (SVG)
@@ -153,7 +165,7 @@ describe("ColorPicker", () => {
         value="#ef4444"
         onChange={mockOnChange}
         colors={mockColors}
-      />
+      />,
     );
 
     const hexInput = screen.getByPlaceholderText("#HEX");
@@ -166,7 +178,7 @@ describe("ColorPicker", () => {
         value="#ff00ff"
         onChange={mockOnChange}
         colors={mockColors}
-      />
+      />,
     );
 
     // When value is a custom color (not in preset colors), the input shows it
@@ -181,12 +193,14 @@ describe("ColorPicker", () => {
         onChange={mockOnChange}
         colors={mockColors}
         columns={4}
-      />
+      />,
     );
 
     const grid = container.querySelector(".grid");
     // Columns are set via inline style, not class
-    expect(grid).toHaveStyle({ gridTemplateColumns: "repeat(4, minmax(0, 1fr))" });
+    expect(grid).toHaveStyle({
+      gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+    });
   });
 
   it("should call onChange when typing a valid hex color", async () => {
@@ -196,7 +210,7 @@ describe("ColorPicker", () => {
         value="#ef4444"
         onChange={mockOnChange}
         colors={mockColors}
-      />
+      />,
     );
 
     const hexInput = screen.getByPlaceholderText("#HEX");

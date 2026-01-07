@@ -171,7 +171,10 @@ export function ManageAccountDialog({
 
                 <div className="space-y-2">
                   <Label htmlFor="account-currency">Default Currency</Label>
-                  <Select value={currency} onValueChange={(v) => setCurrency(v as Currency)}>
+                  <Select
+                    value={currency}
+                    onValueChange={(v) => setCurrency(v as Currency)}
+                  >
                     <SelectTrigger id="account-currency">
                       <SelectValue />
                     </SelectTrigger>
@@ -251,7 +254,6 @@ export function ManageAccountDialog({
                       <InvitationList
                         invitations={invitations}
                         mode="sent"
-                        accountId={account.id}
                         onAction={handleRefresh}
                       />
                     </div>

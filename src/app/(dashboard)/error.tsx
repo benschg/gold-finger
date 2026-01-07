@@ -28,7 +28,8 @@ export default function DashboardError({
         </CardHeader>
         <CardContent className="text-center space-y-4">
           <p className="text-sm text-muted-foreground">
-            {error.message || "An unexpected error occurred while loading this page."}
+            {error.message ||
+              "An unexpected error occurred while loading this page."}
           </p>
           {error.digest && (
             <p className="text-xs text-muted-foreground font-mono">

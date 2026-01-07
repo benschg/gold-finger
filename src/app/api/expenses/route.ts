@@ -3,7 +3,11 @@ import { NextResponse } from "next/server";
 import { createExpenseSchema } from "@/lib/validations/schemas";
 import { getExchangeRate, convertAmount } from "@/lib/exchange-rates";
 import { sanitizeDbError } from "@/lib/api-errors";
-import { requireAuth, requireAccountMembership, validateRequest } from "@/lib/api-helpers";
+import {
+  requireAuth,
+  requireAccountMembership,
+  validateRequest,
+} from "@/lib/api-helpers";
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -24,12 +28,16 @@ export async function GET(request: Request) {
   if (!accountId) {
     return NextResponse.json(
       { error: "account_id is required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   // Verify user is a member of this account
-  const membershipError = await requireAccountMembership(supabase, accountId, user.id);
+  const membershipError = await requireAccountMembership(
+    supabase,
+    accountId,
+    user.id,
+  );
   if (membershipError) return membershipError;
 
   // Build query
@@ -39,7 +47,7 @@ export async function GET(request: Request) {
       `
       *,
       category:categories(id, name, icon, color)
-    `
+    `,
     )
     .eq("account_id", accountId)
     .order("date", { ascending: false })
@@ -62,7 +70,7 @@ export async function GET(request: Request) {
   if (error) {
     return NextResponse.json(
       { error: sanitizeDbError(error, "GET /api/expenses") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -76,7 +84,7 @@ export async function GET(request: Request) {
         `
         expense_id,
         tag:tags(id, name, color)
-      `
+      `,
       )
       .in("expense_id", expenseIds);
 
@@ -92,9 +100,7 @@ export async function GET(request: Request) {
     return NextResponse.json(expensesWithTags);
   }
 
-  return NextResponse.json(
-    expenses?.map((e) => ({ ...e, tags: [] })) || []
-  );
+  return NextResponse.json(expenses?.map((e) => ({ ...e, tags: [] })) || []);
 }
 
 export async function POST(request: Request) {
@@ -110,7 +116,11 @@ export async function POST(request: Request) {
   const body = validation.data;
 
   // Verify user is a member of this account
-  const membershipError = await requireAccountMembership(supabase, body.account_id, user.id);
+  const membershipError = await requireAccountMembership(
+    supabase,
+    body.account_id,
+    user.id,
+  );
   if (membershipError) return membershipError;
 
   // Fetch account's default currency
@@ -150,7 +160,8 @@ export async function POST(request: Request) {
       receipt_url: body.receipt_url || null,
       converted_amount: convertedAmount,
       exchange_rate: exchangeRate,
-      account_currency: body.currency !== accountCurrency ? accountCurrency : null,
+      account_currency:
+        body.currency !== accountCurrency ? accountCurrency : null,
       rate_date: rateDate,
     })
     .select()
@@ -159,7 +170,7 @@ export async function POST(request: Request) {
   if (error) {
     return NextResponse.json(
       { error: sanitizeDbError(error, "POST /api/expenses") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

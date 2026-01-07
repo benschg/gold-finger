@@ -39,7 +39,7 @@ export interface FilterOptions {
  */
 export function filterExpenses(
   expenses: ExpenseWithDetails[],
-  filters: FilterOptions
+  filters: FilterOptions,
 ): ExpenseWithDetails[] {
   return expenses.filter((expense) => {
     const expenseDate = new Date(expense.date);
@@ -76,7 +76,7 @@ export function filterExpenses(
 export function transformToStackedBarData(
   expenses: ExpenseWithDetails[],
   categories: Category[],
-  monthCount: number = 6
+  monthCount: number = 6,
 ): { data: StackedMonthData[]; categoryKeys: string[] } {
   const now = new Date();
   const monthMap = new Map<string, Map<string, number>>();
@@ -148,7 +148,7 @@ export function transformToStackedBarData(
  * Calculate category breakdown for pie chart
  */
 export function calculateCategoryBreakdown(
-  expenses: ExpenseWithDetails[]
+  expenses: ExpenseWithDetails[],
 ): CategoryBreakdown[] {
   const totalAmount = expenses.reduce((sum, e) => sum + e.amount, 0);
   const categoryMap = new Map<
@@ -186,7 +186,7 @@ export function calculateCategoryBreakdown(
  * Calculate tag distribution for tag chart
  */
 export function calculateTagDistribution(
-  expenses: ExpenseWithDetails[]
+  expenses: ExpenseWithDetails[],
 ): TagBreakdown[] {
   const totalAmount = expenses.reduce((sum, e) => sum + e.amount, 0);
   const tagMap = new Map<
@@ -222,7 +222,7 @@ export function calculateTagDistribution(
  * Build a map of category IDs to colors
  */
 export function buildCategoryColorMap(
-  categories: Category[]
+  categories: Category[],
 ): Map<string, string> {
   const map = new Map<string, string>();
   categories.forEach((cat) => {
@@ -237,7 +237,7 @@ export function buildCategoryColorMap(
  * Build a map of category names to IDs
  */
 export function buildCategoryIdMap(
-  categories: Category[]
+  categories: Category[],
 ): Map<string, string> {
   const map = new Map<string, string>();
   categories.forEach((cat) => {
@@ -249,7 +249,10 @@ export function buildCategoryIdMap(
 /**
  * Format currency value
  */
-export function formatCurrency(value: number, currency: string = "EUR"): string {
+export function formatCurrency(
+  value: number,
+  currency: string = "EUR",
+): string {
   return new Intl.NumberFormat("en-EU", {
     style: "currency",
     currency,

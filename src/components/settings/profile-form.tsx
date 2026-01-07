@@ -25,10 +25,10 @@ export function ProfileForm({ user }: ProfileFormProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [displayName, setDisplayName] = useState(
-    user.user_metadata?.display_name || ""
+    user.user_metadata?.display_name || "",
   );
   const [avatarUrl, setAvatarUrl] = useState(
-    user.user_metadata?.avatar_url || ""
+    user.user_metadata?.avatar_url || "",
   );
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);

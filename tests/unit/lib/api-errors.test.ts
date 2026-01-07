@@ -30,12 +30,15 @@ describe("sanitizeDbError", () => {
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       "Database error in POST /api/users:",
-      error
+      error,
     );
   });
 
   it("handles non-Error objects", () => {
-    const result = sanitizeDbError({ code: "23505", message: "unique violation" });
+    const result = sanitizeDbError({
+      code: "23505",
+      message: "unique violation",
+    });
     expect(result).toBe("An error occurred while processing your request");
   });
 

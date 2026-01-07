@@ -5,7 +5,7 @@ import { checkAccountMembership } from "@/lib/api-helpers";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { id: accountId } = await params;
@@ -20,7 +20,11 @@ export async function GET(
   }
 
   // Check membership
-  const { isMember } = await checkAccountMembership(supabase, accountId, user.id);
+  const { isMember } = await checkAccountMembership(
+    supabase,
+    accountId,
+    user.id,
+  );
   if (!isMember) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
@@ -34,7 +38,7 @@ export async function GET(
       role,
       joined_at,
       profile:profiles(id, avatar_url)
-    `
+    `,
     )
     .eq("account_id", accountId)
     .order("joined_at", { ascending: true });
@@ -42,7 +46,7 @@ export async function GET(
   if (error) {
     return NextResponse.json(
       { error: sanitizeDbError(error, "GET /api/accounts/[id]/members") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -51,7 +55,7 @@ export async function GET(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { id: accountId } = await params;
@@ -69,14 +73,15 @@ export async function DELETE(
   const memberId = searchParams.get("user_id");
 
   if (!memberId) {
-    return NextResponse.json(
-      { error: "user_id is required" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "user_id is required" }, { status: 400 });
   }
 
   // Check if current user is a member
-  const { isMember, role } = await checkAccountMembership(supabase, accountId, user.id);
+  const { isMember, role } = await checkAccountMembership(
+    supabase,
+    accountId,
+    user.id,
+  );
   if (!isMember) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
@@ -88,7 +93,7 @@ export async function DELETE(
   if (!isSelf && !isOwner) {
     return NextResponse.json(
       { error: "Only owners can remove members" },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
@@ -102,8 +107,11 @@ export async function DELETE(
 
     if (owners && owners.length === 1) {
       return NextResponse.json(
-        { error: "Cannot leave: you are the only owner. Transfer ownership or delete the account." },
-        { status: 400 }
+        {
+          error:
+            "Cannot leave: you are the only owner. Transfer ownership or delete the account.",
+        },
+        { status: 400 },
       );
     }
   }
@@ -118,7 +126,7 @@ export async function DELETE(
   if (error) {
     return NextResponse.json(
       { error: sanitizeDbError(error, "DELETE /api/accounts/[id]/members") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

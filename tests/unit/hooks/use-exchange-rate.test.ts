@@ -20,7 +20,7 @@ describe("useExchangeRate", () => {
         toCurrency: "EUR",
         amount: 100,
         debounceMs: 0,
-      })
+      }),
     );
 
     await waitFor(() => {
@@ -48,7 +48,7 @@ describe("useExchangeRate", () => {
         toCurrency: "EUR",
         amount: 100,
         debounceMs: 0,
-      })
+      }),
     );
 
     // Initially loading
@@ -80,7 +80,7 @@ describe("useExchangeRate", () => {
         toCurrency: "EUR",
         amount: 100,
         debounceMs: 0, // No debounce for testing
-      })
+      }),
     );
 
     await waitFor(() => {
@@ -106,7 +106,7 @@ describe("useExchangeRate", () => {
         fromCurrency: "USD",
         toCurrency: "EUR",
         amount: 0,
-      })
+      }),
     );
 
     await waitFor(() => {
@@ -125,7 +125,7 @@ describe("useExchangeRate", () => {
         toCurrency: "EUR",
         amount: 100,
         enabled: false,
-      })
+      }),
     );
 
     await waitFor(() => {
@@ -147,7 +147,7 @@ describe("useExchangeRate", () => {
         fromCurrency: "USD",
         toCurrency: "EUR",
         amount: 100,
-      })
+      }),
     );
 
     await waitFor(() => {
@@ -166,7 +166,7 @@ describe("useExchangeRate", () => {
         fromCurrency: "USD",
         toCurrency: "EUR",
         amount: 100,
-      })
+      }),
     );
 
     await waitFor(() => {
@@ -193,7 +193,7 @@ describe("useExchangeRate", () => {
         fromCurrency: "USD",
         toCurrency: "EUR",
         amount: 100,
-      })
+      }),
     );
 
     await waitFor(() => {
@@ -230,7 +230,7 @@ describe("useExchangeRate", () => {
           toCurrency: to,
           amount: 100,
         }),
-      { initialProps: { from: "USD", to: "EUR" } }
+      { initialProps: { from: "USD", to: "EUR" } },
     );
 
     await waitFor(() => {
@@ -247,7 +247,7 @@ describe("useExchangeRate", () => {
     });
 
     expect(fetch).toHaveBeenLastCalledWith(
-      "/api/exchange-rates?from=GBP&to=EUR"
+      "/api/exchange-rates?from=GBP&to=EUR",
     );
   });
 });

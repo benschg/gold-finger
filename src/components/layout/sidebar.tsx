@@ -81,8 +81,17 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     <div className="flex h-full flex-col">
       {/* Logo */}
       <div className="flex h-16 items-center border-b px-6">
-        <Link href={buildHref("/dashboard")} className="flex items-center gap-2" onClick={onNavigate}>
-          <Image src="/gold-finger-logo.svg" alt="Gold-Finger" width={24} height={24} />
+        <Link
+          href={buildHref("/dashboard")}
+          className="flex items-center gap-2"
+          onClick={onNavigate}
+        >
+          <Image
+            src="/gold-finger-logo.svg"
+            alt="Gold-Finger"
+            width={24}
+            height={24}
+          />
           <span className="text-xl font-bold">Gold-Finger</span>
         </Link>
       </div>
@@ -100,7 +109,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 isActive
                   ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
               )}
             >
               <item.icon className="h-4 w-4" />
@@ -123,7 +132,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 isActive
                   ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
               )}
             >
               <item.icon className="h-4 w-4" />

@@ -14,9 +14,7 @@ export default async function DashboardPage() {
 
   // Get display name from metadata or email
   const displayName =
-    user?.user_metadata?.display_name ||
-    user?.email?.split("@")[0] ||
-    "there";
+    user?.user_metadata?.display_name || user?.email?.split("@")[0] || "there";
 
   return <DashboardContent displayName={displayName} />;
 }

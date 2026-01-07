@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Currency } from "@/types/database";
-import { ProfileSection, PreferencesSection } from "@/components/account-settings";
+import {
+  ProfileSection,
+  PreferencesSection,
+} from "@/components/account-settings";
 
 export const metadata = {
   title: "Account Settings | Gold-Finger",

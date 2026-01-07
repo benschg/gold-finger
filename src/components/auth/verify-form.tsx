@@ -96,7 +96,9 @@ export function VerifyForm() {
                 type="text"
                 placeholder="Enter 6-digit code"
                 value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                onChange={(e) =>
+                  setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+                }
                 className="pl-10 text-center text-2xl tracking-widest"
                 maxLength={6}
                 required
@@ -112,7 +114,11 @@ export function VerifyForm() {
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={isLoading || code.length !== 6}>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isLoading || code.length !== 6}
+          >
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

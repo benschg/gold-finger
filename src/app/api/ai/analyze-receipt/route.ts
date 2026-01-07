@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     if (!process.env.GOOGLE_AI_API_KEY) {
       return NextResponse.json(
         { error: "AI service not configured" },
-        { status: 503 }
+        { status: 503 },
       );
     }
 
@@ -45,13 +45,16 @@ export async function POST(request: NextRequest) {
     if (!imageUrl) {
       return NextResponse.json(
         { error: "Image URL is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Fetch the image with timeout
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), IMAGE_FETCH_TIMEOUT_MS);
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      IMAGE_FETCH_TIMEOUT_MS,
+    );
 
     let imageResponse: Response;
     try {
@@ -61,7 +64,7 @@ export async function POST(request: NextRequest) {
       if (fetchError instanceof Error && fetchError.name === "AbortError") {
         return NextResponse.json(
           { error: "Image fetch timed out" },
-          { status: 408 }
+          { status: 408 },
         );
       }
       throw fetchError;
@@ -71,7 +74,7 @@ export async function POST(request: NextRequest) {
     if (!imageResponse.ok) {
       return NextResponse.json(
         { error: "Failed to fetch image" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -123,7 +126,7 @@ If you cannot determine a field, omit it from the JSON. Return only the JSON obj
     console.error("AI analysis error:", error);
     return NextResponse.json(
       { error: "Failed to analyze receipt" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

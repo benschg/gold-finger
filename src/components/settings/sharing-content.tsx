@@ -12,7 +12,11 @@ import { createClient } from "@/lib/supabase/client";
 
 export function SharingContent() {
   const [userId, setUserId] = useState<string | null>(null);
-  const { accounts, isLoading: isLoadingAccounts, refetch: refetchAccounts } = useAccounts();
+  const {
+    accounts,
+    isLoading: isLoadingAccounts,
+    refetch: refetchAccounts,
+  } = useAccounts();
   const { selectedAccountId } = useAccountStore();
 
   const selectedAccount = accounts.find((a) => a.id === selectedAccountId);
