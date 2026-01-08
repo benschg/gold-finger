@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,10 @@ import { useTags } from "@/lib/hooks/use-tags";
 import { useAccountStore } from "@/store/account-store";
 
 export function SettingsContent() {
+  const t = useTranslations("accountSettings");
+  const tCategories = useTranslations("categories");
+  const tTags = useTranslations("tags");
+
   const {
     accounts,
     isLoading: isLoadingAccounts,
@@ -50,7 +55,7 @@ export function SettingsContent() {
     return (
       <Card>
         <CardContent className="py-8 text-center text-muted-foreground">
-          Create an account first to manage settings.
+          {t("noAccountsYet")}
         </CardContent>
       </Card>
     );
@@ -62,7 +67,7 @@ export function SettingsContent() {
       {selectedAccount && (
         <Card>
           <CardHeader>
-            <CardTitle>Account Details</CardTitle>
+            <CardTitle>{t("accountDetails")}</CardTitle>
           </CardHeader>
           <CardContent>
             <AccountDetailsSection
@@ -77,10 +82,10 @@ export function SettingsContent() {
       {selectedAccountId && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle>Categories</CardTitle>
+            <CardTitle>{tCategories("title")}</CardTitle>
             <Button size="sm" onClick={() => setIsCategoryDialogOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
-              Add Category
+              {tCategories("addCategory")}
             </Button>
           </CardHeader>
           <CardContent>
@@ -105,10 +110,10 @@ export function SettingsContent() {
       {selectedAccountId && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle>Tags</CardTitle>
+            <CardTitle>{tTags("title")}</CardTitle>
             <Button size="sm" onClick={() => setIsTagDialogOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
-              Add Tag
+              {tTags("addTag")}
             </Button>
           </CardHeader>
           <CardContent>

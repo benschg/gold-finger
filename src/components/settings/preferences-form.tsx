@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { Loader2 } from "lucide-react";
 
@@ -17,6 +18,8 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/constants";
 import type { Currency } from "@/types/database";
+import { useLocaleStore } from "@/store/locale-store";
+import { type Locale, localeNames, publicLocales } from "@/i18n/config";
 
 interface PreferencesFormProps {
   profile?: {
@@ -27,13 +30,16 @@ interface PreferencesFormProps {
 
 export function PreferencesForm({ profile }: PreferencesFormProps) {
   const router = useRouter();
+  const t = useTranslations("settings");
   const { theme: currentTheme, setTheme } = useTheme();
+  const { locale, setLocale } = useLocaleStore();
   const [currency, setCurrency] = useState<Currency>(
     profile?.preferred_currency || DEFAULT_CURRENCY,
   );
   const [selectedTheme, setSelectedTheme] = useState(
     profile?.theme || currentTheme || "system",
   );
+  const [selectedLocale, setSelectedLocale] = useState<Locale>(locale);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{
     type: "success" | "error";
@@ -43,6 +49,11 @@ export function PreferencesForm({ profile }: PreferencesFormProps) {
   const handleThemeChange = (value: string) => {
     setSelectedTheme(value);
     setTheme(value);
+  };
+
+  const handleLocaleChange = (value: Locale) => {
+    setSelectedLocale(value);
+    setLocale(value);
   };
 
   const handleSave = async () => {
@@ -67,11 +78,11 @@ export function PreferencesForm({ profile }: PreferencesFormProps) {
 
       if (error) throw error;
 
-      setMessage({ type: "success", text: "Preferences saved!" });
+      setMessage({ type: "success", text: t("preferencesSaved") });
       router.refresh();
     } catch (error) {
       console.error("Save error:", error);
-      setMessage({ type: "error", text: "Failed to save preferences" });
+      setMessage({ type: "error", text: t("preferencesFailed") });
     } finally {
       setIsSaving(false);
     }
@@ -80,13 +91,13 @@ export function PreferencesForm({ profile }: PreferencesFormProps) {
   return (
     <div className="grid gap-4 max-w-full sm:max-w-md">
       <div className="space-y-2">
-        <Label htmlFor="currency">Default Currency</Label>
+        <Label htmlFor="currency">{t("defaultCurrency")}</Label>
         <Select
           value={currency}
           onValueChange={(v) => setCurrency(v as Currency)}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Select currency" />
+            <SelectValue placeholder={t("defaultCurrency")} />
           </SelectTrigger>
           <SelectContent>
             {CURRENCIES.map((c) => (
@@ -99,22 +110,38 @@ export function PreferencesForm({ profile }: PreferencesFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="theme">Theme</Label>
+        <Label htmlFor="theme">{t("theme")}</Label>
         <Select value={selectedTheme} onValueChange={handleThemeChange}>
           <SelectTrigger>
-            <SelectValue placeholder="Select theme" />
+            <SelectValue placeholder={t("theme")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="light">Light</SelectItem>
-            <SelectItem value="dark">Dark</SelectItem>
-            <SelectItem value="system">System</SelectItem>
+            <SelectItem value="light">{t("themeLight")}</SelectItem>
+            <SelectItem value="dark">{t("themeDark")}</SelectItem>
+            <SelectItem value="system">{t("themeSystem")}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="language">{t("language")}</Label>
+        <Select value={selectedLocale} onValueChange={handleLocaleChange}>
+          <SelectTrigger>
+            <SelectValue placeholder={t("language")} />
+          </SelectTrigger>
+          <SelectContent>
+            {publicLocales.map((loc) => (
+              <SelectItem key={loc} value={loc}>
+                {localeNames[loc]}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
 
       <Button onClick={handleSave} disabled={isSaving} className="w-fit">
         {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        Save Preferences
+        {t("savePreferences")}
       </Button>
 
       {message && (

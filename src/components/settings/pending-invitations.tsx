@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { InvitationList } from "@/components/accounts/invitation-list";
 import type { Tables } from "@/types/database.types";
 
@@ -9,6 +10,9 @@ type Invitation = Tables<"account_invitations"> & {
 };
 
 export function PendingInvitations() {
+  const t = useTranslations("invitations");
+  const tCommon = useTranslations("common");
+
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -33,16 +37,14 @@ export function PendingInvitations() {
   if (isLoading) {
     return (
       <div className="text-sm text-muted-foreground py-4">
-        Loading invitations...
+        {tCommon("loading")}
       </div>
     );
   }
 
   if (invitations.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground py-4">
-        No pending invitations to join shared accounts.
-      </p>
+      <p className="text-sm text-muted-foreground py-4">{t("noInvitations")}</p>
     );
   }
 

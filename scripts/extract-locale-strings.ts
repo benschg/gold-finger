@@ -1,16 +1,19 @@
 #!/usr/bin/env bun
-// String extraction helper for i18n migration
+// Locale string extraction helper for i18n
 //
 // Usage:
-//   bun run scripts/extract-strings.ts [--component <name>] [--all] [--output <file>]
+//   bun run scripts/extract-locale-strings.ts [options]
 //
-// This script scans component files for hardcoded strings and generates
-// a report to help with translation key creation.
+// Options:
+//   --all              Scan all src files (default: src/components only)
+//   --component <name> Scan files matching pattern
+//   --output <file>    Generate JSON skeleton file
+//   --check            CI mode: exit with code 1 if untranslated strings found
 //
 // Examples:
-//   bun run scripts/extract-strings.ts                    # Scan src/components
-//   bun run scripts/extract-strings.ts --all              # Scan all src files
-//   bun run scripts/extract-strings.ts --component auth   # Scan auth-related files
+//   bun run scripts/extract-locale-strings.ts              # Scan src/components
+//   bun run scripts/extract-locale-strings.ts --all        # Scan all src files
+//   bun run scripts/extract-locale-strings.ts --check      # CI/pre-commit check
 
 import { Glob } from "bun";
 import * as fs from "fs";
@@ -138,6 +141,7 @@ async function main() {
   const args = process.argv.slice(2);
   let globPattern = "src/components/**/*.tsx";
   let outputFile: string | null = null;
+  let checkMode = false;
 
   // Parse arguments
   for (let i = 0; i < args.length; i++) {
@@ -147,11 +151,15 @@ async function main() {
       globPattern = `src/**/*${args[++i]}*.tsx`;
     } else if (args[i] === "--output" && args[i + 1]) {
       outputFile = args[++i];
+    } else if (args[i] === "--check") {
+      checkMode = true;
     }
   }
 
-  console.log(`\n📝 Scanning for hardcoded strings...`);
-  console.log(`   Pattern: ${globPattern}\n`);
+  if (!checkMode) {
+    console.log(`\n📝 Scanning for hardcoded strings...`);
+    console.log(`   Pattern: ${globPattern}\n`);
+  }
 
   const glob = new Glob(globPattern);
   const files: string[] = [];
@@ -165,7 +173,9 @@ async function main() {
     files.push(file);
   }
 
-  console.log(`   Found ${files.length} files to scan\n`);
+  if (!checkMode) {
+    console.log(`   Found ${files.length} files to scan\n`);
+  }
 
   const allStrings: ExtractedString[] = [];
 
@@ -185,13 +195,35 @@ async function main() {
     {} as Record<string, ExtractedString[]>,
   );
 
-  // Output report
-  let totalCount = 0;
+  const totalCount = allStrings.length;
+  const fileCount = Object.keys(byFile).length;
+
+  // Check mode: concise output for CI
+  if (checkMode) {
+    if (totalCount === 0) {
+      console.log("✓ No untranslated strings found");
+      process.exit(0);
+    } else {
+      console.error(
+        `✗ Found ${totalCount} untranslated strings in ${fileCount} files:`,
+      );
+      for (const [file, strings] of Object.entries(byFile)) {
+        for (const s of strings) {
+          console.error(
+            `  ${file}:${s.line}: "${s.text.substring(0, 40)}${s.text.length > 40 ? "..." : ""}"`,
+          );
+        }
+      }
+      console.error(`\nRun 'bun run i18n:extract' for details`);
+      process.exit(1);
+    }
+  }
+
+  // Normal mode: detailed report
   for (const [file, strings] of Object.entries(byFile)) {
     console.log(`\n📄 ${file}`);
     console.log("─".repeat(60));
     strings.forEach((s) => {
-      totalCount++;
       console.log(
         `  Line ${s.line}: "${s.text.substring(0, 50)}${s.text.length > 50 ? "..." : ""}"`,
       );
@@ -206,7 +238,7 @@ async function main() {
   } else {
     console.log(`\n${"─".repeat(60)}`);
     console.log(`✅ Found ${totalCount} potential strings to translate`);
-    console.log(`   across ${Object.keys(byFile).length} files\n`);
+    console.log(`   across ${fileCount} files\n`);
   }
 
   // Generate JSON skeleton if output file specified

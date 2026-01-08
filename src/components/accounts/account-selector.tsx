@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   Select,
   SelectContent,
@@ -23,14 +24,16 @@ export function AccountSelector({
   accounts,
   value,
   onValueChange,
-  placeholder = "Select account",
+  placeholder,
   showIcon = true,
   className,
 }: AccountSelectorProps) {
+  const t = useTranslations("expenses");
+
   return (
     <Select value={value || ""} onValueChange={onValueChange}>
       <SelectTrigger className={className}>
-        <SelectValue placeholder={placeholder} />
+        <SelectValue placeholder={placeholder ?? t("selectAccount")} />
       </SelectTrigger>
       <SelectContent>
         {accounts.map((account) => (

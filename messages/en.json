@@ -29,6 +29,16 @@
     "expires": "Expires",
     "you": "(you)"
   },
+  "devTools": {
+    "title": "Dev Tools",
+    "localDevelopment": "Local Development",
+    "supabaseStudio": "Supabase Studio",
+    "databaseManagement": "Database management",
+    "inbucket": "Inbucket (Email)",
+    "viewSentEmails": "View sent emails",
+    "i18nTesting": "i18n Testing",
+    "kannadaDescription": "Test for missing translations"
+  },
   "navigation": {
     "dashboard": "Dashboard",
     "expenses": "Expenses",

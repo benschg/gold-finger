@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Pencil, Trash2, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -47,6 +48,10 @@ export function CategoryManager({
   isDialogOpen: controlledIsDialogOpen,
   onDialogOpenChange,
 }: CategoryManagerProps) {
+  const t = useTranslations("categories");
+  const tAccounts = useTranslations("accounts");
+  const tCommon = useTranslations("common");
+
   const [internalIsDialogOpen, setInternalIsDialogOpen] = useState(false);
   const isDialogOpen = controlledIsDialogOpen ?? internalIsDialogOpen;
   const setIsDialogOpen = onDialogOpenChange ?? setInternalIsDialogOpen;
@@ -140,7 +145,7 @@ export function CategoryManager({
       <div className="grid gap-2">
         {categories.length === 0 ? (
           <p className="py-4 text-center text-muted-foreground">
-            No categories yet. Add one to get started.
+            {t("noCategories")}
           </p>
         ) : (
           categories.map((category) => (
@@ -185,32 +190,32 @@ export function CategoryManager({
         <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {editingCategory ? "Edit Category" : "Add Category"}
+              {editingCategory ? t("editCategory") : t("addCategory")}
             </DialogTitle>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="category-name">Name</Label>
+              <Label htmlFor="category-name">{t("name")}</Label>
               <Input
                 id="category-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Category name"
+                placeholder={t("namePlaceholder")}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Icon</Label>
+              <Label>{tAccounts("icon")}</Label>
               <IconPicker
                 value={icon}
                 onChange={setIcon}
-                placeholder="Select an icon..."
+                placeholder={tAccounts("selectIcon")}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Color</Label>
+              <Label>{tAccounts("color")}</Label>
               <ColorPicker
                 value={color}
                 onChange={setColor}
@@ -226,13 +231,13 @@ export function CategoryManager({
                 variant="outline"
                 onClick={() => setIsDialogOpen(false)}
               >
-                Cancel
+                {tCommon("cancel")}
               </Button>
               <Button type="submit" disabled={isSubmitting || !name.trim()}>
                 {isSubmitting && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                {editingCategory ? "Update" : "Create"}
+                {editingCategory ? tCommon("update") : tCommon("create")}
               </Button>
             </div>
           </form>
@@ -245,20 +250,20 @@ export function CategoryManager({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete category?</AlertDialogTitle>
+            <AlertDialogTitle>{t("deleteCategory")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete &quot;{categoryToDelete?.name}
-              &quot;? Expenses using this category will no longer have a
-              category assigned.
+              {t("deleteCategoryConfirm", {
+                name: categoryToDelete?.name ?? "",
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDeleteCategory}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              {tCommon("delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

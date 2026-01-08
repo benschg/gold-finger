@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +12,9 @@ import { useAccountStore } from "@/store/account-store";
 import { createClient } from "@/lib/supabase/client";
 
 export function SharingContent() {
+  const t = useTranslations("invitations");
+  const tMembers = useTranslations("members");
+
   const [userId, setUserId] = useState<string | null>(null);
   const {
     accounts,
@@ -41,7 +45,7 @@ export function SharingContent() {
       {/* Pending Invitations */}
       <Card>
         <CardHeader>
-          <CardTitle>Account Invitations</CardTitle>
+          <CardTitle>{t("title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <PendingInvitations />
@@ -52,7 +56,7 @@ export function SharingContent() {
       {selectedAccount && userId ? (
         <Card>
           <CardHeader>
-            <CardTitle>Members</CardTitle>
+            <CardTitle>{tMembers("title")}</CardTitle>
           </CardHeader>
           <CardContent>
             <ShareSection
@@ -65,7 +69,7 @@ export function SharingContent() {
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>Members</CardTitle>
+            <CardTitle>{tMembers("title")}</CardTitle>
           </CardHeader>
           <CardContent className="py-4 text-center text-muted-foreground">
             Select an account to manage sharing settings.

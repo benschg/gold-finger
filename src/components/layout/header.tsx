@@ -17,7 +17,6 @@ import { Settings, LogOut, UserCog } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { DevTools } from "./dev-tools";
-import { LanguageSwitcher } from "./language-switcher";
 import { MobileSidebar } from "./sidebar";
 import { AccountSelector } from "@/components/accounts";
 import { useAccounts } from "@/lib/hooks/use-accounts";
@@ -67,7 +66,6 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
-        <LanguageSwitcher />
         <DevTools />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

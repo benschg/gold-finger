@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
+import { useTranslations } from "next-intl";
 import {
   Wallet,
   TrendingDown,
@@ -38,6 +39,9 @@ interface DashboardContentProps {
 }
 
 export function DashboardContent({ displayName }: DashboardContentProps) {
+  const t = useTranslations("dashboard");
+  const tCommon = useTranslations("common");
+  const tDateRange = useTranslations("dateRange");
   const [expenses, setExpenses] = useState<ExpenseWithDetails[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
@@ -193,12 +197,12 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
 
   // Dynamic title based on date range
   const dateRangeTitle = useMemo(() => {
-    if (dateRange.preset === "ALL") return "All Time";
+    if (dateRange.preset === "ALL") return tDateRange("allTime");
     if (dateRange.preset === "custom") {
       return `${format(dateRange.startDate, "MMM d")} - ${format(dateRange.endDate, "MMM d, yyyy")}`;
     }
-    return `Last ${dateRange.preset}`;
-  }, [dateRange]);
+    return t("last", { period: dateRange.preset });
+  }, [dateRange, t, tDateRange]);
 
   if (isLoadingAccounts) {
     return (
@@ -214,10 +218,10 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
       <div className="flex flex-col gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold">
-            Welcome back, {displayName}!
+            {t("welcomeBack", { name: displayName })}
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground">
-            Here&apos;s an overview of your expenses
+            {t("overview")}
           </p>
         </div>
 
@@ -237,7 +241,7 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
           {/* Stats Cards */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             <StatCard
-              title="Total Expenses"
+              title={t("totalExpenses")}
               value={`€${totalExpenses.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
               })}`}
@@ -245,23 +249,23 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
               icon={Wallet}
             />
             <StatCard
-              title="This Month"
+              title={t("thisMonth")}
               value={`€${thisMonthTotal.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
               })}`}
-              description="Total expenses"
+              description={t("totalExpenses")}
               icon={TrendingDown}
             />
             <StatCard
-              title="Last Month"
+              title={t("lastMonth")}
               value={`€${lastMonthTotal.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
               })}`}
-              description="Total expenses"
+              description={t("totalExpenses")}
               icon={TrendingUp}
             />
             <StatCard
-              title="Transactions"
+              title={t("transactions")}
               value={filteredExpenses.length.toString()}
               description={dateRangeTitle}
               icon={CreditCard}
@@ -275,11 +279,11 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
               categoryKeys={categoryKeys}
               categoryColorMap={categoryColorMap}
               categoryIdMap={categoryIdMap}
-              title="Monthly Expenses by Category"
+              title={t("monthlyExpensesByCategory")}
             />
             <ExpensePieChart
               data={categoryData}
-              title={`Category Breakdown (${dateRangeTitle})`}
+              title={`${t("categoryBreakdown")} (${dateRangeTitle})`}
             />
           </div>
 
@@ -287,19 +291,19 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
           {tagData.length > 0 && (
             <TagDistributionChart
               data={tagData}
-              title={`Expenses by Tag (${dateRangeTitle})`}
+              title={`${t("expensesByTag")} (${dateRangeTitle})`}
             />
           )}
 
           {/* Recent Expenses */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Recent Expenses</CardTitle>
+              <CardTitle className="text-lg">{t("recentExpenses")}</CardTitle>
             </CardHeader>
             <CardContent>
               {recentExpenses.length === 0 ? (
                 <div className="py-8 text-center text-muted-foreground">
-                  No expenses match the current filters
+                  {t("noExpensesMatch")}
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -318,10 +322,10 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
                         )}
                         <div className="min-w-0">
                           <p className="font-medium text-sm sm:text-base truncate">
-                            {expense.description || "No description"}
+                            {expense.description || tCommon("noDescription")}
                           </p>
                           <p className="text-xs sm:text-sm text-muted-foreground">
-                            {expense.category?.name || "Uncategorized"} •{" "}
+                            {expense.category?.name || t("uncategorized")} •{" "}
                             {format(new Date(expense.date), "MMM d")}
                           </p>
                         </div>

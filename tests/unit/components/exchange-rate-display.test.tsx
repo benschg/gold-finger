@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
+import { renderWithProviders } from "../../test-utils";
 import { ExchangeRateDisplay } from "@/components/expenses/exchange-rate-display";
 
 // Mock the ExchangeRateHistory component to avoid complex dialog testing
@@ -17,7 +18,7 @@ describe("ExchangeRateDisplay", () => {
   });
 
   it("renders nothing when currencies are the same", () => {
-    const { container } = render(
+    const { container } = renderWithProviders(
       <ExchangeRateDisplay fromCurrency="EUR" toCurrency="EUR" amount={100} />,
     );
 
@@ -30,7 +31,7 @@ describe("ExchangeRateDisplay", () => {
       () => new Promise(() => {}), // Never resolves
     );
 
-    render(
+    renderWithProviders(
       <ExchangeRateDisplay fromCurrency="USD" toCurrency="EUR" amount={100} />,
     );
 
@@ -48,7 +49,7 @@ describe("ExchangeRateDisplay", () => {
       json: () => Promise.resolve(mockResponse),
     });
 
-    render(
+    renderWithProviders(
       <ExchangeRateDisplay fromCurrency="USD" toCurrency="EUR" amount={100} />,
     );
 
@@ -71,7 +72,7 @@ describe("ExchangeRateDisplay", () => {
       json: () => Promise.resolve(mockResponse),
     });
 
-    render(
+    renderWithProviders(
       <ExchangeRateDisplay fromCurrency="USD" toCurrency="EUR" amount={0} />,
     );
 
@@ -86,7 +87,7 @@ describe("ExchangeRateDisplay", () => {
       json: () => Promise.resolve({ error: "Service unavailable" }),
     });
 
-    render(
+    renderWithProviders(
       <ExchangeRateDisplay fromCurrency="USD" toCurrency="EUR" amount={100} />,
     );
 
@@ -108,7 +109,7 @@ describe("ExchangeRateDisplay", () => {
       json: () => Promise.resolve(mockResponse),
     });
 
-    render(
+    renderWithProviders(
       <ExchangeRateDisplay fromCurrency="USD" toCurrency="EUR" amount={100} />,
     );
 
@@ -128,7 +129,7 @@ describe("ExchangeRateDisplay", () => {
       json: () => Promise.resolve(mockResponse),
     });
 
-    render(
+    renderWithProviders(
       <ExchangeRateDisplay fromCurrency="USD" toCurrency="EUR" amount={100} />,
     );
 
@@ -150,7 +151,7 @@ describe("ExchangeRateDisplay", () => {
       json: () => Promise.resolve(mockResponse),
     });
 
-    render(
+    renderWithProviders(
       <ExchangeRateDisplay fromCurrency="EUR" toCurrency="GBP" amount={100} />,
     );
 

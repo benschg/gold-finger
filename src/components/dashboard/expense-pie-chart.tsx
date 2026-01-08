@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   PieChart,
   Pie,
@@ -61,10 +62,8 @@ function CustomTooltip({
   );
 }
 
-export function ExpensePieChart({
-  data,
-  title = "Expenses by Category",
-}: ExpensePieChartProps) {
+export function ExpensePieChart({ data, title }: ExpensePieChartProps) {
+  const t = useTranslations("dashboard");
   const {
     hoveredCategoryId,
     selectedCategoryId,
@@ -111,7 +110,7 @@ export function ExpensePieChart({
         </CardHeader>
         <CardContent>
           <div className="flex h-[250px] sm:h-[300px] items-center justify-center text-muted-foreground">
-            No data to display
+            {t("noDataToDisplay")}
           </div>
         </CardContent>
       </Card>

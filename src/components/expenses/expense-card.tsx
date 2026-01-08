@@ -2,6 +2,7 @@
 
 import { format } from "date-fns";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +31,8 @@ interface ExpenseCardProps {
 }
 
 export function ExpenseCard({ expense, onEdit, onDelete }: ExpenseCardProps) {
+  const tCommon = useTranslations("common");
+
   const symbol = currencySymbols[expense.currency] || expense.currency;
   const category = expense.category;
   const tags = expense.tags || [];
@@ -54,7 +57,7 @@ export function ExpenseCard({ expense, onEdit, onDelete }: ExpenseCardProps) {
               )}
             </div>
             <p className="font-medium truncate">
-              {expense.description || "No description"}
+              {expense.description || tCommon("noDescription")}
             </p>
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
@@ -86,20 +89,20 @@ export function ExpenseCard({ expense, onEdit, onDelete }: ExpenseCardProps) {
                   className="h-8 w-8 shrink-0"
                 >
                   <MoreHorizontal className="h-4 w-4" />
-                  <span className="sr-only">Open menu</span>
+                  <span className="sr-only">{tCommon("openMenu")}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => onEdit?.(expense)}>
                   <Pencil className="mr-2 h-4 w-4" />
-                  Edit
+                  {tCommon("edit")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => onDelete?.(expense)}
                   className="text-destructive"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Delete
+                  {tCommon("delete")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

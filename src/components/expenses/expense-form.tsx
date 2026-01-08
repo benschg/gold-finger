@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
 import { CalendarIcon, Loader2, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { IconBadge } from "@/components/ui/icon-picker";
 
 import { Button } from "@/components/ui/button";
@@ -29,15 +30,24 @@ import type {
   Currency,
 } from "@/types/database";
 
-const expenseSchema = z.object({
-  amount: z.number().positive("Amount must be positive"),
-  currency: z.string().min(1, "Currency is required"),
-  description: z.string().optional(),
-  date: z.string().min(1, "Date is required"),
-  category_id: z.string().optional(),
-});
+const createExpenseSchema = (
+  t: ReturnType<typeof useTranslations<"expenses">>,
+) =>
+  z.object({
+    amount: z.number().positive(t("amountMustBePositive")),
+    currency: z.string().min(1, t("currencyRequired")),
+    description: z.string().optional(),
+    date: z.string().min(1),
+    category_id: z.string().optional(),
+  });
 
-type ExpenseFormData = z.infer<typeof expenseSchema>;
+type ExpenseFormData = {
+  amount: number;
+  currency: string;
+  description?: string;
+  date: string;
+  category_id?: string;
+};
 
 interface ExpenseFormProps {
   accountId: string;
@@ -64,6 +74,9 @@ export function ExpenseForm({
   onAccountChange,
   onAddAnother,
 }: ExpenseFormProps) {
+  const t = useTranslations("expenses");
+  const tCommon = useTranslations("common");
+
   const [selectedAccountId, setSelectedAccountId] = useState(accountId);
   const selectedAccount = accounts.find((a) => a.id === selectedAccountId);
   const effectiveAccountCurrency =
@@ -71,12 +84,14 @@ export function ExpenseForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const addAnotherRef = useRef(false);
   const [selectedTags, setSelectedTags] = useState<string[]>(
-    expense?.tags?.map((t) => t.id) || [],
+    expense?.tags?.map((tag) => tag.id) || [],
   );
   const [receiptUrl, setReceiptUrl] = useState<string | null>(
     expense?.receipt_url || null,
   );
   const [aiAutoFilled, setAiAutoFilled] = useState(false);
+
+  const expenseSchema = createExpenseSchema(t);
 
   const {
     register,
@@ -202,10 +217,10 @@ export function ExpenseForm({
       {/* Account Selector */}
       {accounts.length > 1 && (
         <div className="space-y-2">
-          <Label htmlFor="account">Account</Label>
+          <Label htmlFor="account">{t("account")}</Label>
           <Select value={selectedAccountId} onValueChange={handleAccountChange}>
             <SelectTrigger id="account">
-              <SelectValue placeholder="Select account" />
+              <SelectValue placeholder={t("selectAccount")} />
             </SelectTrigger>
             <SelectContent>
               {accounts.map((account) => (
@@ -227,7 +242,7 @@ export function ExpenseForm({
 
       {/* Receipt Upload */}
       <div className="space-y-2">
-        <Label>Receipt (optional)</Label>
+        <Label>{t("receipt")}</Label>
         <ReceiptUpload
           existingUrl={expense?.receipt_url || undefined}
           onUploadComplete={(url) => setReceiptUrl(url)}
@@ -236,23 +251,23 @@ export function ExpenseForm({
         {aiAutoFilled && (
           <div className="flex items-center gap-2 text-sm text-primary">
             <Sparkles className="h-4 w-4" />
-            Form auto-filled from receipt
+            {t("formAutoFilled")}
           </div>
         )}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description">{t("description")}</Label>
         <Input
           id="description"
-          placeholder="What was this expense for?"
+          placeholder={t("descriptionPlaceholder")}
           {...register("description")}
         />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="amount">Amount</Label>
+          <Label htmlFor="amount">{t("amount")}</Label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
               {CURRENCIES.find((c) => c.code === selectedCurrency)?.symbol}
@@ -277,13 +292,13 @@ export function ExpenseForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="currency">Currency</Label>
+          <Label htmlFor="currency">{t("currency")}</Label>
           <Select
             defaultValue={expense?.currency || accountCurrency}
             onValueChange={(value) => setValue("currency", value)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select currency" />
+              <SelectValue placeholder={t("selectCurrency")} />
             </SelectTrigger>
             <SelectContent>
               {CURRENCIES.map((c) => (
@@ -310,7 +325,7 @@ export function ExpenseForm({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="date">Date</Label>
+          <Label htmlFor="date">{t("date")}</Label>
           <div className="relative">
             <CalendarIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -326,7 +341,7 @@ export function ExpenseForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="category">Category</Label>
+          <Label htmlFor="category">{t("category")}</Label>
           <Select
             defaultValue={expense?.category_id || "none"}
             onValueChange={(value) =>
@@ -334,10 +349,10 @@ export function ExpenseForm({
             }
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select category" />
+              <SelectValue placeholder={t("selectCategory")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">No category</SelectItem>
+              <SelectItem value="none">{t("noCategory")}</SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category.id} value={category.id}>
                   <span className="flex items-center gap-2">
@@ -356,7 +371,7 @@ export function ExpenseForm({
 
       {tags.length > 0 && (
         <div className="space-y-2">
-          <Label>Tags</Label>
+          <Label>{t("tags")}</Label>
           <div className="flex flex-wrap gap-2">
             {tags.map((tag) => (
               <button
@@ -384,7 +399,7 @@ export function ExpenseForm({
       <div className="flex justify-end gap-2 pt-4">
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
+            {tCommon("cancel")}
           </Button>
         )}
         {onAddAnother && !expense && (
@@ -395,12 +410,12 @@ export function ExpenseForm({
             onClick={handleAddAnother}
           >
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Add & New
+            {t("addAndNew")}
           </Button>
         )}
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {expense ? "Update" : "Add"} Expense
+          {expense ? t("updateExpense") : t("addExpense")}
         </Button>
       </div>
     </form>

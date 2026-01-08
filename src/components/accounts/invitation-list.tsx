@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Clock, X, Check, Loader2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
@@ -26,6 +27,8 @@ export function InvitationList({
   mode,
   onAction,
 }: InvitationListProps) {
+  const t = useTranslations("invitations");
+  const tc = useTranslations("common");
   const router = useRouter();
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [action, setAction] = useState<"accept" | "decline" | null>(null);
@@ -41,13 +44,13 @@ export function InvitationList({
       if (response.ok) {
         onAction?.();
         router.refresh();
-        toast.success("Invitation accepted");
+        toast.success(t("accepted"));
       } else {
         const data = await response.json();
-        toast.error(data.error || "Failed to accept invitation");
+        toast.error(data.error || t("acceptFailed"));
       }
     } catch {
-      toast.error("Failed to accept invitation");
+      toast.error(t("acceptFailed"));
     } finally {
       setLoadingId(null);
       setAction(null);
@@ -65,13 +68,13 @@ export function InvitationList({
       if (response.ok) {
         onAction?.();
         router.refresh();
-        toast.success("Invitation declined");
+        toast.success(t("declined"));
       } else {
         const data = await response.json();
-        toast.error(data.error || "Failed to decline invitation");
+        toast.error(data.error || t("declineFailed"));
       }
     } catch {
-      toast.error("Failed to decline invitation");
+      toast.error(t("declineFailed"));
     } finally {
       setLoadingId(null);
       setAction(null);
@@ -89,13 +92,13 @@ export function InvitationList({
       if (response.ok) {
         onAction?.();
         router.refresh();
-        toast.success("Invitation cancelled");
+        toast.success(t("cancelled"));
       } else {
         const data = await response.json();
-        toast.error(data.error || "Failed to cancel invitation");
+        toast.error(data.error || t("cancelFailed"));
       }
     } catch {
-      toast.error("Failed to cancel invitation");
+      toast.error(t("cancelFailed"));
     } finally {
       setLoadingId(null);
       setAction(null);
@@ -105,9 +108,7 @@ export function InvitationList({
   if (invitations.length === 0) {
     return (
       <p className="text-sm text-muted-foreground text-center py-4">
-        {mode === "sent"
-          ? "No pending invitations"
-          : "No invitations to join accounts"}
+        {mode === "sent" ? t("noPending") : t("noInvitations")}
       </p>
     );
   }
@@ -133,7 +134,7 @@ export function InvitationList({
                 </p>
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Clock className="h-3 w-3" />
-                  Expires{" "}
+                  {tc("expires")}{" "}
                   {invitation.expires_at &&
                     formatDistanceToNow(new Date(invitation.expires_at), {
                       addSuffix: true,
@@ -156,7 +157,9 @@ export function InvitationList({
                     ) : (
                       <X className="h-4 w-4" />
                     )}
-                    <span className="ml-1 hidden sm:inline">Decline</span>
+                    <span className="ml-1 hidden sm:inline">
+                      {t("decline")}
+                    </span>
                   </Button>
                   <Button
                     size="sm"
@@ -168,7 +171,7 @@ export function InvitationList({
                     ) : (
                       <Check className="h-4 w-4" />
                     )}
-                    <span className="ml-1 hidden sm:inline">Accept</span>
+                    <span className="ml-1 hidden sm:inline">{t("accept")}</span>
                   </Button>
                 </>
               ) : (
@@ -183,7 +186,7 @@ export function InvitationList({
                   ) : (
                     <X className="h-4 w-4" />
                   )}
-                  <span className="ml-1">Cancel</span>
+                  <span className="ml-1">{tc("cancel")}</span>
                 </Button>
               )}
             </div>

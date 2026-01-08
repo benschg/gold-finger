@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,7 @@ import {
 import { Loader2, KeyRound } from "lucide-react";
 
 export function VerifyForm() {
+  const t = useTranslations("auth");
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -80,21 +82,23 @@ export function VerifyForm() {
   return (
     <Card>
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold">Check your email</CardTitle>
+        <CardTitle className="text-2xl font-bold">
+          {t("checkYourEmail")}
+        </CardTitle>
         <CardDescription>
-          We sent a verification code to <strong>{email}</strong>
+          {t("verificationSentTo")} <strong>{email}</strong>
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="code">Verification Code</Label>
+            <Label htmlFor="code">{t("verificationCode")}</Label>
             <div className="relative">
               <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 id="code"
                 type="text"
-                placeholder="Enter 6-digit code"
+                placeholder={t("enterCode")}
                 value={code}
                 onChange={(e) =>
                   setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
@@ -122,10 +126,10 @@ export function VerifyForm() {
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Verifying...
+                {t("verifying")}
               </>
             ) : (
-              "Verify"
+              t("verify")
             )}
           </Button>
 
@@ -137,7 +141,7 @@ export function VerifyForm() {
               disabled={isLoading}
               className="text-sm"
             >
-              Didn&apos;t receive the code? Resend
+              {t("resendCode")}
             </Button>
           </div>
         </form>

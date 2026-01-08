@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   Card,
   CardContent,
@@ -21,11 +22,13 @@ interface ProfileSectionProps {
 }
 
 export function ProfileSection({ user }: ProfileSectionProps) {
+  const t = useTranslations("settings");
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Profile</CardTitle>
-        <CardDescription>Your profile information</CardDescription>
+        <CardTitle>{t("profile")}</CardTitle>
+        <CardDescription>{t("profileInfo")}</CardDescription>
       </CardHeader>
       <CardContent>
         <ProfileForm user={user} />

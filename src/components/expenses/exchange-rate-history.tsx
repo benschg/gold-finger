@@ -15,6 +15,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -61,6 +62,8 @@ export function ExchangeRateHistory({
   toCurrency,
   trigger,
 }: ExchangeRateHistoryProps) {
+  const t = useTranslations("exchangeRate");
+
   const [open, setOpen] = useState(false);
   const [period, setPeriod] = useState("1M");
   const [isSwapped, setIsSwapped] = useState(false);
@@ -120,7 +123,7 @@ export function ExchangeRateHistory({
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
-            History
+            {t("history")}
           </Button>
         )}
       </DialogTrigger>

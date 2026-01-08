@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import { format } from "date-fns";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useDashboardFilterStore } from "@/store/dashboard-filter-store";
@@ -16,6 +17,8 @@ interface ActiveFiltersProps {
 }
 
 export function ActiveFilters({ categories, tags }: ActiveFiltersProps) {
+  const t = useTranslations("activeFilters");
+  const tCommon = useTranslations("common");
   const {
     dateRange,
     selectedCategoryId,
@@ -45,7 +48,9 @@ export function ActiveFilters({ categories, tags }: ActiveFiltersProps) {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-sm text-muted-foreground">Filters:</span>
+      <span className="text-sm text-muted-foreground">
+        {tCommon("filters")}:
+      </span>
 
       {hasDateFilter && (
         <Badge variant="secondary" className="gap-1 pr-1">
@@ -53,7 +58,7 @@ export function ActiveFilters({ categories, tags }: ActiveFiltersProps) {
           <button
             onClick={clearDateRange}
             className="ml-1 rounded-full p-0.5 hover:bg-muted"
-            aria-label="Clear date filter"
+            aria-label={t("clearDateFilter")}
           >
             <X className="h-3 w-3" />
           </button>
@@ -77,7 +82,7 @@ export function ActiveFilters({ categories, tags }: ActiveFiltersProps) {
           <button
             onClick={() => setSelectedCategoryId(null)}
             className="ml-1 rounded-full p-0.5 hover:bg-muted"
-            aria-label="Clear category filter"
+            aria-label={t("clearCategoryFilter")}
           >
             <X className="h-3 w-3" />
           </button>
@@ -101,7 +106,7 @@ export function ActiveFilters({ categories, tags }: ActiveFiltersProps) {
           <button
             onClick={() => setSelectedTagId(null)}
             className="ml-1 rounded-full p-0.5 hover:bg-muted"
-            aria-label="Clear tag filter"
+            aria-label={t("clearTagFilter")}
           >
             <X className="h-3 w-3" />
           </button>
@@ -115,7 +120,7 @@ export function ActiveFilters({ categories, tags }: ActiveFiltersProps) {
           onClick={clearFilters}
           className="h-6 px-2 text-xs text-muted-foreground"
         >
-          Clear all
+          {tCommon("clearAll")}
         </Button>
       )}
     </div>

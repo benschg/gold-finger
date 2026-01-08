@@ -1,7 +1,13 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 export function MarketingFooter() {
+  const t = useTranslations("landing");
+  const tCommon = useTranslations("common");
+
   return (
     <footer className="border-t py-12">
       <div className="container">
@@ -9,15 +15,15 @@ export function MarketingFooter() {
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/gold-finger.svg"
-              alt="Gold-Finger"
+              alt={tCommon("appName")}
               width={20}
               height={20}
             />
-            <span className="font-semibold">Gold-Finger</span>
+            <span className="font-semibold">{tCommon("appName")}</span>
           </Link>
 
           <p className="text-sm text-muted-foreground">
-            Track your expenses with golden precision.
+            {t("heroTitle")} {t("heroHighlight")}.
           </p>
         </div>
       </div>

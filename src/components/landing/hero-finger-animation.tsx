@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export function HeroFingerAnimation() {
+  const tCommon = useTranslations("common");
   // Generate unique key on each component mount to force animation replay
   const [animKey] = useState(() => Date.now());
 
@@ -18,7 +20,7 @@ export function HeroFingerAnimation() {
           <div className="finger-emerge absolute left-1/2 top-[80%] -ml-22 h-52 w-44 origin-bottom drop-shadow-xl transition-transform duration-300 ease-out group-hover:-translate-y-2 group-hover:rotate-1 sm:-ml-26 sm:h-60 sm:w-52">
             <Image
               src="/gold-finger.svg"
-              alt="Gold-Finger"
+              alt={tCommon("appName")}
               className="h-full w-full"
               width={224}
               height={256}

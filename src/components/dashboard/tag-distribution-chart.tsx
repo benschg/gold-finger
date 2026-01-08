@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   BarChart,
   Bar,
@@ -22,9 +23,11 @@ interface TagDistributionChartProps {
 function CustomTooltip({
   active,
   payload,
+  labels,
 }: {
   active?: boolean;
   payload?: Array<{ payload: TagBreakdown }>;
+  labels: { amount: string; transactions: string; share: string };
 }) {
   if (!active || !payload || payload.length === 0) {
     return null;
@@ -46,17 +49,17 @@ function CustomTooltip({
       </div>
       <div className="space-y-1 text-sm">
         <div className="flex justify-between gap-4">
-          <span className="text-muted-foreground">Amount</span>
+          <span className="text-muted-foreground">{labels.amount}</span>
           <span className="font-medium">
             {formatCurrency(item.totalAmount)}
           </span>
         </div>
         <div className="flex justify-between gap-4">
-          <span className="text-muted-foreground">Transactions</span>
+          <span className="text-muted-foreground">{labels.transactions}</span>
           <span className="font-medium">{item.count}</span>
         </div>
         <div className="flex justify-between gap-4">
-          <span className="text-muted-foreground">Share</span>
+          <span className="text-muted-foreground">{labels.share}</span>
           <span className="font-medium">{item.percentage.toFixed(1)}%</span>
         </div>
       </div>
@@ -66,10 +69,17 @@ function CustomTooltip({
 
 export function TagDistributionChart({
   data,
-  title = "Expenses by Tag",
+  title,
 }: TagDistributionChartProps) {
+  const t = useTranslations("dashboard");
   const { hoveredTagId, selectedTagId, setHoveredTagId, setSelectedTagId } =
     useDashboardFilterStore();
+
+  const tooltipLabels = {
+    amount: t("amount"),
+    transactions: t("transactions"),
+    share: t("share"),
+  };
 
   const handleBarClick = (tagId: string) => {
     // Toggle behavior
@@ -106,7 +116,7 @@ export function TagDistributionChart({
         </CardHeader>
         <CardContent>
           <div className="flex h-[200px] items-center justify-center text-muted-foreground">
-            No tags to display
+            {t("noTagsToDisplay")}
           </div>
         </CardContent>
       </Card>
@@ -142,7 +152,7 @@ export function TagDistributionChart({
                 width={100}
                 tick={{ fontSize: 11, fill: "var(--foreground)" }}
               />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CustomTooltip labels={tooltipLabels} />} />
               <Bar dataKey="totalAmount" radius={[0, 4, 4, 0]} cursor="pointer">
                 {displayData.map((entry) => (
                   <Cell

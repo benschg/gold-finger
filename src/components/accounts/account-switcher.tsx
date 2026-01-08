@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Check, ChevronsUpDown, Plus, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ export function AccountSwitcher({
   currentAccountId,
   onAccountChange,
 }: AccountSwitcherProps) {
+  const t = useTranslations("accounts");
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -56,7 +58,7 @@ export function AccountSwitcher({
     return (
       <Button variant="outline" onClick={() => router.push("/accounts/new")}>
         <Plus className="mr-2 h-4 w-4" />
-        Create Account
+        {t("createAccount")}
       </Button>
     );
   }
@@ -77,7 +79,7 @@ export function AccountSwitcher({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-50">
-        <DropdownMenuLabel>Your Accounts</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("yourAccounts")}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {accounts.map((account) => (
           <DropdownMenuItem
@@ -110,7 +112,7 @@ export function AccountSwitcher({
           className="cursor-pointer"
         >
           <Plus className="mr-2 h-4 w-4" />
-          Manage Accounts
+          {t("manageAccounts")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
