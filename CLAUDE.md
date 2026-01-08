@@ -159,3 +159,74 @@ src/
 2. Update RLS policies if needed
 3. Regenerate types: `bun x supabase gen types typescript`
 4. Update affected API routes and components
+
+### Adding/Modifying Translations
+
+This project uses **next-intl** for internationalization. All user-facing strings must be translated.
+
+**Key files:**
+
+- `src/i18n/config.ts` - Locale definitions
+- `src/store/locale-store.ts` - Client-side locale state
+- `messages/*.json` - Translation files (en, de, pt, kn)
+
+**Steps to add new strings:**
+
+1. Add the key to `messages/en.json` in the appropriate namespace:
+
+   ```json
+   {
+     "namespace": {
+       "myKey": "My string",
+       "myKeyWithParam": "Hello, {name}!"
+     }
+   }
+   ```
+
+2. Add translations to `messages/de.json` and `messages/pt.json`
+
+3. Regenerate Kannada mock locale:
+
+   ```bash
+   bun run i18n:mock
+   ```
+
+4. Use in components:
+
+   ```tsx
+   // Client component
+   "use client";
+   import { useTranslations } from "next-intl";
+
+   const t = useTranslations("namespace");
+   return <span>{t("myKey")}</span>;
+
+   // Server component
+   import { getTranslations } from "next-intl/server";
+
+   const t = await getTranslations("namespace");
+   return <span>{t("myKey")}</span>;
+   ```
+
+5. Run `bun run i18n:check` to verify no untranslated strings
+
+**Namespaces:**
+
+- `common` - Shared strings (cancel, save, delete, etc.)
+- `navigation` - Nav items, menu labels
+- `auth` - Login, verification
+- `dashboard` - Dashboard page
+- `expenses` - Expense management
+- `accounts` - Account management
+- `settings` - Settings page
+- `landing` - Marketing pages
+- `errors` - Error messages
+- `metadata` - Page titles/descriptions
+- `devTools` - Developer tools (dev only)
+
+**Important:**
+
+- Never hardcode user-facing strings
+- Use `t("key")` instead of template literals
+- Use ICU message format for plurals: `{count, plural, one {item} other {items}}`
+- The Kannada locale (`kn`) is for testing only (dev mode)

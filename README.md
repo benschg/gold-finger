@@ -25,6 +25,14 @@ A modern, self-hostable expense tracking application built with Next.js, Supabas
 - **Offline-Ready**: Service worker support for PWA capabilities
 - **Real-time Updates**: Live sync across devices using Supabase Realtime
 
+### Internationalization (i18n)
+
+- **Multi-Language Support**: English, German, Portuguese
+- **No URL Changes**: Language stored in cookie/localStorage, not URL path
+- **User Preferences**: Logged-in users can save language preference in settings
+- **Auto-Detection**: Falls back to browser language preference
+- **Dev Testing**: Kannada pseudo-locale for visual translation testing (via DevTools)
+
 ## Tech Stack
 
 | Layer              | Technology                                |
@@ -40,6 +48,7 @@ A modern, self-hostable expense tracking application built with Next.js, Supabas
 | **Storage**        | Supabase Storage                          |
 | **AI**             | Google Gemini API                         |
 | **Exchange Rates** | Frankfurter API (ECB data)                |
+| **i18n**           | next-intl                                 |
 | **Runtime**        | Bun                                       |
 | **Testing**        | Vitest, React Testing Library, Playwright |
 
@@ -144,7 +153,9 @@ gold-finger/
 │   │   └── utils.ts            # Shared utilities
 │   ├── hooks/                  # Custom React hooks
 │   ├── types/                  # TypeScript types
-│   └── store/                  # Zustand stores
+│   ├── store/                  # Zustand stores
+│   └── i18n/                   # Internationalization config
+├── messages/                   # Translation files (en, de, pt, kn)
 ├── supabase/
 │   ├── migrations/             # Database migrations
 │   └── kong.yml                # API gateway config
@@ -228,7 +239,80 @@ bun run lint:fix
 | ExchangeRateDisplay Component | 8 tests   |
 | Exchange Rate API             | 9 tests   |
 | Exchange Rate History API     | 7 tests   |
+| i18n (locale store, switcher) | 14 tests  |
 | Other Components              | 57+ tests |
+
+## Internationalization
+
+Gold-Finger uses [next-intl](https://next-intl-docs.vercel.app/) for internationalization.
+
+### Supported Languages
+
+| Code | Language   | Status   |
+| ---- | ---------- | -------- |
+| en   | English    | Complete |
+| de   | German     | Complete |
+| pt   | Portuguese | Complete |
+| kn   | Kannada    | Dev only |
+
+### Translation Files
+
+Translation files are located in `messages/`:
+
+```
+messages/
+├── en.json    # English (source)
+├── de.json    # German
+├── pt.json    # Portuguese
+└── kn.json    # Kannada (pseudo-locale for testing)
+```
+
+### Adding Translations
+
+1. Add the key to `messages/en.json` in the appropriate namespace
+2. Copy the key to `de.json` and `pt.json` with translations
+3. Run `bun run i18n:mock` to regenerate Kannada pseudo-locale
+
+### Using Translations in Components
+
+**Client Components:**
+
+```tsx
+"use client";
+import { useTranslations } from "next-intl";
+
+export function MyComponent() {
+  const t = useTranslations("namespace");
+  return <h1>{t("key")}</h1>;
+}
+```
+
+**Server Components:**
+
+```tsx
+import { getTranslations } from "next-intl/server";
+
+export default async function Page() {
+  const t = await getTranslations("namespace");
+  return <h1>{t("key")}</h1>;
+}
+```
+
+### Testing Translations
+
+The Kannada locale (`kn`) is a pseudo-locale that wraps all strings with Kannada script prefixes. This makes it easy to spot untranslated strings visually.
+
+Access it via the DevTools menu (development mode only).
+
+### i18n Scripts
+
+```bash
+# Check for untranslated strings
+bun run i18n:check
+
+# Regenerate Kannada mock locale
+bun run i18n:mock
+```
 
 ## Deployment
 
