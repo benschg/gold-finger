@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { AlertCircle, RefreshCw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,10 @@ export default function ExpensesError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations("expenses");
+  const tErrors = useTranslations("errors");
+  const tCommon = useTranslations("common");
+
   useEffect(() => {
     console.error("Expenses error:", error);
   }, [error]);
@@ -20,8 +25,8 @@ export default function ExpensesError({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Expenses</h1>
-        <p className="text-muted-foreground">Track and manage your expenses</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
+        <p className="text-muted-foreground">{t("subtitle")}</p>
       </div>
 
       <Card className="border-destructive/50">
@@ -29,15 +34,18 @@ export default function ExpensesError({
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10">
             <AlertCircle className="h-5 w-5 text-destructive" />
           </div>
-          <CardTitle className="text-lg">Failed to load expenses</CardTitle>
+          <CardTitle className="text-lg">
+            {tErrors("failedToLoad", { resource: t("title").toLowerCase() })}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            {error.message || "An error occurred while loading your expenses."}
+            {error.message ||
+              tErrors("errorOccurred", { resource: t("title").toLowerCase() })}
           </p>
           <Button onClick={reset} variant="outline" className="gap-2">
             <RefreshCw className="h-4 w-4" />
-            Retry
+            {tCommon("retry")}
           </Button>
         </CardContent>
       </Card>

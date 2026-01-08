@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Plus, Loader2, Users, Receipt } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,8 @@ interface DeleteAccountDetails {
 }
 
 export default function AccountsPage() {
+  const t = useTranslations("accounts");
+  const tCommon = useTranslations("common");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [accountToDelete, setAccountToDelete] =
     useState<AccountWithRole | null>(null);
@@ -119,9 +122,9 @@ export default function AccountsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold">Accounts</h1>
+          <h1 className="text-xl sm:text-2xl font-bold">{t("title")}</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
-            Manage your expense accounts and sharing
+            {t("subtitle")}
           </p>
         </div>
         <Button
@@ -129,7 +132,7 @@ export default function AccountsPage() {
           className="w-full sm:w-auto"
         >
           <Plus className="mr-2 h-4 w-4" />
-          New Account
+          {t("newAccount")}
         </Button>
       </div>
 
@@ -151,7 +154,7 @@ export default function AccountsPage() {
               onClick={() => setIsCreateOpen(true)}
             >
               <Plus className="h-8 w-8" />
-              <span>Create new account</span>
+              <span>{t("createAccount")}</span>
             </Button>
           </CardContent>
         </Card>
@@ -177,40 +180,39 @@ export default function AccountsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete account?</AlertDialogTitle>
+            <AlertDialogTitle>{t("deleteAccount")}</AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-3">
                 <p>
-                  Are you sure you want to delete &quot;{accountToDelete?.name}
-                  &quot;? This action cannot be undone.
+                  {t("deleteAccountConfirm", {
+                    name: accountToDelete?.name ?? "",
+                  })}
                 </p>
 
                 {deleteDetails.isLoading ? (
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Loading account details...</span>
+                    <span>{t("loadingAccountDetails")}</span>
                   </div>
                 ) : (
                   <div className="rounded-md border bg-muted/50 p-3 space-y-2">
                     <p className="text-sm font-medium text-foreground">
-                      The following will be permanently deleted:
+                      {t("permanentlyDeleted")}
                     </p>
                     <div className="flex items-center gap-2 text-sm">
                       <Users className="h-4 w-4" />
                       <span>
-                        {deleteDetails.memberCount}{" "}
-                        {deleteDetails.memberCount === 1 ? "member" : "members"}{" "}
-                        will lose access
+                        {t("membersWillLoseAccess", {
+                          count: deleteDetails.memberCount,
+                        })}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Receipt className="h-4 w-4" />
                       <span>
-                        {deleteDetails.expenseCount}{" "}
-                        {deleteDetails.expenseCount === 1
-                          ? "expense"
-                          : "expenses"}{" "}
-                        will be deleted
+                        {t("expensesWillBeDeleted", {
+                          count: deleteDetails.expenseCount,
+                        })}
                       </span>
                     </div>
                   </div>
@@ -219,12 +221,12 @@ export default function AccountsPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDeleteAccount}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              {tCommon("delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
