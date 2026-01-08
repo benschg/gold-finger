@@ -133,7 +133,17 @@
     "deleteExpense": "Delete expense?",
     "deleteExpenseConfirm": "Are you sure you want to delete this expense? This action cannot be undone.",
     "noAccountsYet": "You don't have any accounts yet.",
-    "createAnAccount": "Create an Account"
+    "createAnAccount": "Create an Account",
+    "lineItems": "Line Items",
+    "addItem": "Add Item",
+    "itemName": "Item name",
+    "qty": "Qty",
+    "itemCategory": "Item category",
+    "inheritCategory": "Use expense category",
+    "itemsTotal": "Items total",
+    "itemsCount": "{count, plural, one {# item} other {# items}}",
+    "amountCalculatedFromItems": "Amount is calculated from items",
+    "removeItem": "Remove item"
   },
   "receipt": {
     "dropHere": "Drop the receipt here",

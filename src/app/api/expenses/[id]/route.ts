@@ -46,9 +46,46 @@ export async function GET(
     )
     .eq("expense_id", id);
 
+  // Get items if expense has them
+  // Note: expense_items table and has_items column require migration 00008_expense_items.sql
+  type ExpenseItemRecord = {
+    id: string;
+    expense_id: string;
+    name: string;
+    quantity: number;
+    unit_price: number;
+    total_price: number;
+    category_id: string | null;
+    sort_order: number;
+    created_at: string;
+    category: { id: string; name: string; icon: string; color: string } | null;
+  };
+
+  let items: ExpenseItemRecord[] = [];
+  const expenseWithHasItems = expense as typeof expense & {
+    has_items?: boolean;
+  };
+
+  if (expenseWithHasItems.has_items) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: expenseItems } = await (supabase as any)
+      .from("expense_items")
+      .select(
+        `
+        *,
+        category:categories(id, name, icon, color)
+      `,
+      )
+      .eq("expense_id", id)
+      .order("sort_order", { ascending: true });
+
+    items = expenseItems || [];
+  }
+
   return NextResponse.json({
     ...expense,
     tags: expenseTags?.map((et) => et.tag) || [],
+    items,
   });
 }
 
@@ -158,6 +195,39 @@ export async function PUT(
         tag_id: tagId,
       }));
       await supabase.from("expense_tags").insert(tagInserts);
+    }
+  }
+
+  // Update items if provided
+  // Note: expense_items table requires migration 00008_expense_items.sql
+  if (body.items !== undefined) {
+    // Remove existing items
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any).from("expense_items").delete().eq("expense_id", id);
+
+    // Insert new items
+    if (body.items.length > 0) {
+      const itemInserts = body.items.map(
+        (
+          item: {
+            name?: string;
+            quantity?: number;
+            unit_price?: number;
+            category_id?: string | null;
+            sort_order?: number;
+          },
+          index: number,
+        ) => ({
+          expense_id: id,
+          name: item.name!,
+          quantity: item.quantity ?? 1,
+          unit_price: item.unit_price!,
+          category_id: item.category_id || null,
+          sort_order: item.sort_order ?? index,
+        }),
+      );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any).from("expense_items").insert(itemInserts);
     }
   }
 

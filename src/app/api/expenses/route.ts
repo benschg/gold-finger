@@ -88,19 +88,77 @@ export async function GET(request: Request) {
       )
       .in("expense_id", expenseIds);
 
-    // Attach tags to expenses
-    const expensesWithTags = expenses?.map((expense) => ({
+    // Get items for expenses that have them
+    // Note: has_items column requires migration 00008_expense_items.sql
+    type ExpenseRecord = (typeof expenses)[number] & { has_items?: boolean };
+    const expenseIdsWithItems =
+      (expenses as ExpenseRecord[])
+        ?.filter((e) => e.has_items)
+        .map((e) => e.id) || [];
+
+    type ExpenseItemRecord = {
+      id: string;
+      expense_id: string;
+      name: string;
+      quantity: number;
+      unit_price: number;
+      total_price: number;
+      category_id: string | null;
+      sort_order: number;
+      created_at: string;
+      category: {
+        id: string;
+        name: string;
+        icon: string;
+        color: string;
+      } | null;
+    };
+
+    let expenseItemsMap: Record<string, ExpenseItemRecord[]> = {};
+
+    if (expenseIdsWithItems.length > 0) {
+      // Note: expense_items table requires migration 00008_expense_items.sql
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: items } = (await (supabase as any)
+        .from("expense_items")
+        .select(
+          `
+          *,
+          category:categories(id, name, icon, color)
+        `,
+        )
+        .in("expense_id", expenseIdsWithItems)
+        .order("sort_order", { ascending: true })) as {
+        data: ExpenseItemRecord[] | null;
+      };
+
+      // Group items by expense_id
+      expenseItemsMap = (items || []).reduce(
+        (acc, item) => {
+          if (!acc[item.expense_id]) acc[item.expense_id] = [];
+          acc[item.expense_id].push(item);
+          return acc;
+        },
+        {} as Record<string, ExpenseItemRecord[]>,
+      );
+    }
+
+    // Attach tags and items to expenses
+    const expensesWithDetails = expenses?.map((expense) => ({
       ...expense,
       tags:
         expenseTags
           ?.filter((et) => et.expense_id === expense.id)
           .map((et) => et.tag) || [],
+      items: expenseItemsMap[expense.id] || [],
     }));
 
-    return NextResponse.json(expensesWithTags);
+    return NextResponse.json(expensesWithDetails);
   }
 
-  return NextResponse.json(expenses?.map((e) => ({ ...e, tags: [] })) || []);
+  return NextResponse.json(
+    expenses?.map((e) => ({ ...e, tags: [], items: [] })) || [],
+  );
 }
 
 export async function POST(request: Request) {
@@ -182,6 +240,39 @@ export async function POST(request: Request) {
     }));
 
     await supabase.from("expense_tags").insert(tagInserts);
+  }
+
+  // Insert items if provided
+  // Note: expense_items table requires migration 00008_expense_items.sql
+  if (body.items && body.items.length > 0) {
+    const itemInserts = body.items.map(
+      (
+        item: {
+          name: string;
+          quantity?: number;
+          unit_price: number;
+          category_id?: string | null;
+          sort_order?: number;
+        },
+        index: number,
+      ) => ({
+        expense_id: expense.id,
+        name: item.name,
+        quantity: item.quantity ?? 1,
+        unit_price: item.unit_price,
+        category_id: item.category_id || null,
+        sort_order: item.sort_order ?? index,
+      }),
+    );
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error: itemsError } = await (supabase as any)
+      .from("expense_items")
+      .insert(itemInserts);
+
+    if (itemsError) {
+      console.error("Error inserting expense items:", itemsError);
+    }
   }
 
   return NextResponse.json(expense, { status: 201 });

@@ -70,6 +70,7 @@ const createMockExpense = (
   created_at: "2024-01-15",
   updated_at: "2024-01-15",
   receipt_url: null,
+  has_items: false,
   category: mockCategories[0],
   tags: [],
   ...overrides,

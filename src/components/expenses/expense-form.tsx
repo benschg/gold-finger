@@ -21,13 +21,16 @@ import {
 } from "@/components/ui/select";
 import { ReceiptUpload } from "./receipt-upload";
 import { ExchangeRateDisplay } from "./exchange-rate-display";
+import { ExpenseItemEditor } from "./expense-item-editor";
 import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/constants";
 import type {
   Account,
   Category,
   Tag,
   ExpenseWithDetails,
+  ExpenseWithItems,
   Currency,
+  CreateExpenseItemInput,
 } from "@/types/database";
 
 const createExpenseSchema = (
@@ -55,7 +58,7 @@ interface ExpenseFormProps {
   accountCurrency?: Currency;
   categories: Category[];
   tags: Tag[];
-  expense?: ExpenseWithDetails;
+  expense?: ExpenseWithDetails | ExpenseWithItems;
   onSuccess?: () => void;
   onCancel?: () => void;
   onAccountChange?: (accountId: string) => void;
@@ -91,6 +94,18 @@ export function ExpenseForm({
   );
   const [aiAutoFilled, setAiAutoFilled] = useState(false);
 
+  // Items state - extract from expense if it has items
+  const expenseWithItems = expense as ExpenseWithItems | undefined;
+  const [items, setItems] = useState<CreateExpenseItemInput[]>(
+    expenseWithItems?.items?.map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      unit_price: item.unit_price,
+      category_id: item.category_id,
+      sort_order: item.sort_order,
+    })) || [],
+  );
+
   const expenseSchema = createExpenseSchema(t);
 
   const {
@@ -124,15 +139,27 @@ export function ExpenseForm({
       const url = expense ? `/api/expenses/${expense.id}` : "/api/expenses";
       const method = expense ? "PUT" : "POST";
 
+      // Calculate amount from items if items exist
+      const calculatedAmount =
+        items.length > 0
+          ? items.reduce(
+              (sum, item) =>
+                sum + (item.quantity || 1) * (item.unit_price || 0),
+              0,
+            )
+          : data.amount;
+
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...data,
+          amount: calculatedAmount,
           account_id: selectedAccountId,
           tag_ids: selectedTags,
           category_id: data.category_id || null,
           receipt_url: receiptUrl,
+          items: items.length > 0 ? items : undefined,
         }),
       });
 
@@ -149,6 +176,7 @@ export function ExpenseForm({
         setSelectedTags([]);
         setReceiptUrl(null);
         setAiAutoFilled(false);
+        setItems([]);
         addAnotherRef.current = false;
         onAddAnother?.();
       } else {
@@ -181,6 +209,7 @@ export function ExpenseForm({
     description?: string;
     merchant?: string;
     category?: string;
+    items?: Array<{ name: string; quantity?: number; price?: number }>;
   }) => {
     // Auto-fill form with AI-extracted data
     if (data.amount) {
@@ -208,6 +237,19 @@ export function ExpenseForm({
       if (matchedCategory) {
         setValue("category_id", matchedCategory.id);
       }
+    }
+    // Auto-fill items from receipt
+    if (data.items && data.items.length > 0) {
+      const newItems: CreateExpenseItemInput[] = data.items.map(
+        (item, index) => ({
+          name: item.name,
+          quantity: item.quantity || 1,
+          unit_price: item.price || 0,
+          category_id: null,
+          sort_order: index,
+        }),
+      );
+      setItems(newItems);
     }
     setAiAutoFilled(true);
   };
@@ -277,6 +319,7 @@ export function ExpenseForm({
               type="number"
               step="0.01"
               placeholder="0.00"
+              disabled={items.length > 0}
               className={
                 (CURRENCIES.find((c) => c.code === selectedCurrency)?.symbol
                   ?.length ?? 1) > 2
@@ -286,7 +329,12 @@ export function ExpenseForm({
               {...register("amount", { valueAsNumber: true })}
             />
           </div>
-          {errors.amount && (
+          {items.length > 0 && (
+            <p className="text-xs text-muted-foreground">
+              {t("amountCalculatedFromItems")}
+            </p>
+          )}
+          {errors.amount && !items.length && (
             <p className="text-sm text-destructive">{errors.amount.message}</p>
           )}
         </div>
@@ -395,6 +443,18 @@ export function ExpenseForm({
           </div>
         </div>
       )}
+
+      {/* Line Items */}
+      <ExpenseItemEditor
+        items={items}
+        categories={categories}
+        currencySymbol={
+          CURRENCIES.find((c) => c.code === selectedCurrency)?.symbol ||
+          selectedCurrency
+        }
+        onChange={setItems}
+        expenseCategoryId={watch("category_id")}
+      />
 
       <div className="flex justify-end gap-2 pt-4">
         {onCancel && (

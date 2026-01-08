@@ -1,7 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { format } from "date-fns";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import {
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -12,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent } from "@/components/ui/card";
-import type { ExpenseWithDetails } from "@/types/database";
+import type { ExpenseWithDetails, ExpenseWithItems } from "@/types/database";
 
 export const currencySymbols: Record<string, string> = {
   EUR: "€",
@@ -25,17 +32,21 @@ export const currencySymbols: Record<string, string> = {
 };
 
 interface ExpenseCardProps {
-  expense: ExpenseWithDetails;
-  onEdit?: (expense: ExpenseWithDetails) => void;
-  onDelete?: (expense: ExpenseWithDetails) => void;
+  expense: ExpenseWithDetails | ExpenseWithItems;
+  onEdit?: (expense: ExpenseWithDetails | ExpenseWithItems) => void;
+  onDelete?: (expense: ExpenseWithDetails | ExpenseWithItems) => void;
 }
 
 export function ExpenseCard({ expense, onEdit, onDelete }: ExpenseCardProps) {
   const tCommon = useTranslations("common");
+  const t = useTranslations("expenses");
+  const [showItems, setShowItems] = useState(false);
 
   const symbol = currencySymbols[expense.currency] || expense.currency;
   const category = expense.category;
   const tags = expense.tags || [];
+  const expenseWithItems = expense as ExpenseWithItems;
+  const hasItems = expense.has_items && expenseWithItems.items?.length > 0;
 
   return (
     <Card>
@@ -70,6 +81,41 @@ export function ExpenseCard({ expense, onEdit, onDelete }: ExpenseCardProps) {
                     {tag.name}
                   </span>
                 ))}
+              </div>
+            )}
+            {hasItems && (
+              <div className="mt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowItems(!showItems)}
+                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  {showItems ? (
+                    <ChevronUp className="h-3 w-3" />
+                  ) : (
+                    <ChevronDown className="h-3 w-3" />
+                  )}
+                  {t("itemsCount", { count: expenseWithItems.items.length })}
+                </button>
+                {showItems && (
+                  <ul className="mt-2 space-y-1 text-sm">
+                    {expenseWithItems.items.map((item) => (
+                      <li
+                        key={item.id}
+                        className="flex justify-between text-muted-foreground"
+                      >
+                        <span>
+                          {item.quantity > 1 && `${item.quantity}x `}
+                          {item.name}
+                        </span>
+                        <span>
+                          {symbol}
+                          {item.total_price.toFixed(2)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             )}
           </div>

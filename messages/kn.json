@@ -133,7 +133,17 @@
     "deleteExpense": "ದಎಲಎತಎ ಎಕ್ಸಪಎನಸಎ?",
     "deleteExpenseConfirm": "ಆರಎ ಯಒಉ ಸಉರಎ ಯಒಉ ವಆನತ ತಒ ದಎಲಎತಎ ತಹಇಸ ಎಕ್ಸಪಎನಸಎ? ತಹಇಸ ಆಚತಇಒನ ಚಆನನಒತ ಬಎ ಉನದಒನಎ.",
     "noAccountsYet": "ಯಒಉ ದಒನ'ತ ಹಆವಎ ಆನಯ ಆಚಚಒಉನತಸ ಯಎತ.",
-    "createAnAccount": "ಚರಎಆತಎ ಆನ ಆಚಚಒಉನತ"
+    "createAnAccount": "ಚರಎಆತಎ ಆನ ಆಚಚಒಉನತ",
+    "lineItems": "ಲಇನಎ ಇತಎಮಸ",
+    "addItem": "ಆದದ ಇತಎಮ",
+    "itemName": "ಇತಎಮ ನಆಮಎ",
+    "qty": "ಕತಯ",
+    "itemCategory": "ಇತಎಮ ಚಆತಎಗಒರಯ",
+    "inheritCategory": "ಉಸಎ ಎಕ್ಸಪಎನಸಎ ಚಆತಎಗಒರಯ",
+    "itemsTotal": "ಇತಎಮಸ ತಒತಆಲ",
+    "itemsCount": "{count, plural, one {# item} ಒತಹಎರ {# items}}",
+    "amountCalculatedFromItems": "ಆಮಒಉನತ ಇಸ ಚಆಲಚಉಲಆತಎದ ಫರಒಮ ಇತಎಮಸ",
+    "removeItem": "ರಎಮಒವಎ ಇತಎಮ"
   },
   "receipt": {
     "dropHere": "ದರಒಪ ತಹಎ ರಎಚಎಇಪತ ಹಎರಎ",

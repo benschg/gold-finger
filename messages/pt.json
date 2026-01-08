@@ -133,7 +133,17 @@
     "deleteExpense": "Excluir despesa?",
     "deleteExpenseConfirm": "Tem certeza de que deseja excluir esta despesa? Esta ação não pode ser desfeita.",
     "noAccountsYet": "Você ainda não tem nenhuma conta.",
-    "createAnAccount": "Criar uma conta"
+    "createAnAccount": "Criar uma conta",
+    "lineItems": "Itens",
+    "addItem": "Adicionar item",
+    "itemName": "Nome do item",
+    "qty": "Qtd",
+    "itemCategory": "Categoria do item",
+    "inheritCategory": "Usar categoria da despesa",
+    "itemsTotal": "Total dos itens",
+    "itemsCount": "{count, plural, one {# item} other {# itens}}",
+    "amountCalculatedFromItems": "Valor calculado a partir dos itens",
+    "removeItem": "Remover item"
   },
   "receipt": {
     "dropHere": "Solte o recibo aqui",

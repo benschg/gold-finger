@@ -70,8 +70,25 @@ export interface Expense {
   date: string;
   category_id: string | null;
   receipt_url: string | null;
+  has_items: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface ExpenseItem {
+  id: string;
+  expense_id: string;
+  name: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  category_id: string | null;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface ExpenseItemWithCategory extends ExpenseItem {
+  category: Category | null;
 }
 
 export interface ExpenseTag {
@@ -101,6 +118,10 @@ export interface ExpenseWithDetails extends Expense {
   tags: Tag[];
 }
 
+export interface ExpenseWithItems extends ExpenseWithDetails {
+  items: ExpenseItemWithCategory[];
+}
+
 export interface AccountWithMembers extends Account {
   members: (AccountMember & {
     email?: string;
@@ -108,6 +129,23 @@ export interface AccountWithMembers extends Account {
 }
 
 // Form types
+export interface CreateExpenseItemInput {
+  name: string;
+  quantity?: number;
+  unit_price: number;
+  category_id?: string | null;
+  sort_order?: number;
+}
+
+export interface UpdateExpenseItemInput {
+  id?: string;
+  name?: string;
+  quantity?: number;
+  unit_price?: number;
+  category_id?: string | null;
+  sort_order?: number;
+}
+
 export interface CreateExpenseInput {
   account_id: string;
   amount: number;
@@ -117,6 +155,7 @@ export interface CreateExpenseInput {
   category_id?: string;
   tag_ids?: string[];
   receipt_url?: string | null;
+  items?: CreateExpenseItemInput[];
 }
 
 export interface UpdateExpenseInput {
@@ -127,6 +166,7 @@ export interface UpdateExpenseInput {
   category_id?: string | null;
   tag_ids?: string[];
   receipt_url?: string | null;
+  items?: UpdateExpenseItemInput[];
 }
 
 export interface CreateCategoryInput {
