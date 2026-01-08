@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { renderWithProviders } from "../../test-utils";
 import { ExpenseForm } from "@/components/expenses/expense-form";
 import type {
   Account,
@@ -85,7 +86,7 @@ describe("ExpenseForm", () => {
 
   describe("Rendering", () => {
     it("should render the form with basic fields", () => {
-      const { container } = render(
+      const { container } = renderWithProviders(
         <ExpenseForm
           accountId="account-1"
           accounts={mockAccounts}
@@ -105,7 +106,7 @@ describe("ExpenseForm", () => {
     });
 
     it("should show account selector when multiple accounts exist", () => {
-      render(
+      renderWithProviders(
         <ExpenseForm
           accountId="account-1"
           accounts={mockAccounts}
@@ -118,7 +119,7 @@ describe("ExpenseForm", () => {
     });
 
     it("should hide account selector when only one account exists", () => {
-      render(
+      renderWithProviders(
         <ExpenseForm
           accountId="account-1"
           accounts={[mockAccounts[0]]}
@@ -131,7 +132,7 @@ describe("ExpenseForm", () => {
     });
 
     it("should show Add & New button when onAddAnother is provided", () => {
-      render(
+      renderWithProviders(
         <ExpenseForm
           accountId="account-1"
           accounts={mockAccounts}
@@ -147,7 +148,7 @@ describe("ExpenseForm", () => {
     });
 
     it("should not show Add & New button when onAddAnother is not provided", () => {
-      render(
+      renderWithProviders(
         <ExpenseForm
           accountId="account-1"
           accounts={mockAccounts}
@@ -162,7 +163,7 @@ describe("ExpenseForm", () => {
     });
 
     it("should not show Add & New button when editing an expense", () => {
-      render(
+      renderWithProviders(
         <ExpenseForm
           accountId="account-1"
           accounts={mockAccounts}
@@ -179,7 +180,7 @@ describe("ExpenseForm", () => {
     });
 
     it("should show Cancel button when onCancel is provided", () => {
-      render(
+      renderWithProviders(
         <ExpenseForm
           accountId="account-1"
           accounts={mockAccounts}
@@ -195,7 +196,7 @@ describe("ExpenseForm", () => {
     });
 
     it("should show Update button when editing", () => {
-      render(
+      renderWithProviders(
         <ExpenseForm
           accountId="account-1"
           accounts={mockAccounts}
@@ -211,7 +212,7 @@ describe("ExpenseForm", () => {
     });
 
     it("should render tags when available", () => {
-      render(
+      renderWithProviders(
         <ExpenseForm
           accountId="account-1"
           accounts={mockAccounts}
@@ -229,7 +230,7 @@ describe("ExpenseForm", () => {
       const user = userEvent.setup();
       const mockOnSuccess = vi.fn();
 
-      render(
+      renderWithProviders(
         <ExpenseForm
           accountId="account-1"
           accounts={mockAccounts}
@@ -253,7 +254,7 @@ describe("ExpenseForm", () => {
     it("should submit expense to the correct API endpoint", async () => {
       const user = userEvent.setup();
 
-      render(
+      renderWithProviders(
         <ExpenseForm
           accountId="account-1"
           accounts={mockAccounts}
@@ -283,7 +284,7 @@ describe("ExpenseForm", () => {
     it("should use PUT method when updating existing expense", async () => {
       const user = userEvent.setup();
 
-      render(
+      renderWithProviders(
         <ExpenseForm
           accountId="account-1"
           accounts={mockAccounts}
@@ -313,7 +314,7 @@ describe("ExpenseForm", () => {
       const user = userEvent.setup();
       const mockOnCancel = vi.fn();
 
-      render(
+      renderWithProviders(
         <ExpenseForm
           accountId="account-1"
           accounts={mockAccounts}
@@ -333,7 +334,7 @@ describe("ExpenseForm", () => {
       const mockOnAddAnother = vi.fn();
       const mockOnSuccess = vi.fn();
 
-      render(
+      renderWithProviders(
         <ExpenseForm
           accountId="account-1"
           accounts={mockAccounts}
@@ -361,7 +362,7 @@ describe("ExpenseForm", () => {
     it("should toggle tag selection on click", async () => {
       const user = userEvent.setup();
 
-      render(
+      renderWithProviders(
         <ExpenseForm
           accountId="account-1"
           accounts={mockAccounts}

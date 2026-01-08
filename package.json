@@ -18,7 +18,11 @@
     "db:logs": "docker compose -f docker-compose.dev.yml logs -f",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "prepare": "husky"
+    "prepare": "husky",
+    "i18n:extract": "bun run scripts/extract-locale-strings.ts",
+    "i18n:extract:all": "bun run scripts/extract-locale-strings.ts --all",
+    "i18n:check": "bun run scripts/extract-locale-strings.ts --check",
+    "i18n:mock": "bun run scripts/generate-mock-locale.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -41,6 +45,7 @@
     "date-fns": "^4.1.0",
     "lucide-react": "^0.562.0",
     "next": "16.1.1",
+    "next-intl": "^4.7.0",
     "next-themes": "^0.4.6",
     "react": "19.2.3",
     "react-day-picker": "^9.13.0",

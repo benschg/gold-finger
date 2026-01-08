@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -21,6 +21,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -44,129 +45,136 @@ export function ExpenseTable({
   onEdit,
   onDelete,
 }: ExpenseTableProps) {
+  const t = useTranslations("expenses");
+  const tCommon = useTranslations("common");
+
   const [sorting, setSorting] = useState<SortingState>([
     { id: "date", desc: true },
   ]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
 
-  const columns: ColumnDef<ExpenseWithDetails>[] = [
-    {
-      accessorKey: "date",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="-ml-4"
-        >
-          Date
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      ),
-      cell: ({ row }) => format(new Date(row.original.date), "MMM d, yyyy"),
-    },
-    {
-      accessorKey: "description",
-      header: "Description",
-      cell: ({ row }) => (
-        <span className="max-w-[200px] truncate">
-          {row.original.description || "-"}
-        </span>
-      ),
-    },
-    {
-      accessorKey: "category",
-      header: "Category",
-      cell: ({ row }) => {
-        const category = row.original.category;
-        if (!category) return <span className="text-muted-foreground">-</span>;
-        return (
-          <span className="flex items-center gap-2">
-            <span
-              className="h-3 w-3 rounded-full"
-              style={{ backgroundColor: category.color ?? "#6366f1" }}
-            />
-            {category.name}
-          </span>
-        );
+  const columns: ColumnDef<ExpenseWithDetails>[] = useMemo(
+    () => [
+      {
+        accessorKey: "date",
+        header: ({ column }) => (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="-ml-4"
+          >
+            {t("date")}
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        ),
+        cell: ({ row }) => format(new Date(row.original.date), "MMM d, yyyy"),
       },
-    },
-    {
-      accessorKey: "tags",
-      header: "Tags",
-      cell: ({ row }) => {
-        const tags = row.original.tags || [];
-        if (tags.length === 0)
-          return <span className="text-muted-foreground">-</span>;
-        return (
-          <div className="flex flex-wrap gap-1">
-            {tags.map((tag) => (
+      {
+        accessorKey: "description",
+        header: t("description"),
+        cell: ({ row }) => (
+          <span className="max-w-[200px] truncate">
+            {row.original.description || "-"}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "category",
+        header: t("category"),
+        cell: ({ row }) => {
+          const category = row.original.category;
+          if (!category)
+            return <span className="text-muted-foreground">-</span>;
+          return (
+            <span className="flex items-center gap-2">
               <span
-                key={tag.id}
-                className="rounded-full px-2 py-0.5 text-xs text-white"
-                style={{ backgroundColor: tag.color ?? "#6366f1" }}
+                className="h-3 w-3 rounded-full"
+                style={{ backgroundColor: category.color ?? "#6366f1" }}
+              />
+              {category.name}
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: "tags",
+        header: t("tags"),
+        cell: ({ row }) => {
+          const tags = row.original.tags || [];
+          if (tags.length === 0)
+            return <span className="text-muted-foreground">-</span>;
+          return (
+            <div className="flex flex-wrap gap-1">
+              {tags.map((tag) => (
+                <span
+                  key={tag.id}
+                  className="rounded-full px-2 py-0.5 text-xs text-white"
+                  style={{ backgroundColor: tag.color ?? "#6366f1" }}
+                >
+                  {tag.name}
+                </span>
+              ))}
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "amount",
+        header: ({ column }) => (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="-ml-4"
+          >
+            {t("amount")}
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        ),
+        cell: ({ row }) => {
+          const amount = row.original.amount;
+          const currency = row.original.currency;
+          const symbol = currencySymbols[currency] || currency;
+          return (
+            <span className="font-medium">
+              {symbol}
+              {amount.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </span>
+          );
+        },
+      },
+      {
+        id: "actions",
+        cell: ({ row }) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreHorizontal className="h-4 w-4" />
+                <span className="sr-only">{tCommon("openMenu")}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onEdit?.(row.original)}>
+                <Pencil className="mr-2 h-4 w-4" />
+                {tCommon("edit")}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => onDelete?.(row.original)}
+                className="text-destructive"
               >
-                {tag.name}
-              </span>
-            ))}
-          </div>
-        );
+                <Trash2 className="mr-2 h-4 w-4" />
+                {tCommon("delete")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ),
       },
-    },
-    {
-      accessorKey: "amount",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="-ml-4"
-        >
-          Amount
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      ),
-      cell: ({ row }) => {
-        const amount = row.original.amount;
-        const currency = row.original.currency;
-        const symbol = currencySymbols[currency] || currency;
-        return (
-          <span className="font-medium">
-            {symbol}
-            {amount.toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
-          </span>
-        );
-      },
-    },
-    {
-      id: "actions",
-      cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreHorizontal className="h-4 w-4" />
-              <span className="sr-only">Open menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onEdit?.(row.original)}>
-              <Pencil className="mr-2 h-4 w-4" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => onDelete?.(row.original)}
-              className="text-destructive"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
-    },
-  ];
+    ],
+    [t, tCommon, onEdit, onDelete],
+  );
 
   const table = useReactTable({
     data: expenses,
@@ -196,7 +204,7 @@ export function ExpenseTable({
   return (
     <div className="space-y-4">
       <Input
-        placeholder="Search expenses..."
+        placeholder={t("searchExpenses")}
         value={globalFilter}
         onChange={(e) => setGlobalFilter(e.target.value)}
         className="max-w-full sm:max-w-sm"
@@ -215,7 +223,7 @@ export function ExpenseTable({
           ))
         ) : (
           <p className="py-8 text-center text-muted-foreground">
-            No expenses found.
+            {t("noExpensesFound")}
           </p>
         )}
       </div>
@@ -262,7 +270,7 @@ export function ExpenseTable({
                   colSpan={columns.length}
                   className="px-4 py-8 text-center text-muted-foreground"
                 >
-                  No expenses found.
+                  {t("noExpensesFound")}
                 </td>
               </tr>
             )}
@@ -273,12 +281,14 @@ export function ExpenseTable({
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-sm text-muted-foreground text-center sm:text-left">
-          Showing {table.getState().pagination.pageIndex * 10 + 1} to{" "}
-          {Math.min(
-            (table.getState().pagination.pageIndex + 1) * 10,
-            expenses.length,
-          )}{" "}
-          of {expenses.length} expenses
+          {t("showingExpenses", {
+            from: table.getState().pagination.pageIndex * 10 + 1,
+            to: Math.min(
+              (table.getState().pagination.pageIndex + 1) * 10,
+              expenses.length,
+            ),
+            total: expenses.length,
+          })}
         </p>
         <div className="flex items-center gap-2">
           <Button
@@ -288,7 +298,7 @@ export function ExpenseTable({
             disabled={!table.getCanPreviousPage()}
           >
             <ChevronLeft className="h-4 w-4" />
-            <span className="hidden sm:inline ml-1">Previous</span>
+            <span className="hidden sm:inline ml-1">{tCommon("previous")}</span>
           </Button>
           <Button
             variant="outline"
@@ -296,7 +306,7 @@ export function ExpenseTable({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            <span className="hidden sm:inline mr-1">Next</span>
+            <span className="hidden sm:inline mr-1">{tCommon("next")}</span>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>

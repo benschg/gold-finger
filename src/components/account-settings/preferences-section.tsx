@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   Card,
   CardContent,
@@ -18,11 +19,13 @@ interface PreferencesSectionProps {
 }
 
 export function PreferencesSection({ profile }: PreferencesSectionProps) {
+  const t = useTranslations("settings");
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Preferences</CardTitle>
-        <CardDescription>Customize your experience</CardDescription>
+        <CardTitle>{t("preferences")}</CardTitle>
+        <CardDescription>{t("customizeExperience")}</CardDescription>
       </CardHeader>
       <CardContent>
         <PreferencesForm profile={profile} />

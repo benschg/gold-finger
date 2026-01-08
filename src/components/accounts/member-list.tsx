@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Crown, MoreVertical, UserMinus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -50,6 +51,8 @@ export function MemberList({
   currentUserRole,
   onMemberRemoved,
 }: MemberListProps) {
+  const t = useTranslations("members");
+  const tc = useTranslations("common");
   const router = useRouter();
   const [isRemoving, setIsRemoving] = useState<string | null>(null);
   const [memberToRemove, setMemberToRemove] = useState<Member | null>(null);
@@ -66,15 +69,13 @@ export function MemberList({
       if (response.ok) {
         onMemberRemoved?.();
         router.refresh();
-        toast.success(
-          isLeavingAccount ? "You have left the account" : "Member removed",
-        );
+        toast.success(isLeavingAccount ? t("leftAccount") : t("memberRemoved"));
       } else {
         const error = await response.json();
-        toast.error(error.error || "Failed to remove member");
+        toast.error(error.error || t("failedToRemove"));
       }
     } catch {
-      toast.error("Failed to remove member");
+      toast.error(t("failedToRemove"));
     } finally {
       setIsRemoving(null);
       setMemberToRemove(null);
@@ -107,7 +108,10 @@ export function MemberList({
                     <span className="font-medium">
                       {member.email || "User"}
                       {isCurrentUser && (
-                        <span className="text-muted-foreground"> (you)</span>
+                        <span className="text-muted-foreground">
+                          {" "}
+                          {tc("you")}
+                        </span>
                       )}
                     </span>
                     {member.role === "owner" && (
@@ -115,7 +119,8 @@ export function MemberList({
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {member.role === "owner" ? "Owner" : "Member"} · Joined{" "}
+                    {member.role === "owner" ? tc("owner") : tc("member")} ·{" "}
+                    {tc("joined")}{" "}
                     {new Date(member.joined_at).toLocaleDateString()}
                   </p>
                 </div>
@@ -138,7 +143,9 @@ export function MemberList({
                       className="text-destructive focus:text-destructive"
                     >
                       <UserMinus className="mr-2 h-4 w-4" />
-                      {isCurrentUser ? "Leave account" : "Remove member"}
+                      {isCurrentUser
+                        ? t("leaveAccountAction")
+                        : t("removeMemberAction")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -156,24 +163,26 @@ export function MemberList({
           <AlertDialogHeader>
             <AlertDialogTitle>
               {memberToRemove?.user_id === currentUserId
-                ? "Leave this account?"
-                : "Remove this member?"}
+                ? t("leaveAccount")
+                : t("removeMember")}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {memberToRemove?.user_id === currentUserId
-                ? "You will lose access to all expenses in this account. This action cannot be undone."
-                : "This person will lose access to all expenses in this account. They can be invited again later."}
+                ? t("leaveAccountConfirm")
+                : t("removeMemberConfirm")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{tc("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() =>
                 memberToRemove && handleRemoveMember(memberToRemove.user_id)
               }
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {memberToRemove?.user_id === currentUserId ? "Leave" : "Remove"}
+              {memberToRemove?.user_id === currentUserId
+                ? t("leave")
+                : t("remove")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

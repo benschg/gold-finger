@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 
 import { MemberList, InviteForm, InvitationList } from "@/components/accounts";
@@ -31,6 +32,8 @@ export function ShareSection({
   currentUserId,
   onSuccess,
 }: ShareSectionProps) {
+  const t = useTranslations("invitations");
+
   const [isLoading, setIsLoading] = useState(true);
   const [members, setMembers] = useState<Member[]>([]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
@@ -102,7 +105,7 @@ export function ShareSection({
             {invitations.length > 0 && (
               <div className="space-y-2">
                 <h4 className="text-sm font-medium text-muted-foreground">
-                  Pending Invitations
+                  {t("title")}
                 </h4>
                 <InvitationList
                   invitations={invitations}

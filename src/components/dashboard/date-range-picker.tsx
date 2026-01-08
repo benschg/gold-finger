@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
+import { useTranslations } from "next-intl";
 import { CalendarIcon, ChevronDown } from "lucide-react";
 import type { DateRange as DayPickerDateRange } from "react-day-picker";
 
@@ -24,13 +25,13 @@ import {
   type DatePreset,
 } from "@/store/dashboard-filter-store";
 
-const DATE_PRESETS: { value: DatePreset; label: string }[] = [
-  { value: "7D", label: "7 Days" },
-  { value: "30D", label: "30 Days" },
-  { value: "90D", label: "90 Days" },
-  { value: "YTD", label: "Year to Date" },
-  { value: "1Y", label: "1 Year" },
-  { value: "ALL", label: "All Time" },
+const DATE_PRESET_KEYS: { value: DatePreset; key: string }[] = [
+  { value: "7D", key: "days7" },
+  { value: "30D", key: "days30" },
+  { value: "90D", key: "days90" },
+  { value: "YTD", key: "yearToDate" },
+  { value: "1Y", key: "year1" },
+  { value: "ALL", key: "allTime" },
 ];
 
 interface DateRangePickerProps {
@@ -38,6 +39,8 @@ interface DateRangePickerProps {
 }
 
 export function DateRangePicker({ className }: DateRangePickerProps) {
+  const t = useTranslations("dateRange");
+  const tCommon = useTranslations("common");
   const { dateRange, setDateRange, setDatePreset } = useDashboardFilterStore();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [pendingRange, setPendingRange] = useState<
@@ -78,10 +81,14 @@ export function DateRangePicker({ className }: DateRangePickerProps) {
   };
 
   const isCustomRange = dateRange.preset === "custom";
-  const currentPreset = DATE_PRESETS.find((p) => p.value === dateRange.preset);
+  const currentPreset = DATE_PRESET_KEYS.find(
+    (p) => p.value === dateRange.preset,
+  );
   const displayText = isCustomRange
     ? `${format(dateRange.startDate, "MMM d")} - ${format(dateRange.endDate, "MMM d, yyyy")}`
-    : currentPreset?.label || "Select";
+    : currentPreset
+      ? t(currentPreset.key)
+      : t("selectDateRange");
 
   return (
     <div className={cn("flex items-center", className)}>
@@ -94,20 +101,20 @@ export function DateRangePicker({ className }: DateRangePickerProps) {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          {DATE_PRESETS.map((preset) => (
+          {DATE_PRESET_KEYS.map((preset) => (
             <DropdownMenuItem
               key={preset.value}
               onClick={() => handlePresetClick(preset.value)}
               className={cn(dateRange.preset === preset.value && "bg-accent")}
             >
-              {preset.label}
+              {t(preset.key)}
             </DropdownMenuItem>
           ))}
           <DropdownMenuItem
             onClick={handleCustomClick}
             className={cn(isCustomRange && "bg-accent")}
           >
-            Custom Range...
+            {t("customRange")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -115,7 +122,7 @@ export function DateRangePicker({ className }: DateRangePickerProps) {
       <Dialog open={calendarOpen} onOpenChange={setCalendarOpen}>
         <DialogContent className="sm:max-w-fit">
           <DialogHeader>
-            <DialogTitle>Select Date Range</DialogTitle>
+            <DialogTitle>{t("selectDateRange")}</DialogTitle>
           </DialogHeader>
           <div className="py-4">
             <Calendar
@@ -130,14 +137,14 @@ export function DateRangePicker({ className }: DateRangePickerProps) {
                 onClick={handleCancelRange}
                 className="px-3 py-1.5 text-sm font-medium rounded-md border hover:bg-accent transition-colors"
               >
-                Cancel
+                {tCommon("cancel")}
               </button>
               <button
                 onClick={handleApplyRange}
                 disabled={!pendingRange?.from}
                 className="px-3 py-1.5 text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
               >
-                Apply
+                {tCommon("apply")}
               </button>
             </div>
           </div>

@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, X, Loader2, Sparkles, Image as ImageIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +29,8 @@ export function ReceiptUpload({
   existingUrl,
   className,
 }: ReceiptUploadProps) {
+  const t = useTranslations("receipt");
+
   const [preview, setPreview] = useState<string | null>(existingUrl || null);
   const [isUploading, setIsUploading] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -118,7 +121,7 @@ export function ReceiptUpload({
                 <div className="text-center">
                   <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground" />
                   <p className="mt-2 text-sm text-muted-foreground">
-                    PDF Receipt
+                    {t("pdfReceipt")}
                   </p>
                 </div>
               </div>
@@ -134,7 +137,7 @@ export function ReceiptUpload({
                 <div className="text-center">
                   <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
                   <p className="mt-2 text-sm text-muted-foreground">
-                    {isUploading ? "Uploading..." : "Analyzing receipt..."}
+                    {isUploading ? t("uploading") : t("analyzing")}
                   </p>
                 </div>
               </div>
@@ -155,7 +158,7 @@ export function ReceiptUpload({
         {isAnalyzing && (
           <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
             <Sparkles className="h-4 w-4" />
-            AI is extracting receipt details...
+            {t("aiExtracting")}
           </div>
         )}
       </div>
@@ -177,13 +180,9 @@ export function ReceiptUpload({
         <input {...getInputProps()} />
         <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
         <p className="mt-2 text-sm text-muted-foreground">
-          {isDragActive
-            ? "Drop the receipt here"
-            : "Drag & drop a receipt, or click to select"}
+          {isDragActive ? t("dropHere") : t("dragOrClick")}
         </p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          JPG, PNG, WebP, HEIC or PDF (max 5MB)
-        </p>
+        <p className="mt-1 text-xs text-muted-foreground">{t("fileTypes")}</p>
       </div>
       {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -60,6 +61,10 @@ export function ManageAccountDialog({
   onSuccess,
   currentUserId,
 }: ManageAccountDialogProps) {
+  const t = useTranslations("accounts");
+  const tc = useTranslations("common");
+  const ti = useTranslations("invitations");
+  const tm = useTranslations("members");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState("");
@@ -147,7 +152,7 @@ export function ManageAccountDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Manage Account</DialogTitle>
+          <DialogTitle>{t("manageAccount")}</DialogTitle>
         </DialogHeader>
 
         {isLoading ? (
@@ -160,17 +165,19 @@ export function ManageAccountDialog({
             {isOwner && (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="account-name">Account Name</Label>
+                  <Label htmlFor="account-name">{t("accountName")}</Label>
                   <Input
                     id="account-name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g., Personal, Household, Work"
+                    placeholder={t("accountNamePlaceholder")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="account-currency">Default Currency</Label>
+                  <Label htmlFor="account-currency">
+                    {t("defaultCurrency")}
+                  </Label>
                   <Select
                     value={currency}
                     onValueChange={(v) => setCurrency(v as Currency)}
@@ -189,16 +196,16 @@ export function ManageAccountDialog({
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Icon</Label>
+                  <Label>{t("icon")}</Label>
                   <IconPicker
                     value={icon}
                     onChange={setIcon}
-                    placeholder="Select an icon..."
+                    placeholder={t("selectIcon")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Color</Label>
+                  <Label>{t("color")}</Label>
                   <ColorPicker
                     value={color}
                     onChange={setColor}
@@ -213,7 +220,7 @@ export function ManageAccountDialog({
                     {isSubmitting && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
-                    Save Changes
+                    {tc("saveChanges")}
                   </Button>
                 </div>
               </form>
@@ -225,7 +232,7 @@ export function ManageAccountDialog({
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
-                <h3 className="font-medium">Members</h3>
+                <h3 className="font-medium">{tm("title")}</h3>
               </div>
               <MemberList
                 accountId={account.id}
@@ -249,7 +256,7 @@ export function ManageAccountDialog({
                   {invitations.length > 0 && (
                     <div className="space-y-2">
                       <h4 className="text-sm font-medium text-muted-foreground">
-                        Pending Invitations
+                        {ti("title")}
                       </h4>
                       <InvitationList
                         invitations={invitations}

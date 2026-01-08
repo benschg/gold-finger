@@ -1,6 +1,7 @@
 "use client";
 
 import { type LucideIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface StatCardProps {
@@ -21,6 +22,8 @@ export function StatCard({
   icon: Icon,
   trend,
 }: StatCardProps) {
+  const t = useTranslations("dashboard");
+
   return (
     <Card className="gold-shimmer-card transition-shadow hover:shadow-lg">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -39,7 +42,8 @@ export function StatCard({
             }`}
           >
             {trend.isPositive ? "+" : ""}
-            {trend.value}% from last month
+            {trend.value}
+            {t("percentFromLastMonth")}
           </p>
         )}
       </CardContent>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2, Palette } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,10 @@ export function AccountDetailsSection({
   account,
   onSuccess,
 }: AccountDetailsSectionProps) {
+  const t = useTranslations("accountSettings");
+  const tAccounts = useTranslations("accounts");
+  const tCommon = useTranslations("common");
+
   const [name, setName] = useState(account.name);
   const [currency, setCurrency] = useState<Currency>(
     (account.currency as Currency) || DEFAULT_CURRENCY,
@@ -103,9 +108,7 @@ export function AccountDetailsSection({
             </p>
           </div>
         </div>
-        <p className="text-sm text-muted-foreground">
-          Only the account owner can edit these settings.
-        </p>
+        <p className="text-sm text-muted-foreground">{t("ownerOnly")}</p>
       </div>
     );
   }
@@ -113,17 +116,17 @@ export function AccountDetailsSection({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="account-name">Name</Label>
+        <Label htmlFor="account-name">{tAccounts("accountName")}</Label>
         <Input
           id="account-name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Account name"
+          placeholder={tAccounts("accountNamePlaceholder")}
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="account-currency">Currency</Label>
+        <Label htmlFor="account-currency">{tAccounts("defaultCurrency")}</Label>
         <Select
           value={currency}
           onValueChange={(v) => setCurrency(v as Currency)}
@@ -142,7 +145,7 @@ export function AccountDetailsSection({
       </div>
 
       <div className="space-y-2">
-        <Label>Icon & Color</Label>
+        <Label>{t("iconAndColor")}</Label>
         <Button
           type="button"
           variant="outline"
@@ -150,7 +153,7 @@ export function AccountDetailsSection({
           onClick={() => setIsIconColorDialogOpen(true)}
         >
           <IconBadge icon={icon} color={color} size="sm" />
-          <span>Change icon & color</span>
+          <span>{t("changeIconColor")}</span>
           <Palette className="ml-auto h-4 w-4 text-muted-foreground" />
         </Button>
       </div>
@@ -161,7 +164,7 @@ export function AccountDetailsSection({
         className="w-fit"
       >
         {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        Save Changes
+        {tCommon("saveChanges")}
       </Button>
 
       <Dialog
@@ -170,21 +173,21 @@ export function AccountDetailsSection({
       >
         <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Icon & Color</DialogTitle>
+            <DialogTitle>{t("iconAndColor")}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Icon</Label>
+              <Label>{tAccounts("icon")}</Label>
               <IconPicker
                 value={icon}
                 onChange={setIcon}
-                placeholder="Select an icon..."
+                placeholder={tAccounts("selectIcon")}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Color</Label>
+              <Label>{tAccounts("color")}</Label>
               <ColorPicker
                 value={color}
                 onChange={setColor}
@@ -199,9 +202,9 @@ export function AccountDetailsSection({
                 variant="outline"
                 onClick={() => setIsIconColorDialogOpen(false)}
               >
-                Cancel
+                {tCommon("cancel")}
               </Button>
-              <Button onClick={handleIconColorSave}>Apply</Button>
+              <Button onClick={handleIconColorSave}>{tCommon("apply")}</Button>
             </div>
           </div>
         </DialogContent>

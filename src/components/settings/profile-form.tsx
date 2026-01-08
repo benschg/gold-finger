@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Loader2, Upload, Camera } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -23,6 +24,8 @@ interface ProfileFormProps {
 
 export function ProfileForm({ user }: ProfileFormProps) {
   const router = useRouter();
+  const t = useTranslations("settings");
+  const tCommon = useTranslations("common");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [displayName, setDisplayName] = useState(
     user.user_metadata?.display_name || "",
@@ -51,12 +54,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
     // Validate file
     if (!file.type.startsWith("image/")) {
-      setMessage({ type: "error", text: "Please select an image file" });
+      setMessage({ type: "error", text: t("selectImage") });
       return;
     }
 
     if (file.size > 1024 * 1024) {
-      setMessage({ type: "error", text: "Image must be less than 1MB" });
+      setMessage({ type: "error", text: t("imageTooLarge") });
       return;
     }
 
@@ -87,11 +90,11 @@ export function ProfileForm({ user }: ProfileFormProps) {
       if (updateError) throw updateError;
 
       setAvatarUrl(publicUrl);
-      setMessage({ type: "success", text: "Avatar updated!" });
+      setMessage({ type: "success", text: t("avatarUpdated") });
       router.refresh();
     } catch (error) {
       console.error("Avatar upload error:", error);
-      setMessage({ type: "error", text: "Failed to upload avatar" });
+      setMessage({ type: "error", text: t("avatarFailed") });
     } finally {
       setIsUploading(false);
     }
@@ -110,11 +113,11 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
       if (error) throw error;
 
-      setMessage({ type: "success", text: "Profile saved!" });
+      setMessage({ type: "success", text: t("profileSaved") });
       router.refresh();
     } catch (error) {
       console.error("Save error:", error);
-      setMessage({ type: "error", text: "Failed to save profile" });
+      setMessage({ type: "error", text: t("profileFailed") });
     } finally {
       setIsSaving(false);
     }
@@ -156,12 +159,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
           {isUploading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Uploading...
+              {t("uploadingAvatar")}
             </>
           ) : (
             <>
               <Upload className="mr-2 h-4 w-4" />
-              Change Avatar
+              {t("changeAvatar")}
             </>
           )}
         </Button>
@@ -178,16 +181,16 @@ export function ProfileForm({ user }: ProfileFormProps) {
             className="bg-muted"
           />
           <p className="text-xs text-muted-foreground">
-            Email cannot be changed
+            {t("emailCannotChange")}
           </p>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="displayName">Display Name</Label>
+          <Label htmlFor="displayName">{t("displayName")}</Label>
           <Input
             id="displayName"
             type="text"
-            placeholder="Enter your name"
+            placeholder={t("displayNamePlaceholder")}
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
           />
@@ -195,7 +198,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
         <Button onClick={handleSave} disabled={isSaving} className="w-fit">
           {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Save Changes
+          {tCommon("saveChanges")}
         </Button>
 
         {message && (

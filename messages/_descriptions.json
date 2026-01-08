@@ -1,0 +1,113 @@
+{
+  "_meta": {
+    "description": "This file contains descriptions and context for translators. It is not loaded at runtime.",
+    "placeholderFormat": "{variableName} - these should remain as-is in translations"
+  },
+  "common.appName": {
+    "description": "Application name - do not translate",
+    "context": "Brand name displayed in header, footer, and titles"
+  },
+  "navigation": {
+    "description": "Navigation menu items in sidebar and header",
+    "context": "Keep these short (1-2 words) for UI layout"
+  },
+  "auth.signInDescription": {
+    "description": "Subtitle on login page explaining the passwordless auth flow",
+    "context": "Shown below 'Sign in' heading"
+  },
+  "auth.checkEmailSuccess": {
+    "description": "Success message after sending magic link",
+    "context": "Toast notification"
+  },
+  "auth.termsAgreement": {
+    "description": "Legal disclaimer text before Terms/Privacy links",
+    "context": "Displayed at bottom of login form"
+  },
+  "dashboard.welcomeBack": {
+    "description": "Personalized greeting on dashboard",
+    "placeholders": {
+      "name": "User's display name or email prefix"
+    }
+  },
+  "dashboard.last": {
+    "description": "Label for date range selection",
+    "placeholders": {
+      "period": "Time period like '7 Days', '30 Days'"
+    },
+    "example": "Last 7 Days"
+  },
+  "expenses.showingExpenses": {
+    "description": "Pagination info at bottom of expense table",
+    "placeholders": {
+      "from": "Starting row number",
+      "to": "Ending row number",
+      "total": "Total count"
+    },
+    "example": "Showing 1 to 10 of 50 expenses"
+  },
+  "expenses.deleteExpenseConfirm": {
+    "description": "Confirmation dialog message when deleting an expense",
+    "context": "Should convey that action is permanent"
+  },
+  "accounts.deleteAccountConfirm": {
+    "description": "Confirmation dialog when deleting an account",
+    "placeholders": {
+      "name": "Account name being deleted"
+    },
+    "context": "Destructive action warning"
+  },
+  "accounts.membersWillLoseAccess": {
+    "description": "Warning about members losing access when deleting account",
+    "placeholders": {
+      "count": "Number of members"
+    },
+    "context": "Uses ICU plural syntax for proper pluralization"
+  },
+  "accounts.expensesWillBeDeleted": {
+    "description": "Warning about expenses being deleted with account",
+    "placeholders": {
+      "count": "Number of expenses"
+    },
+    "context": "Uses ICU plural syntax for proper pluralization"
+  },
+  "members.leaveAccountConfirm": {
+    "description": "Warning when user is about to leave a shared account",
+    "context": "Should be cautionary but not scary"
+  },
+  "members.removeMemberConfirm": {
+    "description": "Confirmation when removing another member from account",
+    "context": "Mention they can be re-invited"
+  },
+  "categories.deleteCategoryConfirm": {
+    "description": "Warning when deleting a category",
+    "placeholders": {
+      "name": "Category name"
+    },
+    "context": "Explain that expenses won't be deleted, just uncategorized"
+  },
+  "settings.theme*": {
+    "description": "Theme preference options",
+    "context": "Light/Dark/System - common UI terms"
+  },
+  "landing.heroTitle": {
+    "description": "Main headline on landing page",
+    "context": "Followed by 'golden precision' which is styled differently"
+  },
+  "landing.heroHighlight": {
+    "description": "Highlighted/styled part of hero title",
+    "context": "Appears in brand color, references app name 'Gold-Finger'"
+  },
+  "errors.errorId": {
+    "description": "Error reference ID for support",
+    "placeholders": {
+      "id": "Technical error identifier"
+    },
+    "context": "Helps support team track issues"
+  },
+  "errors.failedToLoad": {
+    "description": "Generic error message for failed resource loading",
+    "placeholders": {
+      "resource": "Name of resource like 'accounts', 'expenses', 'settings'"
+    }
+  }
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRightLeft, History, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { ExchangeRateHistory } from "./exchange-rate-history";
 import { CURRENCIES } from "@/lib/constants";
@@ -17,6 +18,8 @@ export function ExchangeRateDisplay({
   toCurrency,
   amount,
 }: ExchangeRateDisplayProps) {
+  const t = useTranslations("exchangeRate");
+
   // Use 1 as default for display when no amount entered
   const displayAmount = amount || 1;
 
@@ -47,7 +50,7 @@ export function ExchangeRateDisplay({
       {isLoading ? (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
-          Fetching exchange rate...
+          {t("fetching")}
         </div>
       ) : exchangeRate && convertedAmount ? (
         <>
@@ -71,7 +74,8 @@ export function ExchangeRateDisplay({
           </div>
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>
-              Rate: 1 {fromCurrency} = {exchangeRate.toFixed(4)} {toCurrency}
+              {t("rate")} 1 {fromCurrency} = {exchangeRate.toFixed(4)}{" "}
+              {toCurrency}
             </span>
             <div className="flex items-center gap-2">
               <ExchangeRateHistory
@@ -83,7 +87,7 @@ export function ExchangeRateDisplay({
                     className="flex items-center gap-1 hover:underline"
                   >
                     <History className="h-3 w-3" />
-                    History
+                    {t("history")}
                   </button>
                 }
               />
@@ -94,15 +98,13 @@ export function ExchangeRateDisplay({
                 rel="noopener noreferrer"
                 className="hover:underline"
               >
-                ECB
+                {t("source")}
               </a>
             </div>
           </div>
         </>
       ) : error ? (
-        <div className="text-sm text-destructive">
-          Could not fetch exchange rate. Rate will be calculated on save.
-        </div>
+        <div className="text-sm text-destructive">{t("fetchError")}</div>
       ) : null}
     </div>
   );

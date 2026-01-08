@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { MoreHorizontal, Users, Trash2, Settings } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,9 @@ interface AccountCardProps {
 }
 
 export function AccountCard({ account, onDelete, onManage }: AccountCardProps) {
+  const t = useTranslations("accounts");
+  const tc = useTranslations("common");
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -40,7 +44,7 @@ export function AccountCard({ account, onDelete, onManage }: AccountCardProps) {
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => onManage?.(account)}>
               <Settings className="mr-2 h-4 w-4" />
-              Manage
+              {t("manage")}
             </DropdownMenuItem>
             {account.role === "owner" && (
               <DropdownMenuItem
@@ -48,7 +52,7 @@ export function AccountCard({ account, onDelete, onManage }: AccountCardProps) {
                 className="text-destructive"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
-                Delete
+                {tc("delete")}
               </DropdownMenuItem>
             )}
           </DropdownMenuContent>
@@ -57,7 +61,7 @@ export function AccountCard({ account, onDelete, onManage }: AccountCardProps) {
       <CardContent>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Users className="h-4 w-4" />
-          <span>{account.role === "owner" ? "Owner" : "Member"}</span>
+          <span>{account.role === "owner" ? tc("owner") : tc("member")}</span>
         </div>
       </CardContent>
     </Card>

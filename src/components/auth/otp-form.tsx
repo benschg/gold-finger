@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,7 @@ import {
 import { Loader2, Mail } from "lucide-react";
 
 export function OTPForm() {
+  const t = useTranslations("auth");
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,21 +55,19 @@ export function OTPForm() {
   return (
     <Card>
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold">Sign in</CardTitle>
-        <CardDescription>
-          Enter your email to receive a magic link
-        </CardDescription>
+        <CardTitle className="text-2xl font-bold">{t("signIn")}</CardTitle>
+        <CardDescription>{t("signInDescription")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t("email")}</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t("emailPlaceholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="pl-10"
@@ -85,7 +85,7 @@ export function OTPForm() {
 
           {success && (
             <div className="text-sm text-green-600 bg-green-50 dark:bg-green-950/50 p-3 rounded-md">
-              Check your email for the magic link!
+              {t("checkEmailSuccess")}
             </div>
           )}
 
@@ -97,10 +97,10 @@ export function OTPForm() {
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sending...
+                {t("sending")}
               </>
             ) : (
-              "Send Magic Link"
+              t("sendMagicLink")
             )}
           </Button>
         </form>

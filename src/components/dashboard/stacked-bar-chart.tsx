@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   BarChart,
   Bar,
@@ -34,10 +35,12 @@ function CustomTooltip({
   active,
   payload,
   label,
+  totalLabel,
 }: {
   active?: boolean;
   payload?: TooltipEntry[];
   label?: string;
+  totalLabel: string;
 }) {
   if (!active || !payload || payload.length === 0) {
     return null;
@@ -78,7 +81,7 @@ function CustomTooltip({
           ))}
       </div>
       <div className="mt-2 pt-2 border-t flex justify-between text-sm font-medium">
-        <span>Total</span>
+        <span>{totalLabel}</span>
         <span>{formatCurrency(total)}</span>
       </div>
     </div>
@@ -90,8 +93,9 @@ export function StackedBarChart({
   categoryKeys,
   categoryColorMap,
   categoryIdMap,
-  title = "Monthly Expenses by Category",
+  title,
 }: StackedBarChartProps) {
+  const t = useTranslations("dashboard");
   const {
     hoveredCategoryId,
     selectedCategoryId,
@@ -142,7 +146,7 @@ export function StackedBarChart({
         </CardHeader>
         <CardContent>
           <div className="flex h-[250px] sm:h-[300px] items-center justify-center text-muted-foreground">
-            No data to display
+            {t("noDataToDisplay")}
           </div>
         </CardContent>
       </Card>
@@ -161,7 +165,7 @@ export function StackedBarChart({
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis dataKey="monthLabel" {...axisStyles} />
               <YAxis {...axisStyles} tickFormatter={(value) => `€${value}`} />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CustomTooltip totalLabel={t("total")} />} />
               <Legend
                 wrapperStyle={{ paddingTop: "10px" }}
                 formatter={(value) => (

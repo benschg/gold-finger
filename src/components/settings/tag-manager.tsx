@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { X, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,10 @@ export function TagManager({
   isDialogOpen: controlledIsDialogOpen,
   onDialogOpenChange,
 }: TagManagerProps) {
+  const t = useTranslations("tags");
+  const tAccounts = useTranslations("accounts");
+  const tCommon = useTranslations("common");
+
   const [internalIsDialogOpen, setInternalIsDialogOpen] = useState(false);
   const isDialogOpen = controlledIsDialogOpen ?? internalIsDialogOpen;
   const setIsDialogOpen = onDialogOpenChange ?? setInternalIsDialogOpen;
@@ -90,7 +95,7 @@ export function TagManager({
       <div className="flex flex-wrap gap-2">
         {tags.length === 0 ? (
           <p className="py-4 text-center text-muted-foreground w-full">
-            No tags yet. Add one to organize your expenses.
+            {t("noTags")}
           </p>
         ) : (
           tags.map((tag) => (
@@ -114,22 +119,22 @@ export function TagManager({
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Tag</DialogTitle>
+            <DialogTitle>{t("addTag")}</DialogTitle>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="tag-name">Name</Label>
+              <Label htmlFor="tag-name">{t("name")}</Label>
               <Input
                 id="tag-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Tag name (e.g., vacation, work)"
+                placeholder={t("namePlaceholder")}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Color</Label>
+              <Label>{tAccounts("color")}</Label>
               <div className="flex flex-wrap gap-2">
                 {TAG_COLORS.map((colorValue) => (
                   <button
@@ -153,13 +158,13 @@ export function TagManager({
                 variant="outline"
                 onClick={() => setIsDialogOpen(false)}
               >
-                Cancel
+                {tCommon("cancel")}
               </Button>
               <Button type="submit" disabled={isSubmitting || !name.trim()}>
                 {isSubmitting && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                Create Tag
+                {t("createTag")}
               </Button>
             </div>
           </form>
