@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import type { Currency } from "@/types/database";
 import {
@@ -11,6 +12,7 @@ export const metadata = {
 };
 
 export default async function AccountSettingsPage() {
+  const t = await getTranslations("accountSettings");
   const supabase = await createClient();
   const {
     data: { user },
@@ -40,10 +42,10 @@ export default async function AccountSettingsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">
-          Account Settings
+          {t("title")}
         </h1>
         <p className="text-sm sm:text-base text-muted-foreground">
-          Manage your profile and preferences
+          {t("subtitle")}
         </p>
       </div>
 

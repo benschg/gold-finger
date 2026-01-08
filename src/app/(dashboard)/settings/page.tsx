@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { SettingsContent } from "@/components/settings";
 
 export const metadata = {
@@ -5,15 +6,17 @@ export const metadata = {
   description: "Manage your account settings",
 };
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const t = await getTranslations("settings");
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">
-          Settings
+          {t("title")}
         </h1>
         <p className="text-sm sm:text-base text-muted-foreground">
-          Manage your account settings
+          {t("subtitle")}
         </p>
       </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { Plus, Loader2, ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,8 @@ import type { ExpenseWithDetails, Currency } from "@/types/database";
 import { CURRENCIES } from "@/lib/constants";
 
 export default function ExpensesPage() {
+  const t = useTranslations("expenses");
+  const tCommon = useTranslations("common");
   const [expenses, setExpenses] = useState<ExpenseWithDetails[]>([]);
   const [isLoadingExpenses, setIsLoadingExpenses] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -163,11 +166,9 @@ export default function ExpensesPage() {
   if (accounts.length === 0) {
     return (
       <div className="flex h-64 flex-col items-center justify-center gap-4">
-        <p className="text-muted-foreground">
-          You don&apos;t have any accounts yet.
-        </p>
+        <p className="text-muted-foreground">{t("noAccountsYet")}</p>
         <Button asChild>
-          <a href="/accounts">Create an Account</a>
+          <a href="/accounts">{t("createAnAccount")}</a>
         </Button>
       </div>
     );
@@ -178,7 +179,7 @@ export default function ExpensesPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold">Expenses</h1>
+            <h1 className="text-xl sm:text-2xl font-bold">{t("title")}</h1>
             {selectedAccount && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -207,13 +208,13 @@ export default function ExpensesPage() {
             )}
           </div>
           <p className="text-sm sm:text-base text-muted-foreground">
-            Track and manage your expenses
+            {t("subtitle")}
           </p>
         </div>
 
         <Button onClick={handleAddExpense} className="w-full sm:w-auto">
           <Plus className="mr-2 h-4 w-4" />
-          Add Expense
+          {t("addExpense")}
         </Button>
       </div>
 
@@ -236,7 +237,7 @@ export default function ExpensesPage() {
         >
           <DialogHeader>
             <DialogTitle>
-              {editingExpense ? "Edit Expense" : "Add Expense"}
+              {editingExpense ? t("editExpense") : t("addExpense")}
             </DialogTitle>
           </DialogHeader>
           {formAccountId && (
@@ -264,19 +265,18 @@ export default function ExpensesPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete expense?</AlertDialogTitle>
+            <AlertDialogTitle>{t("deleteExpense")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this expense? This action cannot
-              be undone.
+              {t("deleteExpenseConfirm")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDeleteExpense}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              {tCommon("delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
