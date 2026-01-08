@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -25,32 +26,32 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const navItems = [
+const navItemsConfig = [
   {
-    title: "Dashboard",
+    key: "dashboard" as const,
     href: "/dashboard",
     icon: LayoutDashboard,
   },
   {
-    title: "Expenses",
+    key: "expenses" as const,
     href: "/expenses",
     icon: Receipt,
   },
   {
-    title: "Settings",
+    key: "settings" as const,
     href: "/settings",
     icon: Settings,
   },
   {
-    title: "Sharing",
+    key: "sharing" as const,
     href: "/sharing",
     icon: Share2,
   },
 ];
 
-const bottomNavItems = [
+const bottomNavItemsConfig = [
   {
-    title: "Accounts",
+    key: "accounts" as const,
     href: "/accounts",
     icon: Users,
   },
@@ -60,6 +61,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const t = useTranslations("navigation");
+  const tCommon = useTranslations("common");
 
   // Get account param to preserve across navigation
   const accountId = searchParams.get("account");
@@ -88,17 +91,17 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         >
           <Image
             src="/gold-finger-logo.svg"
-            alt="Gold-Finger"
+            alt={tCommon("appName")}
             width={24}
             height={24}
           />
-          <span className="text-xl font-bold">Gold-Finger</span>
+          <span className="text-xl font-bold">{tCommon("appName")}</span>
         </Link>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 p-4">
-        {navItems.map((item) => {
+        {navItemsConfig.map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (
             <Link
@@ -113,7 +116,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               )}
             >
               <item.icon className="h-4 w-4" />
-              {item.title}
+              {t(item.key)}
             </Link>
           );
         })}
@@ -121,7 +124,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
       {/* Bottom navigation */}
       <div className="space-y-1 p-4 pt-0">
-        {bottomNavItems.map((item) => {
+        {bottomNavItemsConfig.map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (
             <Link
@@ -136,7 +139,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               )}
             >
               <item.icon className="h-4 w-4" />
-              {item.title}
+              {t(item.key)}
             </Link>
           );
         })}
@@ -150,7 +153,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           onClick={handleSignOut}
         >
           <LogOut className="h-4 w-4" />
-          Sign out
+          {t("signOut")}
         </Button>
       </div>
     </div>
@@ -169,18 +172,19 @@ export function Sidebar() {
 // Mobile Sidebar - Sheet drawer
 export function MobileSidebar() {
   const [open, setOpen] = useState(false);
+  const t = useTranslations("navigation");
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="md:hidden">
           <Menu className="h-5 w-5" />
-          <span className="sr-only">Toggle menu</span>
+          <span className="sr-only">{t("toggleMenu")}</span>
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-64 p-0">
         <SheetHeader className="sr-only">
-          <SheetTitle>Navigation Menu</SheetTitle>
+          <SheetTitle>{t("navigationMenu")}</SheetTitle>
         </SheetHeader>
         <SidebarContent onNavigate={() => setOpen(false)} />
       </SheetContent>

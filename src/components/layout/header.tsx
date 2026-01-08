@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ import { Settings, LogOut, UserCog } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { DevTools } from "./dev-tools";
+import { LanguageSwitcher } from "./language-switcher";
 import { MobileSidebar } from "./sidebar";
 import { AccountSelector } from "@/components/accounts";
 import { useAccounts } from "@/lib/hooks/use-accounts";
@@ -27,6 +29,7 @@ export function Header() {
   const router = useRouter();
   const { accounts } = useAccounts();
   const { selectedAccountId, setSelectedAccountId } = useAccountStore();
+  const t = useTranslations("navigation");
 
   // Sync account selection with URL
   useAccountUrlSync(accounts);
@@ -64,6 +67,7 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
+        <LanguageSwitcher />
         <DevTools />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -91,16 +95,16 @@ export function Header() {
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => router.push("/account-settings")}>
               <UserCog className="mr-2 h-4 w-4" />
-              Account Settings
+              {t("accountSettings")}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => router.push("/settings")}>
               <Settings className="mr-2 h-4 w-4" />
-              Settings
+              {t("settings")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut}>
               <LogOut className="mr-2 h-4 w-4" />
-              Sign out
+              {t("signOut")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
