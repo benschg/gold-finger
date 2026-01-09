@@ -16,6 +16,7 @@
     "db:stop": "docker compose -f docker-compose.dev.yml down",
     "db:reset": "docker compose -f docker-compose.dev.yml down -v && docker compose -f docker-compose.dev.yml up -d",
     "db:logs": "docker compose -f docker-compose.dev.yml logs -f",
+    "db:push": "bun x supabase db push",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "prepare": "husky",
