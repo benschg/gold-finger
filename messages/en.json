@@ -38,7 +38,26 @@
     "inbucket": "Inbucket (Email)",
     "viewSentEmails": "View sent emails",
     "i18nTesting": "i18n Testing",
-    "kannadaDescription": "Test for missing translations"
+    "kannadaDescription": "Test for missing translations",
+    "dataGeneration": "Data Generation",
+    "generateFakeData": "Generate Fake Data",
+    "generateFakeDataDescription": "Create test data for selected account",
+    "fakeData": {
+      "title": "Generate Fake Data",
+      "dateRange": "Date Range",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "currency": "Currency",
+      "useAccountCurrency": "Use account currency",
+      "expensesSection": "Expenses",
+      "incomeSection": "Income",
+      "count": "Count",
+      "totalAmount": "Total Amount",
+      "generate": "Generate",
+      "generating": "Generating...",
+      "success": "Generated {expenseCount} expenses and {incomeCount} income entries",
+      "noAccountSelected": "Please select an account first"
+    }
   },
   "navigation": {
     "dashboard": "Dashboard",

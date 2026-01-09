@@ -38,7 +38,26 @@
     "inbucket": "Inbucket (E-mail)",
     "viewSentEmails": "Ver e-mails enviados",
     "i18nTesting": "Teste de i18n",
-    "kannadaDescription": "Testar traduções ausentes"
+    "kannadaDescription": "Testar traduções ausentes",
+    "dataGeneration": "Geração de Dados",
+    "generateFakeData": "Gerar Dados de Teste",
+    "generateFakeDataDescription": "Criar dados de teste para a conta selecionada",
+    "fakeData": {
+      "title": "Gerar Dados de Teste",
+      "dateRange": "Período",
+      "startDate": "Data Inicial",
+      "endDate": "Data Final",
+      "currency": "Moeda",
+      "useAccountCurrency": "Usar moeda da conta",
+      "expensesSection": "Despesas",
+      "incomeSection": "Receitas",
+      "count": "Quantidade",
+      "totalAmount": "Valor Total",
+      "generate": "Gerar",
+      "generating": "Gerando...",
+      "success": "Gerado {expenseCount} despesas e {incomeCount} receitas",
+      "noAccountSelected": "Por favor, selecione uma conta primeiro"
+    }
   },
   "navigation": {
     "dashboard": "Painel",

@@ -9,6 +9,7 @@ import {
   ExternalLink,
   Languages,
   Check,
+  Wand2,
   LucideIcon,
 } from "lucide-react";
 
@@ -23,6 +24,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useLocaleStore } from "@/store/locale-store";
 import { localeNames } from "@/i18n/config";
+import { FakeDataDialog } from "./fake-data-dialog";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
 
 interface DevLink {
   nameKey: "supabaseStudio" | "inbucket";
@@ -48,6 +51,7 @@ const devLinks: DevLink[] = [
 
 export function DevTools() {
   const [isOpen, setIsOpen] = useState(false);
+  const [fakeDataDialogOpen, setFakeDataDialogOpen] = useState(false);
   const t = useTranslations("devTools");
   const { locale, setLocale } = useLocaleStore();
 
@@ -113,7 +117,26 @@ export function DevTools() {
           </div>
           {isKannada && <Check className="h-4 w-4 ml-auto" />}
         </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel>{t("dataGeneration")}</DropdownMenuLabel>
+        <DropdownMenuItem onClick={() => setFakeDataDialogOpen(true)}>
+          <div className="flex items-center gap-2">
+            <Wand2 className="h-4 w-4" />
+            <div>
+              <div className="font-medium">{t("generateFakeData")}</div>
+              <div className="text-xs text-muted-foreground">
+                {t("generateFakeDataDescription")}
+              </div>
+            </div>
+          </div>
+        </DropdownMenuItem>
       </DropdownMenuContent>
+      <ErrorBoundary>
+        <FakeDataDialog
+          open={fakeDataDialogOpen}
+          onOpenChange={setFakeDataDialogOpen}
+        />
+      </ErrorBoundary>
     </DropdownMenu>
   );
 }
