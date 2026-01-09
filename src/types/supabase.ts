@@ -451,7 +451,6 @@ export type Database = {
           rate_date: string | null;
           receipt_url: string | null;
           recurring_income_id: string | null;
-          summary: string | null;
           updated_at: string | null;
           user_id: string;
         };
@@ -470,7 +469,6 @@ export type Database = {
           rate_date?: string | null;
           receipt_url?: string | null;
           recurring_income_id?: string | null;
-          summary?: string | null;
           updated_at?: string | null;
           user_id: string;
         };
@@ -489,7 +487,6 @@ export type Database = {
           rate_date?: string | null;
           receipt_url?: string | null;
           recurring_income_id?: string | null;
-          summary?: string | null;
           updated_at?: string | null;
           user_id?: string;
         };
@@ -685,7 +682,6 @@ export type Database = {
           last_generated_date: string | null;
           next_occurrence: string;
           start_date: string;
-          summary: string | null;
           updated_at: string | null;
           user_id: string;
         };
@@ -707,7 +703,6 @@ export type Database = {
           last_generated_date?: string | null;
           next_occurrence: string;
           start_date?: string;
-          summary?: string | null;
           updated_at?: string | null;
           user_id: string;
         };
@@ -729,7 +724,6 @@ export type Database = {
           last_generated_date?: string | null;
           next_occurrence?: string;
           start_date?: string;
-          summary?: string | null;
           updated_at?: string | null;
           user_id?: string;
         };

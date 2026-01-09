@@ -123,6 +123,7 @@ export const createIncomeSchema = z.object({
   amount: z.number().positive("Amount must be positive"),
   currency: z.string().length(3),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
+  summary: z.string().max(100).optional(),
   description: z.string().max(500).optional(),
   income_category_id: z.string().uuid().optional().nullable(),
   account_id: z.string().uuid(),
@@ -150,6 +151,105 @@ export const updateProfileSchema = z.object({
   theme: z.enum(["light", "dark", "system"]).optional(),
 });
 
+// ============================================
+// RECURRING TRANSACTION SCHEMAS
+// ============================================
+
+export const recurrenceFrequencySchema = z.enum([
+  "daily",
+  "weekly",
+  "biweekly",
+  "monthly",
+  "quarterly",
+  "yearly",
+  "custom",
+]);
+
+export const customUnitSchema = z.enum(["days", "weeks", "months", "years"]);
+
+// Recurring expense schemas - base object without refinement for partial support
+const recurringExpenseBaseSchema = z.object({
+  account_id: z.string().uuid(),
+  amount: z.number().positive("Amount must be positive"),
+  currency: z.string().length(3),
+  summary: z.string().max(100).optional(),
+  description: z.string().max(1000).optional(),
+  category_id: z.string().uuid().optional().nullable(),
+  frequency: recurrenceFrequencySchema,
+  custom_interval: z.number().int().positive().optional(),
+  custom_unit: customUnitSchema.optional(),
+  day_of_week_mask: z.number().int().min(0).max(127).optional(),
+  day_of_month: z.number().int().min(-1).max(31).optional().nullable(),
+  start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
+  end_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format")
+    .optional()
+    .nullable(),
+});
+
+export const createRecurringExpenseSchema = recurringExpenseBaseSchema.refine(
+  (data) => {
+    // Custom frequency requires interval and unit
+    if (data.frequency === "custom") {
+      return data.custom_interval && data.custom_unit;
+    }
+    return true;
+  },
+  {
+    message: "Custom frequency requires custom_interval and custom_unit",
+    path: ["frequency"],
+  },
+);
+
+export const updateRecurringExpenseSchema = recurringExpenseBaseSchema
+  .partial()
+  .omit({ account_id: true })
+  .extend({
+    is_active: z.boolean().optional(),
+  });
+
+// Recurring income schemas - base object without refinement for partial support
+const recurringIncomeBaseSchema = z.object({
+  account_id: z.string().uuid(),
+  amount: z.number().positive("Amount must be positive"),
+  currency: z.string().length(3),
+  summary: z.string().max(100).optional(),
+  description: z.string().max(500).optional(),
+  income_category_id: z.string().uuid().optional().nullable(),
+  frequency: recurrenceFrequencySchema,
+  custom_interval: z.number().int().positive().optional(),
+  custom_unit: customUnitSchema.optional(),
+  day_of_week_mask: z.number().int().min(0).max(127).optional(),
+  day_of_month: z.number().int().min(-1).max(31).optional().nullable(),
+  start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
+  end_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format")
+    .optional()
+    .nullable(),
+});
+
+export const createRecurringIncomeSchema = recurringIncomeBaseSchema.refine(
+  (data) => {
+    if (data.frequency === "custom") {
+      return data.custom_interval && data.custom_unit;
+    }
+    return true;
+  },
+  {
+    message: "Custom frequency requires custom_interval and custom_unit",
+    path: ["frequency"],
+  },
+);
+
+export const updateRecurringIncomeSchema = recurringIncomeBaseSchema
+  .partial()
+  .omit({ account_id: true })
+  .extend({
+    is_active: z.boolean().optional(),
+  });
+
 // Type exports
 export type CreateAccountInput = z.infer<typeof createAccountSchema>;
 export type UpdateAccountInput = z.infer<typeof updateAccountSchema>;
@@ -173,3 +273,17 @@ export type UpdateIncomeInput = z.infer<typeof updateIncomeSchema>;
 export type InviteUserInput = z.infer<typeof inviteUserSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type ReceiptAnalysis = z.infer<typeof receiptAnalysisSchema>;
+export type RecurrenceFrequency = z.infer<typeof recurrenceFrequencySchema>;
+export type CustomUnit = z.infer<typeof customUnitSchema>;
+export type CreateRecurringExpenseInput = z.infer<
+  typeof createRecurringExpenseSchema
+>;
+export type UpdateRecurringExpenseInput = z.infer<
+  typeof updateRecurringExpenseSchema
+>;
+export type CreateRecurringIncomeInput = z.infer<
+  typeof createRecurringIncomeSchema
+>;
+export type UpdateRecurringIncomeInput = z.infer<
+  typeof updateRecurringIncomeSchema
+>;
