@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   Receipt,
+  TrendingUp,
   Users,
   Settings,
   LogOut,
@@ -36,6 +37,11 @@ const navItemsConfig = [
     key: "expenses" as const,
     href: "/expenses",
     icon: Receipt,
+  },
+  {
+    key: "income" as const,
+    href: "/income",
+    icon: TrendingUp,
   },
   {
     key: "settings" as const,

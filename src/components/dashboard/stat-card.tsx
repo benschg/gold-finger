@@ -3,12 +3,14 @@
 import { type LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface StatCardProps {
   title: string;
   value: string;
   description?: string;
   icon: LucideIcon;
+  valueClassName?: string;
   trend?: {
     value: number;
     isPositive: boolean;
@@ -20,6 +22,7 @@ export function StatCard({
   value,
   description,
   icon: Icon,
+  valueClassName,
   trend,
 }: StatCardProps) {
   const t = useTranslations("dashboard");
@@ -31,7 +34,7 @@ export function StatCard({
         <Icon className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
+        <div className={cn("text-2xl font-bold", valueClassName)}>{value}</div>
         {description && (
           <p className="text-xs text-muted-foreground">{description}</p>
         )}

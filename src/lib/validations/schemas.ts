@@ -104,6 +104,40 @@ export const updateExpenseSchema = createExpenseSchema
       .optional(),
   });
 
+// Income category schemas
+export const createIncomeCategorySchema = z.object({
+  name: z.string().min(1, "Category name is required").max(50),
+  icon: z.string().min(1, "Icon is required").max(50),
+  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Invalid color format"),
+  account_id: z.string().uuid(),
+});
+
+export const updateIncomeCategorySchema = createIncomeCategorySchema
+  .partial()
+  .omit({
+    account_id: true,
+  });
+
+// Income schemas
+export const createIncomeSchema = z.object({
+  amount: z.number().positive("Amount must be positive"),
+  currency: z.string().length(3),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
+  description: z.string().max(500).optional(),
+  income_category_id: z.string().uuid().optional().nullable(),
+  account_id: z.string().uuid(),
+  receipt_url: z.string().url().optional().nullable(),
+  // Exchange rate fields (computed server-side)
+  converted_amount: z.number().optional().nullable(),
+  exchange_rate: z.number().optional().nullable(),
+  account_currency: z.string().length(3).optional().nullable(),
+  rate_date: z.string().optional().nullable(),
+});
+
+export const updateIncomeSchema = createIncomeSchema.partial().omit({
+  account_id: true,
+});
+
 // Invitation schemas
 export const inviteUserSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -128,6 +162,14 @@ export type CreateExpenseItemInput = z.infer<typeof createExpenseItemSchema>;
 export type UpdateExpenseItemInput = z.infer<typeof updateExpenseItemSchema>;
 export type CreateExpenseInput = z.infer<typeof createExpenseSchema>;
 export type UpdateExpenseInput = z.infer<typeof updateExpenseSchema>;
+export type CreateIncomeCategoryInput = z.infer<
+  typeof createIncomeCategorySchema
+>;
+export type UpdateIncomeCategoryInput = z.infer<
+  typeof updateIncomeCategorySchema
+>;
+export type CreateIncomeInput = z.infer<typeof createIncomeSchema>;
+export type UpdateIncomeInput = z.infer<typeof updateIncomeSchema>;
 export type InviteUserInput = z.infer<typeof inviteUserSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type ReceiptAnalysis = z.infer<typeof receiptAnalysisSchema>;

@@ -17,6 +17,7 @@ import { StatCard } from "./stat-card";
 import { ExpensePieChart } from "./expense-pie-chart";
 import { StackedBarChart } from "./stacked-bar-chart";
 import { TagDistributionChart } from "./tag-distribution-chart";
+import { IncomeExpenseComparisonChart } from "./income-expense-comparison-chart";
 import { DateRangePicker } from "./date-range-picker";
 import { ActiveFilters } from "./active-filters";
 import { useAccounts } from "@/lib/hooks/use-accounts";
@@ -26,13 +27,22 @@ import { useAccountUrlSync } from "@/hooks/use-account-url-sync";
 import { useAccountStore } from "@/store/account-store";
 import {
   filterExpenses,
+  filterIncomes,
   transformToStackedBarData,
+  transformToComparisonChartData,
   calculateCategoryBreakdown,
   calculateTagDistribution,
+  calculateNetFlow,
   buildCategoryColorMap,
   buildCategoryIdMap,
 } from "@/lib/dashboard-utils";
-import type { Category, Tag, ExpenseWithDetails } from "@/types/database";
+import { formatCurrency, DEFAULT_CURRENCY } from "@/lib/constants";
+import type {
+  Category,
+  Tag,
+  ExpenseWithDetails,
+  IncomeWithCategory,
+} from "@/types/database";
 
 interface DashboardContentProps {
   displayName: string;
@@ -43,6 +53,7 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
   const tCommon = useTranslations("common");
   const tDateRange = useTranslations("dateRange");
   const [expenses, setExpenses] = useState<ExpenseWithDetails[]>([]);
+  const [incomes, setIncomes] = useState<IncomeWithCategory[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -52,6 +63,12 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
   // Sync account selection with URL
   useAccountUrlSync(accounts);
   const { selectedAccountId } = useAccountStore();
+
+  // Get the selected account's currency
+  const accountCurrency = useMemo(() => {
+    const selectedAccount = accounts.find((a) => a.id === selectedAccountId);
+    return selectedAccount?.currency || DEFAULT_CURRENCY;
+  }, [accounts, selectedAccountId]);
 
   // Sync filter state with URL
   useDashboardUrlSync();
@@ -114,11 +131,31 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
     }
   }, [selectedAccountId]);
 
+  // Fetch incomes
+  const fetchIncomes = useCallback(async () => {
+    if (!selectedAccountId) return;
+
+    try {
+      // Fetch last 24 months of incomes to have data for all presets
+      const startDate = format(subMonths(new Date(), 24), "yyyy-MM-dd");
+      const response = await fetch(
+        `/api/incomes?account_id=${selectedAccountId}&start_date=${startDate}&limit=2000`,
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setIncomes(data);
+      }
+    } catch (error) {
+      console.error("Error fetching incomes:", error);
+    }
+  }, [selectedAccountId]);
+
   useEffect(() => {
     fetchExpenses();
+    fetchIncomes();
     fetchCategories();
     fetchTags();
-  }, [fetchExpenses, fetchCategories, fetchTags]);
+  }, [fetchExpenses, fetchIncomes, fetchCategories, fetchTags]);
 
   // Filter expenses based on current filters
   const filteredExpenses = useMemo(() => {
@@ -129,6 +166,14 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
       tagId: selectedTagId,
     });
   }, [expenses, dateRange, selectedCategoryId, selectedTagId]);
+
+  // Filter incomes based on current filters (no tags for income)
+  const filteredIncomes = useMemo(() => {
+    return filterIncomes(incomes, {
+      startDate: dateRange.startDate,
+      endDate: dateRange.endDate,
+    });
+  }, [incomes, dateRange]);
 
   // Calculate stats from filtered expenses
   // Memoize date boundaries to prevent unnecessary recalculations
@@ -167,6 +212,34 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
   );
   const totalExpenses = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
 
+  // Income stats calculations
+  const thisMonthIncomes = useMemo(() => {
+    return filteredIncomes.filter((i) => {
+      const date = new Date(i.date);
+      return date >= thisMonthStart && date <= thisMonthEnd;
+    });
+  }, [filteredIncomes, thisMonthStart, thisMonthEnd]);
+
+  const lastMonthIncomes = useMemo(() => {
+    return filteredIncomes.filter((i) => {
+      const date = new Date(i.date);
+      return date >= lastMonthStart && date <= lastMonthEnd;
+    });
+  }, [filteredIncomes, lastMonthStart, lastMonthEnd]);
+
+  const thisMonthIncomeTotal = thisMonthIncomes.reduce(
+    (sum, i) => sum + i.amount,
+    0,
+  );
+  const lastMonthIncomeTotal = lastMonthIncomes.reduce(
+    (sum, i) => sum + i.amount,
+    0,
+  );
+  const totalIncome = filteredIncomes.reduce((sum, i) => sum + i.amount, 0);
+
+  // Net flow calculation
+  const { netFlow } = calculateNetFlow(filteredExpenses, filteredIncomes);
+
   // Build category maps for charts
   const categoryColorMap = useMemo(
     () => buildCategoryColorMap(categories),
@@ -191,6 +264,11 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
   const tagData = useMemo(() => {
     return calculateTagDistribution(filteredExpenses);
   }, [filteredExpenses]);
+
+  // Calculate income vs expenses comparison chart data
+  const comparisonChartData = useMemo(() => {
+    return transformToComparisonChartData(filteredExpenses, filteredIncomes, 6);
+  }, [filteredExpenses, filteredIncomes]);
 
   // Recent expenses
   const recentExpenses = filteredExpenses.slice(0, 5);
@@ -238,37 +316,70 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
         </div>
       ) : (
         <>
-          {/* Stats Cards */}
+          {/* Stats Cards - Expenses Row */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             <StatCard
               title={t("totalExpenses")}
-              value={`€${totalExpenses.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-              })}`}
+              value={formatCurrency(totalExpenses, accountCurrency)}
               description={dateRangeTitle}
               icon={Wallet}
+              valueClassName="text-red-600 dark:text-red-400"
             />
             <StatCard
-              title={t("thisMonth")}
-              value={`€${thisMonthTotal.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-              })}`}
-              description={t("totalExpenses")}
-              icon={TrendingDown}
-            />
-            <StatCard
-              title={t("lastMonth")}
-              value={`€${lastMonthTotal.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-              })}`}
-              description={t("totalExpenses")}
+              title={t("totalIncome")}
+              value={formatCurrency(totalIncome, accountCurrency)}
+              description={dateRangeTitle}
               icon={TrendingUp}
+              valueClassName="text-green-600 dark:text-green-400"
+            />
+            <StatCard
+              title={t("netFlow")}
+              value={formatCurrency(netFlow, accountCurrency, {
+                showPlusSign: true,
+              })}
+              description={dateRangeTitle}
+              icon={netFlow >= 0 ? TrendingUp : TrendingDown}
+              valueClassName={
+                netFlow >= 0
+                  ? "text-green-600 dark:text-green-400"
+                  : "text-red-600 dark:text-red-400"
+              }
             />
             <StatCard
               title={t("transactions")}
-              value={filteredExpenses.length.toString()}
+              value={(
+                filteredExpenses.length + filteredIncomes.length
+              ).toString()}
               description={dateRangeTitle}
               icon={CreditCard}
+            />
+          </div>
+
+          {/* Stats Cards - Monthly Row */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+            <StatCard
+              title={t("thisMonthExpenses")}
+              value={formatCurrency(thisMonthTotal, accountCurrency)}
+              description={t("expenses")}
+              icon={TrendingDown}
+            />
+            <StatCard
+              title={t("thisMonthIncome")}
+              value={formatCurrency(thisMonthIncomeTotal, accountCurrency)}
+              description={t("income")}
+              icon={TrendingUp}
+            />
+            <StatCard
+              title={t("lastMonthExpenses")}
+              value={formatCurrency(lastMonthTotal, accountCurrency)}
+              description={t("expenses")}
+              icon={TrendingDown}
+            />
+            <StatCard
+              title={t("lastMonthIncome")}
+              value={formatCurrency(lastMonthIncomeTotal, accountCurrency)}
+              description={t("income")}
+              icon={TrendingUp}
             />
           </div>
 
@@ -286,6 +397,12 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
               title={`${t("categoryBreakdown")} (${dateRangeTitle})`}
             />
           </div>
+
+          {/* Income vs Expenses Comparison Chart */}
+          <IncomeExpenseComparisonChart
+            data={comparisonChartData}
+            title={t("incomeVsExpenses")}
+          />
 
           {/* Tag Distribution Chart */}
           {tagData.length > 0 && (
@@ -331,10 +448,7 @@ export function DashboardContent({ displayName }: DashboardContentProps) {
                         </div>
                       </div>
                       <span className="font-medium text-sm sm:text-base whitespace-nowrap">
-                        €
-                        {expense.amount.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                        })}
+                        {formatCurrency(expense.amount, expense.currency)}
                       </span>
                     </div>
                   ))}

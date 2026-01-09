@@ -333,6 +333,131 @@ export type Database = {
           },
         ];
       };
+      income_categories: {
+        Row: {
+          account_id: string;
+          color: string;
+          created_at: string | null;
+          icon: string;
+          id: string;
+          name: string;
+        };
+        Insert: {
+          account_id: string;
+          color?: string;
+          created_at?: string | null;
+          icon: string;
+          id?: string;
+          name: string;
+        };
+        Update: {
+          account_id?: string;
+          color?: string;
+          created_at?: string | null;
+          icon?: string;
+          id?: string;
+          name?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "income_categories_account_id_fkey";
+            columns: ["account_id"];
+            isOneToOne: false;
+            referencedRelation: "accounts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      incomes: {
+        Row: {
+          account_currency: string | null;
+          account_id: string;
+          amount: number;
+          converted_amount: number | null;
+          created_at: string | null;
+          currency: string;
+          date: string;
+          description: string | null;
+          exchange_rate: number | null;
+          id: string;
+          income_category_id: string | null;
+          rate_date: string | null;
+          receipt_url: string | null;
+          updated_at: string | null;
+          user_id: string;
+        };
+        Insert: {
+          account_currency?: string | null;
+          account_id: string;
+          amount: number;
+          converted_amount?: number | null;
+          created_at?: string | null;
+          currency?: string;
+          date?: string;
+          description?: string | null;
+          exchange_rate?: number | null;
+          id?: string;
+          income_category_id?: string | null;
+          rate_date?: string | null;
+          receipt_url?: string | null;
+          updated_at?: string | null;
+          user_id: string;
+        };
+        Update: {
+          account_currency?: string | null;
+          account_id?: string;
+          amount?: number;
+          converted_amount?: number | null;
+          created_at?: string | null;
+          currency?: string;
+          date?: string;
+          description?: string | null;
+          exchange_rate?: number | null;
+          id?: string;
+          income_category_id?: string | null;
+          rate_date?: string | null;
+          receipt_url?: string | null;
+          updated_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "incomes_account_currency_fkey";
+            columns: ["account_currency"];
+            isOneToOne: false;
+            referencedRelation: "currencies";
+            referencedColumns: ["code"];
+          },
+          {
+            foreignKeyName: "incomes_account_id_fkey";
+            columns: ["account_id"];
+            isOneToOne: false;
+            referencedRelation: "accounts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "incomes_currency_fkey";
+            columns: ["currency"];
+            isOneToOne: false;
+            referencedRelation: "currencies";
+            referencedColumns: ["code"];
+          },
+          {
+            foreignKeyName: "incomes_income_category_id_fkey";
+            columns: ["income_category_id"];
+            isOneToOne: false;
+            referencedRelation: "income_categories";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "incomes_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           avatar_url: string | null;
