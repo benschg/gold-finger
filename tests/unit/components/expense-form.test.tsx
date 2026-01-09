@@ -72,6 +72,7 @@ const createMockExpense = (
   updated_at: "2024-01-15",
   receipt_url: null,
   has_items: false,
+  recurring_expense_id: null,
   category: mockCategories[0],
   tags: [],
   ...overrides,

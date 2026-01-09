@@ -14,6 +14,7 @@ import {
   LogOut,
   Menu,
   Share2,
+  RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,6 +43,11 @@ const navItemsConfig = [
     key: "income" as const,
     href: "/income",
     icon: TrendingUp,
+  },
+  {
+    key: "recurring" as const,
+    href: "/recurring",
+    icon: RefreshCw,
   },
   {
     key: "settings" as const,

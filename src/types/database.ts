@@ -72,6 +72,7 @@ export interface Expense {
   category_id: string | null;
   receipt_url: string | null;
   has_items: boolean;
+  recurring_expense_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -209,6 +210,7 @@ export interface Income {
   user_id: string;
   amount: number;
   currency: Currency;
+  summary: string | null;
   description: string | null;
   date: string;
   income_category_id: string | null;
@@ -217,6 +219,7 @@ export interface Income {
   exchange_rate: number | null;
   account_currency: string | null;
   rate_date: string | null;
+  recurring_income_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -231,6 +234,7 @@ export interface CreateIncomeInput {
   account_id: string;
   amount: number;
   currency: Currency;
+  summary?: string;
   description?: string;
   date: string;
   income_category_id?: string;
@@ -240,6 +244,7 @@ export interface CreateIncomeInput {
 export interface UpdateIncomeInput {
   amount?: number;
   currency?: Currency;
+  summary?: string;
   description?: string;
   date?: string;
   income_category_id?: string | null;
@@ -251,4 +256,139 @@ export interface CreateIncomeCategoryInput {
   name: string;
   icon: string;
   color: string;
+}
+
+// ============================================
+// RECURRING TRANSACTION TYPES
+// ============================================
+
+export type RecurrenceFrequency =
+  | "daily"
+  | "weekly"
+  | "biweekly"
+  | "monthly"
+  | "quarterly"
+  | "yearly"
+  | "custom";
+
+export type CustomUnit = "days" | "weeks" | "months" | "years";
+
+export interface RecurringExpense {
+  id: string;
+  account_id: string;
+  user_id: string;
+  category_id: string | null;
+  amount: number;
+  currency: Currency;
+  summary: string | null;
+  description: string | null;
+  frequency: RecurrenceFrequency;
+  custom_interval: number | null;
+  custom_unit: CustomUnit | null;
+  day_of_week_mask: number;
+  day_of_month: number | null;
+  start_date: string;
+  end_date: string | null;
+  next_occurrence: string;
+  last_generated_date: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RecurringIncome {
+  id: string;
+  account_id: string;
+  user_id: string;
+  income_category_id: string | null;
+  amount: number;
+  currency: Currency;
+  summary: string | null;
+  description: string | null;
+  frequency: RecurrenceFrequency;
+  custom_interval: number | null;
+  custom_unit: CustomUnit | null;
+  day_of_week_mask: number;
+  day_of_month: number | null;
+  start_date: string;
+  end_date: string | null;
+  next_occurrence: string;
+  last_generated_date: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// Extended types with relations
+export interface RecurringExpenseWithCategory extends RecurringExpense {
+  category: Category | null;
+}
+
+export interface RecurringIncomeWithCategory extends RecurringIncome {
+  income_category: IncomeCategory | null;
+}
+
+// Form types for recurring transactions
+export interface CreateRecurringExpenseInput {
+  account_id: string;
+  amount: number;
+  currency: Currency;
+  summary?: string;
+  description?: string;
+  category_id?: string | null;
+  frequency: RecurrenceFrequency;
+  custom_interval?: number;
+  custom_unit?: CustomUnit;
+  day_of_week_mask?: number;
+  day_of_month?: number;
+  start_date: string;
+  end_date?: string | null;
+}
+
+export interface UpdateRecurringExpenseInput {
+  amount?: number;
+  currency?: Currency;
+  summary?: string;
+  description?: string;
+  category_id?: string | null;
+  frequency?: RecurrenceFrequency;
+  custom_interval?: number;
+  custom_unit?: CustomUnit;
+  day_of_week_mask?: number;
+  day_of_month?: number;
+  start_date?: string;
+  end_date?: string | null;
+  is_active?: boolean;
+}
+
+export interface CreateRecurringIncomeInput {
+  account_id: string;
+  amount: number;
+  currency: Currency;
+  summary?: string;
+  description?: string;
+  income_category_id?: string | null;
+  frequency: RecurrenceFrequency;
+  custom_interval?: number;
+  custom_unit?: CustomUnit;
+  day_of_week_mask?: number;
+  day_of_month?: number;
+  start_date: string;
+  end_date?: string | null;
+}
+
+export interface UpdateRecurringIncomeInput {
+  amount?: number;
+  currency?: Currency;
+  summary?: string;
+  description?: string;
+  income_category_id?: string | null;
+  frequency?: RecurrenceFrequency;
+  custom_interval?: number;
+  custom_unit?: CustomUnit;
+  day_of_week_mask?: number;
+  day_of_month?: number;
+  start_date?: string;
+  end_date?: string | null;
+  is_active?: boolean;
 }
