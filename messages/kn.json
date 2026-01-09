@@ -23,6 +23,7 @@
     "apply": "ಆಪಪಲಯ",
     "filters": "ಫಇಲತಎರಸ",
     "noDescription": "ನಒ ದಎಸಚರಇಪತಇಒನ",
+    "selectCurrency": "ಸಎಲಎಚತ ಚಉರರಎನಚಯ",
     "owner": "ಒವನಎರ",
     "member": "ಮಎಮಬಎರ",
     "joined": "ಜಒಇನಎದ",
@@ -37,7 +38,26 @@
     "inbucket": "ಇನಬಉಚಕಎತ (ಎಮಆಇಲ)",
     "viewSentEmails": "ವಇಎವ ಸಎನತ ಎಮಆಇಲಸ",
     "i18nTesting": "ಇ೧೮ನ ತಎಸತಇನಗ",
-    "kannadaDescription": "ತಎಸತ ಫಒರ ಮಇಸಸಇನಗ ತರಆನಸಲಆತಇಒನಸ"
+    "kannadaDescription": "ತಎಸತ ಫಒರ ಮಇಸಸಇನಗ ತರಆನಸಲಆತಇಒನಸ",
+    "dataGeneration": "ದಆತಆ ಗಎನಎರಆತಇಒನ",
+    "generateFakeData": "ಗಎನಎರಆತಎ ಫಆಕಎ ದಆತಆ",
+    "generateFakeDataDescription": "ಚರಎಆತಎ ತಎಸತ ದಆತಆ ಫಒರ ಸಎಲಎಚತಎದ ಆಚಚಒಉನತ",
+    "fakeData": {
+      "title": "ಗಎನಎರಆತಎ ಫಆಕಎ ದಆತಆ",
+      "dateRange": "ದಆತಎ ರಆನಗಎ",
+      "startDate": "ಸತಆರತ ದಆತಎ",
+      "endDate": "ಎನದ ದಆತಎ",
+      "currency": "ಚಉರರಎನಚಯ",
+      "useAccountCurrency": "ಉಸಎ ಆಚಚಒಉನತ ಚಉರರಎನಚಯ",
+      "expensesSection": "ಎಕ್ಸಪಎನಸಎಸ",
+      "incomeSection": "ಇನಚಒಮಎ",
+      "count": "ಚಒಉನತ",
+      "totalAmount": "ತಒತಆಲ ಆಮಒಉನತ",
+      "generate": "ಗಎನಎರಆತಎ",
+      "generating": "ಗಎನಎರಆತಇನಗ...",
+      "success": "ಗಎನಎರಆತಎದ {expenseCount} ಎಕ್ಸಪಎನಸಎಸ ಆನದ {incomeCount} ಇನಚಒಮಎ ಎನತರಇಎಸ",
+      "noAccountSelected": "ಪಲಎಆಸಎ ಸಎಲಎಚತ ಆನ ಆಚಚಒಉನತ ಫಇರಸತ"
+    }
   },
   "navigation": {
     "dashboard": "ದಆಸಹಬಒಆರದ",

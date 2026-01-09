@@ -38,7 +38,26 @@
     "inbucket": "Inbucket (E-Mail)",
     "viewSentEmails": "Gesendete E-Mails anzeigen",
     "i18nTesting": "i18n Testen",
-    "kannadaDescription": "Fehlende Übersetzungen testen"
+    "kannadaDescription": "Fehlende Übersetzungen testen",
+    "dataGeneration": "Datengenerierung",
+    "generateFakeData": "Testdaten generieren",
+    "generateFakeDataDescription": "Testdaten für ausgewähltes Konto erstellen",
+    "fakeData": {
+      "title": "Testdaten generieren",
+      "dateRange": "Zeitraum",
+      "startDate": "Startdatum",
+      "endDate": "Enddatum",
+      "currency": "Währung",
+      "useAccountCurrency": "Kontowährung verwenden",
+      "expensesSection": "Ausgaben",
+      "incomeSection": "Einnahmen",
+      "count": "Anzahl",
+      "totalAmount": "Gesamtbetrag",
+      "generate": "Generieren",
+      "generating": "Wird generiert...",
+      "success": "{expenseCount} Ausgaben und {incomeCount} Einnahmen generiert",
+      "noAccountSelected": "Bitte wähle zuerst ein Konto aus"
+    }
   },
   "navigation": {
     "dashboard": "Übersicht",
