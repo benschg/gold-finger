@@ -64,6 +64,7 @@ const createMockExpense = (
   user_id: "user-1",
   amount: 50,
   currency: "EUR",
+  summary: null,
   description: "Existing expense",
   date: "2024-01-15",
   category_id: "cat-1",

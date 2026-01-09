@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Plus, Trash2, GripVertical } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
@@ -51,6 +51,7 @@ interface SortableItemProps {
   categories: Category[];
   currencySymbol: string;
   expenseCategoryId?: string;
+  canRemove: boolean;
   onUpdate: (index: number, updates: Partial<CreateExpenseItemInput>) => void;
   onRemove: (index: number) => void;
 }
@@ -61,6 +62,7 @@ function SortableItem({
   categories,
   currencySymbol,
   expenseCategoryId,
+  canRemove,
   onUpdate,
   onRemove,
 }: SortableItemProps) {
@@ -164,15 +166,17 @@ function SortableItem({
         </Select>
       </div>
 
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 text-muted-foreground hover:text-destructive"
-        onClick={() => onRemove(index)}
-      >
-        <Trash2 className="h-4 w-4" />
-      </Button>
+      {canRemove && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+          onClick={() => onRemove(index)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      )}
     </div>
   );
 }
@@ -204,15 +208,17 @@ export function ExpenseItemEditor({
 
   // Sync with external items when they change (e.g., from AI analysis)
   // Only update if the items prop changed from outside (detected by length change)
-  // eslint-disable-next-line react-hooks/refs -- Syncing external state is intentional here
-  if (
-    items.length !== prevItemsLengthRef.current &&
-    items.length !== itemsWithIds.length
-  ) {
-    // eslint-disable-next-line react-hooks/refs -- Intentional ref update for sync
-    prevItemsLengthRef.current = items.length;
-    setItemsWithIds(addTempIds(items));
-  }
+  // This is intentional controlled component sync pattern
+  useEffect(() => {
+    if (
+      items.length !== prevItemsLengthRef.current &&
+      items.length !== itemsWithIds.length
+    ) {
+      prevItemsLengthRef.current = items.length;
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional sync of external prop to internal state
+      setItemsWithIds(addTempIds(items));
+    }
+  }, [items, itemsWithIds.length]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -308,6 +314,7 @@ export function ExpenseItemEditor({
                   categories={categories}
                   currencySymbol={currencySymbol}
                   expenseCategoryId={expenseCategoryId}
+                  canRemove={itemsWithIds.length > 1}
                   onUpdate={updateItem}
                   onRemove={removeItem}
                 />

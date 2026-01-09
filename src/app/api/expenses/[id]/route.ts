@@ -131,18 +131,28 @@ export async function PUT(
 
   // Build update object (only include provided fields)
   const updateData: Record<string, unknown> = {};
-  if (body.amount !== undefined) updateData.amount = body.amount;
+  if (body.summary !== undefined) updateData.summary = body.summary;
   if (body.currency !== undefined) updateData.currency = body.currency;
   if (body.description !== undefined) updateData.description = body.description;
   if (body.date !== undefined) updateData.date = body.date;
   if (body.category_id !== undefined) updateData.category_id = body.category_id;
   if (body.receipt_url !== undefined) updateData.receipt_url = body.receipt_url;
 
+  // Calculate amount from items if provided
+  let newAmount = currentExpense.amount;
+  if (body.items !== undefined && body.items.length > 0) {
+    newAmount = body.items.reduce(
+      (sum: number, item: { quantity?: number; unit_price?: number }) =>
+        sum + (item.quantity ?? 1) * (item.unit_price ?? 0),
+      0,
+    );
+    updateData.amount = newAmount;
+  }
+
   // Check if we need to recalculate exchange rate
-  const newAmount = body.amount ?? currentExpense.amount;
   const newCurrency = body.currency ?? currentExpense.currency;
   const currencyOrAmountChanged =
-    body.amount !== undefined || body.currency !== undefined;
+    body.items !== undefined || body.currency !== undefined;
 
   if (currencyOrAmountChanged) {
     // Fetch account's default currency

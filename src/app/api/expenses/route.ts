@@ -181,6 +181,13 @@ export async function POST(request: Request) {
   );
   if (membershipError) return membershipError;
 
+  // Calculate amount from items (items are required)
+  const calculatedAmount = body.items.reduce(
+    (sum: number, item: { quantity?: number; unit_price: number }) =>
+      sum + (item.quantity ?? 1) * item.unit_price,
+    0,
+  );
+
   // Fetch account's default currency
   const { data: account } = await supabase
     .from("accounts")
@@ -199,7 +206,7 @@ export async function POST(request: Request) {
     const rateResult = await getExchangeRate(body.currency, accountCurrency);
     if (rateResult) {
       exchangeRate = rateResult.rate;
-      convertedAmount = convertAmount(body.amount, rateResult.rate);
+      convertedAmount = convertAmount(calculatedAmount, rateResult.rate);
       rateDate = rateResult.date;
     }
   }
@@ -210,8 +217,9 @@ export async function POST(request: Request) {
     .insert({
       account_id: body.account_id,
       user_id: user.id,
-      amount: body.amount,
+      amount: calculatedAmount,
       currency: body.currency,
+      summary: body.summary || null,
       description: body.description || null,
       date: body.date,
       category_id: body.category_id || null,
@@ -221,6 +229,7 @@ export async function POST(request: Request) {
       account_currency:
         body.currency !== accountCurrency ? accountCurrency : null,
       rate_date: rateDate,
+      has_items: true,
     })
     .select()
     .single();
@@ -242,37 +251,35 @@ export async function POST(request: Request) {
     await supabase.from("expense_tags").insert(tagInserts);
   }
 
-  // Insert items if provided
+  // Insert items (items are required)
   // Note: expense_items table requires migration 00008_expense_items.sql
-  if (body.items && body.items.length > 0) {
-    const itemInserts = body.items.map(
-      (
-        item: {
-          name: string;
-          quantity?: number;
-          unit_price: number;
-          category_id?: string | null;
-          sort_order?: number;
-        },
-        index: number,
-      ) => ({
-        expense_id: expense.id,
-        name: item.name,
-        quantity: item.quantity ?? 1,
-        unit_price: item.unit_price,
-        category_id: item.category_id || null,
-        sort_order: item.sort_order ?? index,
-      }),
-    );
+  const itemInserts = body.items.map(
+    (
+      item: {
+        name: string;
+        quantity?: number;
+        unit_price: number;
+        category_id?: string | null;
+        sort_order?: number;
+      },
+      index: number,
+    ) => ({
+      expense_id: expense.id,
+      name: item.name,
+      quantity: item.quantity ?? 1,
+      unit_price: item.unit_price,
+      category_id: item.category_id || null,
+      sort_order: item.sort_order ?? index,
+    }),
+  );
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error: itemsError } = await (supabase as any)
-      .from("expense_items")
-      .insert(itemInserts);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error: itemsError } = await (supabase as any)
+    .from("expense_items")
+    .insert(itemInserts);
 
-    if (itemsError) {
-      console.error("Error inserting expense items:", itemsError);
-    }
+  if (itemsError) {
+    console.error("Error inserting expense items:", itemsError);
   }
 
   return NextResponse.json(expense, { status: 201 });

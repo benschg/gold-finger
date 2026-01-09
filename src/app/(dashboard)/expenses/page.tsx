@@ -232,7 +232,7 @@ export default function ExpensesPage() {
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent
-          className="max-w-[calc(100vw-2rem)] sm:max-w-lg"
+          className="flex max-h-[90vh] max-w-[calc(100vw-2rem)] flex-col sm:max-w-lg"
           onInteractOutside={(e) => e.preventDefault()}
         >
           <DialogHeader>

@@ -75,16 +75,18 @@ export const updateExpenseItemSchema = expenseItemSchema.partial().extend({
 
 // Expense schemas
 export const createExpenseSchema = z.object({
-  amount: z.number().positive("Amount must be positive"),
   currency: z.string().length(3),
+  summary: z.string().max(100).optional(),
+  description: z.string().max(1000).optional(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
-  description: z.string().max(500).optional(),
   category_id: z.string().uuid().optional().nullable(),
   account_id: z.string().uuid(),
   receipt_url: z.string().url().optional().nullable(),
   receipt_analysis: receiptAnalysisSchema.optional().nullable(),
   tag_ids: z.array(z.string().uuid()).optional(),
-  items: z.array(createExpenseItemSchema).optional(),
+  items: z
+    .array(createExpenseItemSchema)
+    .min(1, "At least one item is required"),
   // Exchange rate fields (computed server-side)
   converted_amount: z.number().optional().nullable(),
   exchange_rate: z.number().optional().nullable(),
@@ -96,7 +98,10 @@ export const updateExpenseSchema = createExpenseSchema
   .partial()
   .omit({ account_id: true })
   .extend({
-    items: z.array(updateExpenseItemSchema).optional(),
+    items: z
+      .array(updateExpenseItemSchema)
+      .min(1, "At least one item is required")
+      .optional(),
   });
 
 // Invitation schemas

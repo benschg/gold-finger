@@ -37,15 +37,15 @@ const createExpenseSchema = (
   t: ReturnType<typeof useTranslations<"expenses">>,
 ) =>
   z.object({
-    amount: z.number().positive(t("amountMustBePositive")),
+    summary: z.string().max(100).optional(),
     currency: z.string().min(1, t("currencyRequired")),
-    description: z.string().optional(),
+    description: z.string().max(1000).optional(),
     date: z.string().min(1),
     category_id: z.string().optional(),
   });
 
 type ExpenseFormData = {
-  amount: number;
+  summary?: string;
   currency: string;
   description?: string;
   date: string;
@@ -94,16 +94,25 @@ export function ExpenseForm({
   );
   const [aiAutoFilled, setAiAutoFilled] = useState(false);
 
-  // Items state - extract from expense if it has items
+  // Items state - extract from expense if it has items, otherwise start with one empty item
   const expenseWithItems = expense as ExpenseWithItems | undefined;
+  const defaultItem: CreateExpenseItemInput = {
+    name: "",
+    quantity: 1,
+    unit_price: 0,
+    category_id: null,
+    sort_order: 0,
+  };
   const [items, setItems] = useState<CreateExpenseItemInput[]>(
-    expenseWithItems?.items?.map((item) => ({
-      name: item.name,
-      quantity: item.quantity,
-      unit_price: item.unit_price,
-      category_id: item.category_id,
-      sort_order: item.sort_order,
-    })) || [],
+    expenseWithItems?.items?.length
+      ? expenseWithItems.items.map((item) => ({
+          name: item.name,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          category_id: item.category_id,
+          sort_order: item.sort_order,
+        }))
+      : [defaultItem],
   );
 
   const expenseSchema = createExpenseSchema(t);
@@ -117,7 +126,7 @@ export function ExpenseForm({
   } = useForm<ExpenseFormData>({
     resolver: zodResolver(expenseSchema),
     defaultValues: {
-      amount: expense?.amount || undefined,
+      summary: expense?.summary || "",
       currency: expense?.currency || accountCurrency,
       description: expense?.description || "",
       date: expense?.date || format(new Date(), "yyyy-MM-dd"),
@@ -126,7 +135,12 @@ export function ExpenseForm({
   });
 
   const selectedCurrency = watch("currency");
-  const watchedAmount = watch("amount");
+
+  // Calculate amount from items
+  const calculatedAmount = items.reduce(
+    (sum, item) => sum + (item.quantity || 1) * (item.unit_price || 0),
+    0,
+  );
 
   const handleAccountChange = (newAccountId: string) => {
     setSelectedAccountId(newAccountId);
@@ -139,27 +153,16 @@ export function ExpenseForm({
       const url = expense ? `/api/expenses/${expense.id}` : "/api/expenses";
       const method = expense ? "PUT" : "POST";
 
-      // Calculate amount from items if items exist
-      const calculatedAmount =
-        items.length > 0
-          ? items.reduce(
-              (sum, item) =>
-                sum + (item.quantity || 1) * (item.unit_price || 0),
-              0,
-            )
-          : data.amount;
-
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...data,
-          amount: calculatedAmount,
           account_id: selectedAccountId,
           tag_ids: selectedTags,
           category_id: data.category_id || null,
           receipt_url: receiptUrl,
-          items: items.length > 0 ? items : undefined,
+          items: items,
         }),
       });
 
@@ -170,13 +173,13 @@ export function ExpenseForm({
 
       if (addAnotherRef.current) {
         // Reset form for another entry
-        setValue("amount", undefined as unknown as number);
+        setValue("summary", "");
         setValue("description", "");
         setValue("category_id", undefined);
         setSelectedTags([]);
         setReceiptUrl(null);
         setAiAutoFilled(false);
-        setItems([]);
+        setItems([defaultItem]);
         addAnotherRef.current = false;
         onAddAnother?.();
       } else {
@@ -212,8 +215,9 @@ export function ExpenseForm({
     items?: Array<{ name: string; quantity?: number; price?: number }>;
   }) => {
     // Auto-fill form with AI-extracted data
-    if (data.amount) {
-      setValue("amount", data.amount);
+    // Use merchant as summary
+    if (data.merchant) {
+      setValue("summary", data.merchant);
     }
     if (data.currency && CURRENCIES.some((c) => c.code === data.currency)) {
       setValue("currency", data.currency);
@@ -221,13 +225,8 @@ export function ExpenseForm({
     if (data.date) {
       setValue("date", data.date);
     }
-    if (data.description || data.merchant) {
-      const desc = data.merchant
-        ? data.description
-          ? `${data.merchant} - ${data.description}`
-          : data.merchant
-        : data.description;
-      if (desc) setValue("description", desc);
+    if (data.description) {
+      setValue("description", data.description);
     }
     // Try to match category by name
     if (data.category) {
@@ -255,208 +254,200 @@ export function ExpenseForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {/* Account Selector */}
-      {accounts.length > 1 && (
-        <div className="space-y-2">
-          <Label htmlFor="account">{t("account")}</Label>
-          <Select value={selectedAccountId} onValueChange={handleAccountChange}>
-            <SelectTrigger id="account">
-              <SelectValue placeholder={t("selectAccount")} />
-            </SelectTrigger>
-            <SelectContent>
-              {accounts.map((account) => (
-                <SelectItem key={account.id} value={account.id}>
-                  <div className="flex items-center gap-2">
-                    <IconBadge
-                      icon={account.icon ?? "wallet"}
-                      color={account.color ?? "#6366f1"}
-                      size="xs"
-                    />
-                    {account.name}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex min-h-0 flex-1 flex-col"
+    >
+      {/* Scrollable content area */}
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
+        {/* Account Selector */}
+        {accounts.length > 1 && (
+          <div className="space-y-2">
+            <Label htmlFor="account">{t("account")}</Label>
+            <Select
+              value={selectedAccountId}
+              onValueChange={handleAccountChange}
+            >
+              <SelectTrigger id="account">
+                <SelectValue placeholder={t("selectAccount")} />
+              </SelectTrigger>
+              <SelectContent>
+                {accounts.map((account) => (
+                  <SelectItem key={account.id} value={account.id}>
+                    <div className="flex items-center gap-2">
+                      <IconBadge
+                        icon={account.icon ?? "wallet"}
+                        color={account.color ?? "#6366f1"}
+                        size="xs"
+                      />
+                      {account.name}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
-      {/* Receipt Upload */}
-      <div className="space-y-2">
-        <Label>{t("receipt")}</Label>
-        <ReceiptUpload
-          existingUrl={expense?.receipt_url || undefined}
-          onUploadComplete={(url) => setReceiptUrl(url)}
-          onAnalysisComplete={handleReceiptAnalysis}
+        {/* Receipt Upload */}
+        <div className="space-y-2">
+          <Label>{t("receipt")}</Label>
+          <ReceiptUpload
+            existingUrl={expense?.receipt_url || undefined}
+            onUploadComplete={(url) => setReceiptUrl(url)}
+            onAnalysisComplete={handleReceiptAnalysis}
+          />
+          {aiAutoFilled && (
+            <div className="flex items-center gap-2 text-sm text-primary">
+              <Sparkles className="h-4 w-4" />
+              {t("formAutoFilled")}
+            </div>
+          )}
+        </div>
+
+        {/* Summary - short title */}
+        <div className="space-y-2">
+          <Label htmlFor="summary">{t("summary")}</Label>
+          <Input
+            id="summary"
+            placeholder={t("summaryPlaceholder")}
+            maxLength={100}
+            {...register("summary")}
+          />
+        </div>
+
+        {/* Description - longer text */}
+        <div className="space-y-2">
+          <Label htmlFor="description">{t("description")}</Label>
+          <textarea
+            id="description"
+            placeholder={t("descriptionPlaceholder")}
+            className="flex min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            maxLength={1000}
+            {...register("description")}
+          />
+        </div>
+
+        {/* Date / Currency / Category row */}
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="space-y-2">
+            <Label htmlFor="date">{t("date")}</Label>
+            <div className="relative">
+              <CalendarIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="date"
+                type="date"
+                className="pl-10"
+                {...register("date")}
+              />
+            </div>
+            {errors.date && (
+              <p className="text-sm text-destructive">{errors.date.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="currency">{t("currency")}</Label>
+            <Select
+              defaultValue={expense?.currency || accountCurrency}
+              onValueChange={(value) => setValue("currency", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={t("selectCurrency")} />
+              </SelectTrigger>
+              <SelectContent>
+                {CURRENCIES.map((c) => (
+                  <SelectItem key={c.code} value={c.code}>
+                    {c.symbol} {c.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.currency && (
+              <p className="text-sm text-destructive">
+                {errors.currency.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="category">{t("category")}</Label>
+            <Select
+              defaultValue={expense?.category_id || "none"}
+              onValueChange={(value) =>
+                setValue("category_id", value === "none" ? undefined : value)
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={t("selectCategory")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t("noCategory")}</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    <span className="flex items-center gap-2">
+                      <span
+                        className="h-3 w-3 rounded-full"
+                        style={{ backgroundColor: category.color }}
+                      />
+                      {category.name}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Line Items */}
+        <ExpenseItemEditor
+          items={items}
+          categories={categories}
+          currencySymbol={
+            CURRENCIES.find((c) => c.code === selectedCurrency)?.symbol ||
+            selectedCurrency
+          }
+          onChange={setItems}
+          expenseCategoryId={watch("category_id")}
         />
-        {aiAutoFilled && (
-          <div className="flex items-center gap-2 text-sm text-primary">
-            <Sparkles className="h-4 w-4" />
-            {t("formAutoFilled")}
+
+        {/* Exchange rate conversion info */}
+        <ExchangeRateDisplay
+          fromCurrency={selectedCurrency}
+          toCurrency={effectiveAccountCurrency}
+          amount={calculatedAmount}
+        />
+
+        {tags.length > 0 && (
+          <div className="space-y-2">
+            <Label>{t("tags")}</Label>
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <button
+                  key={tag.id}
+                  type="button"
+                  onClick={() => toggleTag(tag.id)}
+                  className={`rounded-full px-3 py-1 text-sm transition-colors ${
+                    selectedTags.includes(tag.id)
+                      ? "text-white"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
+                  style={
+                    selectedTags.includes(tag.id)
+                      ? { backgroundColor: tag.color ?? "#6366f1" }
+                      : undefined
+                  }
+                >
+                  {tag.name}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="description">{t("description")}</Label>
-        <Input
-          id="description"
-          placeholder={t("descriptionPlaceholder")}
-          {...register("description")}
-        />
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="amount">{t("amount")}</Label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-              {CURRENCIES.find((c) => c.code === selectedCurrency)?.symbol}
-            </span>
-            <Input
-              id="amount"
-              type="number"
-              step="0.01"
-              placeholder="0.00"
-              disabled={items.length > 0}
-              className={
-                (CURRENCIES.find((c) => c.code === selectedCurrency)?.symbol
-                  ?.length ?? 1) > 2
-                  ? "pl-14"
-                  : "pl-8"
-              }
-              {...register("amount", { valueAsNumber: true })}
-            />
-          </div>
-          {items.length > 0 && (
-            <p className="text-xs text-muted-foreground">
-              {t("amountCalculatedFromItems")}
-            </p>
-          )}
-          {errors.amount && !items.length && (
-            <p className="text-sm text-destructive">{errors.amount.message}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="currency">{t("currency")}</Label>
-          <Select
-            defaultValue={expense?.currency || accountCurrency}
-            onValueChange={(value) => setValue("currency", value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={t("selectCurrency")} />
-            </SelectTrigger>
-            <SelectContent>
-              {CURRENCIES.map((c) => (
-                <SelectItem key={c.code} value={c.code}>
-                  {c.symbol} {c.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.currency && (
-            <p className="text-sm text-destructive">
-              {errors.currency.message}
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* Exchange rate conversion info */}
-      <ExchangeRateDisplay
-        fromCurrency={selectedCurrency}
-        toCurrency={effectiveAccountCurrency}
-        amount={watchedAmount || 0}
-      />
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="date">{t("date")}</Label>
-          <div className="relative">
-            <CalendarIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              id="date"
-              type="date"
-              className="pl-10"
-              {...register("date")}
-            />
-          </div>
-          {errors.date && (
-            <p className="text-sm text-destructive">{errors.date.message}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="category">{t("category")}</Label>
-          <Select
-            defaultValue={expense?.category_id || "none"}
-            onValueChange={(value) =>
-              setValue("category_id", value === "none" ? undefined : value)
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={t("selectCategory")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">{t("noCategory")}</SelectItem>
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  <span className="flex items-center gap-2">
-                    <span
-                      className="h-3 w-3 rounded-full"
-                      style={{ backgroundColor: category.color }}
-                    />
-                    {category.name}
-                  </span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {tags.length > 0 && (
-        <div className="space-y-2">
-          <Label>{t("tags")}</Label>
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag) => (
-              <button
-                key={tag.id}
-                type="button"
-                onClick={() => toggleTag(tag.id)}
-                className={`rounded-full px-3 py-1 text-sm transition-colors ${
-                  selectedTags.includes(tag.id)
-                    ? "text-white"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
-                style={
-                  selectedTags.includes(tag.id)
-                    ? { backgroundColor: tag.color ?? "#6366f1" }
-                    : undefined
-                }
-              >
-                {tag.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Line Items */}
-      <ExpenseItemEditor
-        items={items}
-        categories={categories}
-        currencySymbol={
-          CURRENCIES.find((c) => c.code === selectedCurrency)?.symbol ||
-          selectedCurrency
-        }
-        onChange={setItems}
-        expenseCategoryId={watch("category_id")}
-      />
-
-      <div className="flex justify-end gap-2 pt-4">
+      {/* Fixed button area */}
+      <div className="flex shrink-0 justify-end gap-2 border-t bg-background pt-4">
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel}>
             {tCommon("cancel")}

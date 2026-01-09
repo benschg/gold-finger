@@ -66,6 +66,7 @@ export interface Expense {
   user_id: string;
   amount: number;
   currency: Currency;
+  summary: string | null;
   description: string | null;
   date: string;
   category_id: string | null;
@@ -148,19 +149,19 @@ export interface UpdateExpenseItemInput {
 
 export interface CreateExpenseInput {
   account_id: string;
-  amount: number;
   currency: Currency;
+  summary?: string;
   description?: string;
   date: string;
   category_id?: string;
   tag_ids?: string[];
   receipt_url?: string | null;
-  items?: CreateExpenseItemInput[];
+  items: CreateExpenseItemInput[];
 }
 
 export interface UpdateExpenseInput {
-  amount?: number;
   currency?: Currency;
+  summary?: string;
   description?: string;
   date?: string;
   category_id?: string | null;
