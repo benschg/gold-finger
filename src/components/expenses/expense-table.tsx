@@ -31,6 +31,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { ExpenseWithDetails } from "@/types/database";
 import { ExpenseCard, currencySymbols } from "./expense-card";
 
@@ -71,13 +77,37 @@ export function ExpenseTable({
         cell: ({ row }) => format(new Date(row.original.date), "MMM d, yyyy"),
       },
       {
-        accessorKey: "description",
-        header: t("description"),
-        cell: ({ row }) => (
-          <span className="max-w-[200px] truncate">
-            {row.original.description || "-"}
-          </span>
-        ),
+        accessorKey: "summary",
+        header: t("summary"),
+        cell: ({ row }) => {
+          const summary = row.original.summary;
+          const description = row.original.description;
+
+          if (!summary && !description) {
+            return <span className="text-muted-foreground">-</span>;
+          }
+
+          const displayText = summary || description;
+
+          if (description) {
+            return (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="max-w-[200px] truncate cursor-help border-b border-dotted border-muted-foreground/50">
+                      {displayText}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-[300px]">
+                    <p className="text-sm">{description}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          }
+
+          return <span className="max-w-[200px] truncate">{displayText}</span>;
+        },
       },
       {
         accessorKey: "category",
