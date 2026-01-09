@@ -58,17 +58,35 @@ export const receiptAnalysisSchema = z.object({
   category_suggestion: z.string().optional(),
 });
 
+// Expense item schemas
+export const expenseItemSchema = z.object({
+  name: z.string().min(1, "Item name is required").max(200),
+  quantity: z.number().positive().default(1),
+  unit_price: z.number().min(0, "Price cannot be negative"),
+  category_id: z.string().uuid().optional().nullable(),
+  sort_order: z.number().int().min(0).optional(),
+});
+
+export const createExpenseItemSchema = expenseItemSchema;
+
+export const updateExpenseItemSchema = expenseItemSchema.partial().extend({
+  id: z.string().uuid().optional(),
+});
+
 // Expense schemas
 export const createExpenseSchema = z.object({
-  amount: z.number().positive("Amount must be positive"),
   currency: z.string().length(3),
+  summary: z.string().max(100).optional(),
+  description: z.string().max(1000).optional(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
-  description: z.string().max(500).optional(),
   category_id: z.string().uuid().optional().nullable(),
   account_id: z.string().uuid(),
   receipt_url: z.string().url().optional().nullable(),
   receipt_analysis: receiptAnalysisSchema.optional().nullable(),
   tag_ids: z.array(z.string().uuid()).optional(),
+  items: z
+    .array(createExpenseItemSchema)
+    .min(1, "At least one item is required"),
   // Exchange rate fields (computed server-side)
   converted_amount: z.number().optional().nullable(),
   exchange_rate: z.number().optional().nullable(),
@@ -78,7 +96,13 @@ export const createExpenseSchema = z.object({
 
 export const updateExpenseSchema = createExpenseSchema
   .partial()
-  .omit({ account_id: true });
+  .omit({ account_id: true })
+  .extend({
+    items: z
+      .array(updateExpenseItemSchema)
+      .min(1, "At least one item is required")
+      .optional(),
+  });
 
 // Invitation schemas
 export const inviteUserSchema = z.object({
@@ -99,6 +123,9 @@ export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
 export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;
 export type CreateTagInput = z.infer<typeof createTagSchema>;
 export type UpdateTagInput = z.infer<typeof updateTagSchema>;
+export type ExpenseItemInput = z.infer<typeof expenseItemSchema>;
+export type CreateExpenseItemInput = z.infer<typeof createExpenseItemSchema>;
+export type UpdateExpenseItemInput = z.infer<typeof updateExpenseItemSchema>;
 export type CreateExpenseInput = z.infer<typeof createExpenseSchema>;
 export type UpdateExpenseInput = z.infer<typeof updateExpenseSchema>;
 export type InviteUserInput = z.infer<typeof inviteUserSchema>;

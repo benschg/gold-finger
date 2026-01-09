@@ -46,9 +46,46 @@ export async function GET(
     )
     .eq("expense_id", id);
 
+  // Get items if expense has them
+  // Note: expense_items table and has_items column require migration 00008_expense_items.sql
+  type ExpenseItemRecord = {
+    id: string;
+    expense_id: string;
+    name: string;
+    quantity: number;
+    unit_price: number;
+    total_price: number;
+    category_id: string | null;
+    sort_order: number;
+    created_at: string;
+    category: { id: string; name: string; icon: string; color: string } | null;
+  };
+
+  let items: ExpenseItemRecord[] = [];
+  const expenseWithHasItems = expense as typeof expense & {
+    has_items?: boolean;
+  };
+
+  if (expenseWithHasItems.has_items) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: expenseItems } = await (supabase as any)
+      .from("expense_items")
+      .select(
+        `
+        *,
+        category:categories(id, name, icon, color)
+      `,
+      )
+      .eq("expense_id", id)
+      .order("sort_order", { ascending: true });
+
+    items = expenseItems || [];
+  }
+
   return NextResponse.json({
     ...expense,
     tags: expenseTags?.map((et) => et.tag) || [],
+    items,
   });
 }
 
@@ -94,18 +131,28 @@ export async function PUT(
 
   // Build update object (only include provided fields)
   const updateData: Record<string, unknown> = {};
-  if (body.amount !== undefined) updateData.amount = body.amount;
+  if (body.summary !== undefined) updateData.summary = body.summary;
   if (body.currency !== undefined) updateData.currency = body.currency;
   if (body.description !== undefined) updateData.description = body.description;
   if (body.date !== undefined) updateData.date = body.date;
   if (body.category_id !== undefined) updateData.category_id = body.category_id;
   if (body.receipt_url !== undefined) updateData.receipt_url = body.receipt_url;
 
+  // Calculate amount from items if provided
+  let newAmount = currentExpense.amount;
+  if (body.items !== undefined && body.items.length > 0) {
+    newAmount = body.items.reduce(
+      (sum: number, item: { quantity?: number; unit_price?: number }) =>
+        sum + (item.quantity ?? 1) * (item.unit_price ?? 0),
+      0,
+    );
+    updateData.amount = newAmount;
+  }
+
   // Check if we need to recalculate exchange rate
-  const newAmount = body.amount ?? currentExpense.amount;
   const newCurrency = body.currency ?? currentExpense.currency;
   const currencyOrAmountChanged =
-    body.amount !== undefined || body.currency !== undefined;
+    body.items !== undefined || body.currency !== undefined;
 
   if (currencyOrAmountChanged) {
     // Fetch account's default currency
@@ -158,6 +205,39 @@ export async function PUT(
         tag_id: tagId,
       }));
       await supabase.from("expense_tags").insert(tagInserts);
+    }
+  }
+
+  // Update items if provided
+  // Note: expense_items table requires migration 00008_expense_items.sql
+  if (body.items !== undefined) {
+    // Remove existing items
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any).from("expense_items").delete().eq("expense_id", id);
+
+    // Insert new items
+    if (body.items.length > 0) {
+      const itemInserts = body.items.map(
+        (
+          item: {
+            name?: string;
+            quantity?: number;
+            unit_price?: number;
+            category_id?: string | null;
+            sort_order?: number;
+          },
+          index: number,
+        ) => ({
+          expense_id: id,
+          name: item.name!,
+          quantity: item.quantity ?? 1,
+          unit_price: item.unit_price!,
+          category_id: item.category_id || null,
+          sort_order: item.sort_order ?? index,
+        }),
+      );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any).from("expense_items").insert(itemInserts);
     }
   }
 
