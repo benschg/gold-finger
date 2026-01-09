@@ -189,3 +189,66 @@ export interface CreateAccountInput {
   color?: string;
   currency?: Currency;
 }
+
+// ============================================
+// INCOME TYPES
+// ============================================
+
+export interface IncomeCategory {
+  id: string;
+  account_id: string;
+  name: string;
+  icon: string;
+  color: string;
+  created_at: string;
+}
+
+export interface Income {
+  id: string;
+  account_id: string;
+  user_id: string;
+  amount: number;
+  currency: Currency;
+  description: string | null;
+  date: string;
+  income_category_id: string | null;
+  receipt_url: string | null;
+  converted_amount: number | null;
+  exchange_rate: number | null;
+  account_currency: string | null;
+  rate_date: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Extended types with relations
+export interface IncomeWithCategory extends Income {
+  income_category: IncomeCategory | null;
+}
+
+// Form types
+export interface CreateIncomeInput {
+  account_id: string;
+  amount: number;
+  currency: Currency;
+  description?: string;
+  date: string;
+  income_category_id?: string;
+  receipt_url?: string | null;
+}
+
+export interface UpdateIncomeInput {
+  amount?: number;
+  currency?: Currency;
+  description?: string;
+  date?: string;
+  income_category_id?: string | null;
+  receipt_url?: string | null;
+}
+
+export interface CreateIncomeCategoryInput {
+  account_id: string;
+  name: string;
+  icon: string;
+  color: string;
+}

@@ -18,6 +18,46 @@ export const CURRENCIES: CurrencyOption[] = [
 
 export const DEFAULT_CURRENCY: Currency = "EUR";
 
+// Currency symbol lookup map (for quick access)
+export const CURRENCY_SYMBOLS: Record<string, string> = Object.fromEntries(
+  CURRENCIES.map((c) => [c.code, c.symbol]),
+);
+
+/**
+ * Get the symbol for a currency code
+ */
+export function getCurrencySymbol(currency: string): string {
+  return CURRENCY_SYMBOLS[currency] || currency;
+}
+
+/**
+ * Format an amount with currency symbol
+ */
+export function formatCurrency(
+  amount: number,
+  currency: string = DEFAULT_CURRENCY,
+  options?: {
+    minimumFractionDigits?: number;
+    maximumFractionDigits?: number;
+    showPlusSign?: boolean;
+  },
+): string {
+  const {
+    minimumFractionDigits = 2,
+    maximumFractionDigits = 2,
+    showPlusSign = false,
+  } = options || {};
+
+  const symbol = getCurrencySymbol(currency);
+  const formattedAmount = amount.toLocaleString(undefined, {
+    minimumFractionDigits,
+    maximumFractionDigits,
+  });
+
+  const sign = showPlusSign && amount >= 0 ? "+" : "";
+  return `${sign}${symbol}${formattedAmount}`;
+}
+
 // Color palettes for accounts and categories
 export const ACCOUNT_COLORS = [
   "#6366f1",

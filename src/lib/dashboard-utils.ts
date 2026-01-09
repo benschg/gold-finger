@@ -1,6 +1,12 @@
 import { format, parseISO, subMonths, isWithinInterval } from "date-fns";
 import { UNCATEGORIZED_LABEL, UNCATEGORIZED_COLOR } from "@/lib/constants";
-import type { Category, Tag, ExpenseWithDetails } from "@/types/database";
+import type {
+  Category,
+  Tag,
+  ExpenseWithDetails,
+  IncomeWithCategory,
+  IncomeCategory,
+} from "@/types/database";
 
 export interface StackedMonthData {
   month: string;
@@ -258,4 +264,200 @@ export function formatCurrency(
     currency,
     minimumFractionDigits: 2,
   }).format(value);
+}
+
+// ============================================
+// INCOME UTILITIES
+// ============================================
+
+export interface IncomeFilterOptions {
+  startDate?: Date;
+  endDate?: Date;
+  incomeCategoryId?: string | null;
+}
+
+export interface IncomeCategoryBreakdown {
+  categoryId: string | null;
+  name: string;
+  color: string;
+  value: number;
+  percentage: number;
+}
+
+export interface ComparisonMonthData {
+  month: string;
+  monthLabel: string;
+  expenses: number;
+  income: number;
+  netFlow: number;
+}
+
+export interface NetFlowResult {
+  totalExpenses: number;
+  totalIncome: number;
+  netFlow: number;
+}
+
+/**
+ * Filter incomes based on date range and category
+ */
+export function filterIncomes(
+  incomes: IncomeWithCategory[],
+  filters: IncomeFilterOptions,
+): IncomeWithCategory[] {
+  return incomes.filter((income) => {
+    const incomeDate = new Date(income.date);
+
+    // Date range filter
+    if (filters.startDate && filters.endDate) {
+      if (
+        !isWithinInterval(incomeDate, {
+          start: filters.startDate,
+          end: filters.endDate,
+        })
+      ) {
+        return false;
+      }
+    }
+
+    // Category filter
+    if (
+      filters.incomeCategoryId &&
+      income.income_category_id !== filters.incomeCategoryId
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
+/**
+ * Calculate net flow (income - expenses)
+ */
+export function calculateNetFlow(
+  expenses: ExpenseWithDetails[],
+  incomes: IncomeWithCategory[],
+): NetFlowResult {
+  const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+  const totalIncome = incomes.reduce((sum, i) => sum + i.amount, 0);
+
+  return {
+    totalExpenses,
+    totalIncome,
+    netFlow: totalIncome - totalExpenses,
+  };
+}
+
+/**
+ * Transform expenses and incomes to comparison chart data format
+ */
+export function transformToComparisonChartData(
+  expenses: ExpenseWithDetails[],
+  incomes: IncomeWithCategory[],
+  monthCount: number = 6,
+): ComparisonMonthData[] {
+  const now = new Date();
+  const monthMap = new Map<
+    string,
+    { expenses: number; income: number; netFlow: number }
+  >();
+
+  // Initialize months
+  for (let i = monthCount - 1; i >= 0; i--) {
+    const month = subMonths(now, i);
+    const monthKey = format(month, "yyyy-MM");
+    monthMap.set(monthKey, { expenses: 0, income: 0, netFlow: 0 });
+  }
+
+  // Aggregate expenses by month
+  expenses.forEach((expense) => {
+    const monthKey = format(new Date(expense.date), "yyyy-MM");
+    if (monthMap.has(monthKey)) {
+      const data = monthMap.get(monthKey)!;
+      data.expenses += expense.amount;
+    }
+  });
+
+  // Aggregate incomes by month
+  incomes.forEach((income) => {
+    const monthKey = format(new Date(income.date), "yyyy-MM");
+    if (monthMap.has(monthKey)) {
+      const data = monthMap.get(monthKey)!;
+      data.income += income.amount;
+    }
+  });
+
+  // Calculate net flow for each month
+  monthMap.forEach((data) => {
+    data.netFlow = data.income - data.expenses;
+  });
+
+  // Convert to array format for Recharts
+  const result: ComparisonMonthData[] = [];
+
+  monthMap.forEach((data, monthKey) => {
+    result.push({
+      month: monthKey,
+      monthLabel: format(parseISO(`${monthKey}-01`), "MMM"),
+      expenses: data.expenses,
+      income: data.income,
+      netFlow: data.netFlow,
+    });
+  });
+
+  return result;
+}
+
+/**
+ * Calculate income category breakdown for pie chart
+ */
+export function calculateIncomeCategoryBreakdown(
+  incomes: IncomeWithCategory[],
+): IncomeCategoryBreakdown[] {
+  const totalAmount = incomes.reduce((sum, i) => sum + i.amount, 0);
+  const categoryMap = new Map<
+    string,
+    { categoryId: string | null; name: string; color: string; value: number }
+  >();
+
+  incomes.forEach((income) => {
+    const categoryId = income.income_category_id;
+    const categoryName = income.income_category?.name || UNCATEGORIZED_LABEL;
+    const categoryColor = income.income_category?.color || "#22c55e"; // Green default for income
+
+    const existing = categoryMap.get(categoryName);
+    if (existing) {
+      existing.value += income.amount;
+    } else {
+      categoryMap.set(categoryName, {
+        categoryId,
+        name: categoryName,
+        color: categoryColor,
+        value: income.amount,
+      });
+    }
+  });
+
+  return Array.from(categoryMap.values())
+    .map((cat) => ({
+      ...cat,
+      percentage: totalAmount > 0 ? (cat.value / totalAmount) * 100 : 0,
+    }))
+    .sort((a, b) => b.value - a.value);
+}
+
+/**
+ * Build a map of income category IDs to colors
+ */
+export function buildIncomeCategoryColorMap(
+  incomeCategories: IncomeCategory[],
+): Map<string, string> {
+  const map = new Map<string, string>();
+  incomeCategories.forEach((cat) => {
+    map.set(cat.id, cat.color);
+    map.set(cat.name, cat.color);
+  });
+  map.set(UNCATEGORIZED_LABEL, "#22c55e"); // Green default for income
+  return map;
 }

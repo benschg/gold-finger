@@ -19,17 +19,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent } from "@/components/ui/card";
+import { getCurrencySymbol } from "@/lib/constants";
 import type { ExpenseWithDetails, ExpenseWithItems } from "@/types/database";
-
-export const currencySymbols: Record<string, string> = {
-  EUR: "€",
-  USD: "$",
-  GBP: "£",
-  CHF: "CHF",
-  JPY: "¥",
-  CAD: "C$",
-  AUD: "A$",
-};
 
 interface ExpenseCardProps {
   expense: ExpenseWithDetails | ExpenseWithItems;
@@ -42,7 +33,7 @@ export function ExpenseCard({ expense, onEdit, onDelete }: ExpenseCardProps) {
   const t = useTranslations("expenses");
   const [showItems, setShowItems] = useState(false);
 
-  const symbol = currencySymbols[expense.currency] || expense.currency;
+  const symbol = getCurrencySymbol(expense.currency);
   const category = expense.category;
   const tags = expense.tags || [];
   const expenseWithItems = expense as ExpenseWithItems;

@@ -37,22 +37,18 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { ExpenseWithDetails } from "@/types/database";
+import type { IncomeWithCategory } from "@/types/database";
 import { getCurrencySymbol } from "@/lib/constants";
-import { ExpenseCard } from "./expense-card";
+import { IncomeCard } from "./income-card";
 
-interface ExpenseTableProps {
-  expenses: ExpenseWithDetails[];
-  onEdit?: (expense: ExpenseWithDetails) => void;
-  onDelete?: (expense: ExpenseWithDetails) => void;
+interface IncomeTableProps {
+  incomes: IncomeWithCategory[];
+  onEdit?: (income: IncomeWithCategory) => void;
+  onDelete?: (income: IncomeWithCategory) => void;
 }
 
-export function ExpenseTable({
-  expenses,
-  onEdit,
-  onDelete,
-}: ExpenseTableProps) {
-  const t = useTranslations("expenses");
+export function IncomeTable({ incomes, onEdit, onDelete }: IncomeTableProps) {
+  const t = useTranslations("income");
   const tCommon = useTranslations("common");
 
   const [sorting, setSorting] = useState<SortingState>([
@@ -61,7 +57,7 @@ export function ExpenseTable({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
 
-  const columns: ColumnDef<ExpenseWithDetails>[] = useMemo(
+  const columns: ColumnDef<IncomeWithCategory>[] = useMemo(
     () => [
       {
         accessorKey: "date",
@@ -78,25 +74,22 @@ export function ExpenseTable({
         cell: ({ row }) => format(new Date(row.original.date), "MMM d, yyyy"),
       },
       {
-        accessorKey: "summary",
-        header: t("summary"),
+        accessorKey: "description",
+        header: t("description"),
         cell: ({ row }) => {
-          const summary = row.original.summary;
           const description = row.original.description;
 
-          if (!summary && !description) {
+          if (!description) {
             return <span className="text-muted-foreground">-</span>;
           }
 
-          const displayText = summary || description;
-
-          if (description) {
+          if (description.length > 50) {
             return (
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="max-w-[200px] truncate cursor-help border-b border-dotted border-muted-foreground/50">
-                      {displayText}
+                      {description}
                     </span>
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="max-w-[300px]">
@@ -107,46 +100,24 @@ export function ExpenseTable({
             );
           }
 
-          return <span className="max-w-[200px] truncate">{displayText}</span>;
+          return <span className="max-w-[200px] truncate">{description}</span>;
         },
       },
       {
-        accessorKey: "category",
+        accessorKey: "income_category",
         header: t("category"),
         cell: ({ row }) => {
-          const category = row.original.category;
+          const category = row.original.income_category;
           if (!category)
             return <span className="text-muted-foreground">-</span>;
           return (
             <span className="flex items-center gap-2">
               <span
                 className="h-3 w-3 rounded-full"
-                style={{ backgroundColor: category.color ?? "#6366f1" }}
+                style={{ backgroundColor: category.color ?? "#22c55e" }}
               />
               {category.name}
             </span>
-          );
-        },
-      },
-      {
-        accessorKey: "tags",
-        header: t("tags"),
-        cell: ({ row }) => {
-          const tags = row.original.tags || [];
-          if (tags.length === 0)
-            return <span className="text-muted-foreground">-</span>;
-          return (
-            <div className="flex flex-wrap gap-1">
-              {tags.map((tag) => (
-                <span
-                  key={tag.id}
-                  className="rounded-full px-2 py-0.5 text-xs text-white"
-                  style={{ backgroundColor: tag.color ?? "#6366f1" }}
-                >
-                  {tag.name}
-                </span>
-              ))}
-            </div>
           );
         },
       },
@@ -167,8 +138,8 @@ export function ExpenseTable({
           const currency = row.original.currency;
           const symbol = getCurrencySymbol(currency);
           return (
-            <span className="font-medium">
-              {symbol}
+            <span className="font-medium text-green-600 dark:text-green-400">
+              +{symbol}
               {amount.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
@@ -208,7 +179,7 @@ export function ExpenseTable({
   );
 
   const table = useReactTable({
-    data: expenses,
+    data: incomes,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -235,7 +206,7 @@ export function ExpenseTable({
   return (
     <div className="space-y-4">
       <Input
-        placeholder={t("searchExpenses")}
+        placeholder={t("searchIncome")}
         value={globalFilter}
         onChange={(e) => setGlobalFilter(e.target.value)}
         className="max-w-full sm:max-w-sm"
@@ -245,16 +216,16 @@ export function ExpenseTable({
       <div className="space-y-3 md:hidden">
         {displayedRows.length ? (
           displayedRows.map((row) => (
-            <ExpenseCard
+            <IncomeCard
               key={row.id}
-              expense={row.original}
+              income={row.original}
               onEdit={onEdit}
               onDelete={onDelete}
             />
           ))
         ) : (
           <p className="py-8 text-center text-muted-foreground">
-            {t("noExpensesFound")}
+            {t("noIncomeFound")}
           </p>
         )}
       </div>
@@ -301,7 +272,7 @@ export function ExpenseTable({
                   colSpan={columns.length}
                   className="px-4 py-8 text-center text-muted-foreground"
                 >
-                  {t("noExpensesFound")}
+                  {t("noIncomeFound")}
                 </td>
               </tr>
             )}
@@ -312,13 +283,13 @@ export function ExpenseTable({
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-sm text-muted-foreground text-center sm:text-left">
-          {t("showingExpenses", {
+          {t("showingIncome", {
             from: table.getState().pagination.pageIndex * 10 + 1,
             to: Math.min(
               (table.getState().pagination.pageIndex + 1) * 10,
-              expenses.length,
+              incomes.length,
             ),
-            total: expenses.length,
+            total: incomes.length,
           })}
         </p>
         <div className="flex items-center gap-2">

@@ -6,6 +6,9 @@ import {
   DEFAULT_CATEGORY_COLOR,
   CURRENCIES,
   DEFAULT_CURRENCY,
+  CURRENCY_SYMBOLS,
+  getCurrencySymbol,
+  formatCurrency,
 } from "@/lib/constants";
 
 describe("Color Constants", () => {
@@ -114,6 +117,78 @@ describe("Currency Constants", () => {
 
     it("should be EUR", () => {
       expect(DEFAULT_CURRENCY).toBe("EUR");
+    });
+  });
+
+  describe("CURRENCY_SYMBOLS", () => {
+    it("should have entries for all currencies", () => {
+      CURRENCIES.forEach((currency) => {
+        expect(CURRENCY_SYMBOLS).toHaveProperty(currency.code);
+        expect(CURRENCY_SYMBOLS[currency.code]).toBe(currency.symbol);
+      });
+    });
+  });
+
+  describe("getCurrencySymbol", () => {
+    it("should return symbol for known currencies", () => {
+      expect(getCurrencySymbol("EUR")).toBe("€");
+      expect(getCurrencySymbol("USD")).toBe("$");
+      expect(getCurrencySymbol("GBP")).toBe("£");
+      expect(getCurrencySymbol("JPY")).toBe("¥");
+      expect(getCurrencySymbol("CHF")).toBe("CHF");
+    });
+
+    it("should return the code itself for unknown currencies", () => {
+      expect(getCurrencySymbol("XYZ")).toBe("XYZ");
+      expect(getCurrencySymbol("ABC")).toBe("ABC");
+    });
+  });
+
+  describe("formatCurrency", () => {
+    it("should format amount with currency symbol", () => {
+      const result = formatCurrency(1234.56, "EUR");
+      expect(result).toContain("€");
+      expect(result).toContain("1");
+      expect(result).toContain("234");
+    });
+
+    it("should use EUR as default currency", () => {
+      const result = formatCurrency(100);
+      expect(result).toContain("€");
+    });
+
+    it("should format with 2 decimal places by default", () => {
+      const result = formatCurrency(100, "EUR");
+      expect(result).toMatch(/100[.,]00/);
+    });
+
+    it("should respect custom decimal places", () => {
+      const result = formatCurrency(100, "EUR", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      });
+      expect(result).not.toMatch(/[.,]\d{2}$/);
+    });
+
+    it("should add plus sign when showPlusSign is true and amount is positive", () => {
+      const result = formatCurrency(100, "EUR", { showPlusSign: true });
+      expect(result).toMatch(/^\+/);
+    });
+
+    it("should not add plus sign for negative amounts", () => {
+      const result = formatCurrency(-100, "EUR", { showPlusSign: true });
+      expect(result).not.toMatch(/^\+/);
+    });
+
+    it("should add plus sign for zero when showPlusSign is true", () => {
+      const result = formatCurrency(0, "EUR", { showPlusSign: true });
+      expect(result).toMatch(/^\+/);
+    });
+
+    it("should format different currencies correctly", () => {
+      expect(formatCurrency(100, "USD")).toContain("$");
+      expect(formatCurrency(100, "GBP")).toContain("£");
+      expect(formatCurrency(100, "JPY")).toContain("¥");
     });
   });
 });

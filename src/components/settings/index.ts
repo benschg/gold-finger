@@ -1,5 +1,6 @@
 export { AccountDetailsSection } from "./account-details-section";
 export { CategoryManager } from "./category-manager";
+export { IncomeCategoryManager } from "./income-category-manager";
 export { TagManager } from "./tag-manager";
 export { ShareSection } from "./share-section";
 export { SharingContent } from "./sharing-content";
