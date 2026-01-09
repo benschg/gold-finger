@@ -259,7 +259,7 @@ export function ExpenseForm({
       className="flex min-h-0 flex-1 flex-col"
     >
       {/* Scrollable content area */}
-      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
+      <div className="scrollbar-thin min-h-0 flex-1 space-y-4 overflow-y-auto pr-2">
         {/* Account Selector */}
         {accounts.length > 1 && (
           <div className="space-y-2">

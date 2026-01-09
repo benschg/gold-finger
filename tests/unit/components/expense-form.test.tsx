@@ -99,12 +99,14 @@ describe("ExpenseForm", () => {
 
       // Form should exist
       expect(container.querySelector("form")).toBeInTheDocument();
-      // Amount input should exist
-      expect(screen.getByLabelText(/amount/i)).toBeInTheDocument();
+      // Summary input should exist
+      expect(screen.getByLabelText(/summary/i)).toBeInTheDocument();
       // Description input should exist
       expect(screen.getByLabelText(/description/i)).toBeInTheDocument();
       // Date input should exist
       expect(screen.getByLabelText(/date/i)).toBeInTheDocument();
+      // Line items section should exist
+      expect(screen.getByText(/line items/i)).toBeInTheDocument();
     });
 
     it("should show account selector when multiple accounts exist", () => {
@@ -242,8 +244,9 @@ describe("ExpenseForm", () => {
         />,
       );
 
-      // Fill in required fields
-      await user.type(screen.getByLabelText(/amount/i), "25.50");
+      // Fill in item details (form starts with one empty item)
+      await user.type(screen.getByPlaceholderText(/item name/i), "Coffee");
+      await user.type(screen.getByPlaceholderText("0.00"), "25.50");
 
       // Submit the form
       await user.click(screen.getByRole("button", { name: /add expense/i }));
@@ -266,8 +269,9 @@ describe("ExpenseForm", () => {
         />,
       );
 
-      // Fill in required fields
-      await user.type(screen.getByLabelText(/amount/i), "100");
+      // Fill in item details
+      await user.type(screen.getByPlaceholderText(/item name/i), "Coffee");
+      await user.type(screen.getByPlaceholderText("0.00"), "100");
 
       // Submit
       await user.click(screen.getByRole("button", { name: /add expense/i }));
@@ -278,6 +282,37 @@ describe("ExpenseForm", () => {
           expect.objectContaining({
             method: "POST",
             body: expect.stringContaining('"account_id":"account-1"'),
+          }),
+        );
+      });
+    });
+
+    it("should include items in the submitted payload", async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <ExpenseForm
+          accountId="account-1"
+          accounts={mockAccounts}
+          categories={mockCategories}
+          tags={mockTags}
+          onSuccess={vi.fn()}
+        />,
+      );
+
+      // Fill in item details
+      await user.type(screen.getByPlaceholderText(/item name/i), "Coffee");
+      await user.type(screen.getByPlaceholderText("0.00"), "3.50");
+
+      // Submit
+      await user.click(screen.getByRole("button", { name: /add expense/i }));
+
+      await waitFor(() => {
+        expect(mockFetch).toHaveBeenCalledWith(
+          "/api/expenses",
+          expect.objectContaining({
+            method: "POST",
+            body: expect.stringContaining('"items"'),
           }),
         );
       });
@@ -347,8 +382,9 @@ describe("ExpenseForm", () => {
         />,
       );
 
-      // Fill in fields
-      await user.type(screen.getByLabelText(/amount/i), "25.50");
+      // Fill in item details
+      await user.type(screen.getByPlaceholderText(/item name/i), "Coffee");
+      await user.type(screen.getByPlaceholderText("0.00"), "25.50");
 
       // Click Add & New
       await user.click(screen.getByRole("button", { name: /add & new/i }));
